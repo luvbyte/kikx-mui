@@ -1,18 +1,14 @@
 <script setup lang="ts">
   import { ref, onMounted } from "vue";
   import { kikx, fetchAppsList } from "@/kikx";
-  import { apiUrl } from "@/kikx/config";
+  import { getImageUrl } from "@/kikx/config";
 
   defineProps(["openApp"]);
 
   const appsList = ref([]);
 
-  const imageURL = icon => {
-    return `${apiUrl}${icon}`;
-  };
-
   onMounted(async () => {
-  appsList.value = await fetchAppsList();
+    appsList.value = await fetchAppsList();
   });
 </script>
 <template>
@@ -20,13 +16,22 @@
     <div
       @click.stop
       v-for="app in appsList"
-      class="w-16 flex flex-col items-center"
+      class="w-18 flex flex-col items-center"
+      v-longpress="() => openApp(app.name, true)"
       @click="openApp(app.name)"
     >
-      <img class="w-12 h-12 rounded-xl" :src="imageURL(app.icon)" />
+      <img
+        draggable="false"
+        class="w-15 h-15 rounded-xl"
+        :src="getImageUrl(app.icon)"
+      />
       <div class="text-white text-xs mt-1 text-center truncate w-full">
         {{ app.title }}
       </div>
     </div>
   </div>
 </template>
+
+<style>
+  
+</style>

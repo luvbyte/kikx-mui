@@ -1,34 +1,62 @@
 <script setup lang="ts">
-  import { ref, onMounted, watch, nextTick } from "vue";
+  import {
+    ref,
+    onMounted,
+    watch,
+    nextTick,
+    computed,
+    onBeforeMount
+  } from "vue";
+  import { watchDebounced } from "@vueuse/core";
 
   import AppsMenu from "@/components/AppsMenu.vue";
   import Statusbar from "@/components/Status/Statusbar.vue";
 
   import ControlCenter from "@/components/ControlCenter.vue";
-  import TopPanelWidget from "@/components/TopPanelWidget.vue";
 
   import App from "@/components/App.vue";
-
   import Settings from "@/components/Settings.vue";
 
+  import Bg from "@/components/Bg.vue";
+
+  import WallpaperChanger from "@/components/modules/WallpaperChanger.vue";
+  import Loading from "@/components/Loading.vue";
+
   import { client } from "@/kikx";
-  import { finalUrl } from "@/kikx/config";
+  import { getUrl } from "@/kikx/config";
 
   import { useUIConfig } from "@/stores/kikx";
+  import { muiConfig } from "@/kikx";
 
-  // This KUI config
+  const loaded = ref(false);
+
+  // This MUI config
   const uiConfig = useUIConfig();
 
   const showAppsMenu = ref(false);
   const showAppsPanel = ref(false);
 
+  const currentModule = ref(null);
+
   const showTopFrame = ref(false);
-  const showTopFrameSub = ref(false);
 
   const showBottomFrame = ref(false);
 
   const runningApps = ref<any[]>([]);
-  const activeApp = ref<number>(-1);
+  const activeAppIndex = ref<number>(-1);
+
+  function showModule(name) {
+    showAppsMenu.value = false;
+    showTopFrame.value = false;
+
+    showBottomFrame.value = false;
+
+    currentModule.value = name;
+  }
+
+  function hideModule() {
+    currentModule.value = false;
+  }
 
   function scrollTabToApp(index: number) {
     if (index < 0) return;
@@ -48,14 +76,14 @@
     }
   }
 
-  watch(activeApp, async indexNew => {
+  watch(activeAppIndex, async indexNew => {
     await nextTick();
     scrollTabToApp(indexNew);
   });
 
   watch(showBottomFrame, async newValue => {
     await nextTick();
-    if (newValue) scrollTabToApp(activeApp.value);
+    if (newValue) scrollTabToApp(activeAppIndex.value);
   });
 
   /* ----------------------------------------------------------
@@ -64,46 +92,41 @@
   function onHomeSwipe(direction: string) {
     if (direction === "up") {
       showAppsMenu.value = true;
-    } else if (direction === "down") {
+    } else if (direction === "left") {
       showTopFrame.value = true;
+      showAppsMenu.value = false;
+    } else if (direction === "right") {
+      showAppsMenu.value = false;
+      showBottomFrame.value = true;
     }
   }
 
   function onBottomFrameSwipe(direction: string) {
     if (direction === "up") {
-      // activeApp.value = -1;
-      showAppsPanel.value = false;
-      showBottomFrame.value = false;
-      showAppsMenu.value = true;
-    } else if (direction === "down") {
-      closeApp(activeApp.value);
-    } else if (direction === "left") {
-      activeApp.value = moveIndex(runningApps.value, activeApp.value, true);
-    } else if (direction === "right") {
-      activeApp.value = moveIndex(runningApps.value, activeApp.value, false);
+      minimizeApp(true);
+    } else if (activeApp.value) {
+      if (direction === "left") {
+        swithAppLeft();
+      } else if (direction === "right") {
+        swithAppRight();
+      }
     }
   }
 
   function onTopFrameSwipe(direction: string) {
     if (direction === "up") {
-      // future actions
-      if (showTopFrameSub.value) {
-        showTopFrameSub.value = false;
-      } else {
-        showTopFrame.value = false;
-      }
-    } else if (direction === "down") {
-      showTopFrameSub.value = true;
+      showTopFrame.value = false;
+    } else if (direction === "left") {
+      showTopFrame.value = true;
     }
   }
 
   function onStatusbarSwipe(direction: string) {
+    showAppsMenu.value = false;
     if (direction === "right") {
       showAppsPanel.value = true;
       showBottomFrame.value = true;
-      showAppsMenu.value = false;
     } else if (direction === "left") {
-      showAppsMenu.value = false;
       showTopFrame.value = true;
     } else if (direction === "down") {
       showTopFrame.value = true;
@@ -114,7 +137,6 @@
     if (direction === "up") {
       showTopFrame.value = false;
       showAppsMenu.value = false;
-      showTopFrameSub.value = false;
 
       showAppsPanel.value = true;
       showBottomFrame.value = true;
@@ -127,7 +149,6 @@
   function onRightBubbleClick() {
     showTopFrame.value = false;
     showAppsMenu.value = false;
-    showTopFrameSub.value = false;
 
     showBottomFrame.value = !showBottomFrame.value;
     showAppsPanel.value = showBottomFrame.value;
@@ -136,16 +157,55 @@
   /* ----------------------------------------------------------
    Utility functions
   ---------------------------------------------------------- */
+  const activeApp = computed(() => {
+    return runningApps.value[activeAppIndex.value];
+  });
+
+  const isSudoApp = computed(() => {
+    return activeApp.value && activeApp.value.isSudo && showAppsPanel.value;
+  });
+
   function closeBottomFrame() {
     showBottomFrame.value = false;
-    if (activeApp.value < 0) {
+    if (activeAppIndex.value < 0) {
       showAppsPanel.value = false;
     }
   }
 
   function setActiveApp(index: number) {
     showAppsPanel.value = true;
-    activeApp.value = index;
+    activeAppIndex.value = index;
+  }
+
+  function closeActiveApp() {
+    if (!activeApp.value) return;
+    closeApp(activeAppIndex.value);
+  }
+
+  // Minimize app and show appsMenu if true
+  function minimizeApp(showMenu = false) {
+    showAppsPanel.value = false;
+    showBottomFrame.value = false;
+
+    showAppsMenu.value = showMenu;
+  }
+
+  // Switch to left app
+  function swithAppLeft() {
+    activeAppIndex.value = moveIndex(
+      runningApps.value,
+      activeAppIndex.value,
+      true
+    );
+  }
+
+  // Switch to right app
+  function swithAppRight() {
+    activeAppIndex.value = moveIndex(
+      runningApps.value,
+      activeAppIndex.value,
+      false
+    );
   }
 
   function moveIndex(arr: any[], index: number, next: boolean) {
@@ -157,10 +217,9 @@
         ? 0
         : index + 1
       : index === 0
-      ? last
-      : index - 1;
+        ? last
+        : index - 1;
   }
-
 
   async function login(key: string) {
     try {
@@ -172,23 +231,24 @@
     }
   }
 
-  async function openApp(name: string) {
+  async function openApp(name: string, sudo: boolean = false) {
     showAppsMenu.value = false;
 
     try {
-      const res = await fetch(finalUrl("/open-app"), {
+      const res = await fetch(getUrl("/open-app"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          client_id: client.clientID
+          client_id: client.clientID,
+          sudo
         })
       });
 
       const data = await res.json();
 
       runningApps.value.push(data);
-      activeApp.value = runningApps.value.length - 1;
+      activeAppIndex.value = runningApps.value.length - 1;
 
       showAppsPanel.value = true;
     } catch (err) {
@@ -203,7 +263,7 @@
     runningApps.value.splice(index, 1);
 
     try {
-      await fetch(finalUrl("/close-app"), {
+      await fetch(getUrl("/close-app"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ app_id: app.id, client_id: client.clientID })
@@ -214,20 +274,41 @@
 
     // Fix active index
     if (runningApps.value.length === 0) {
-      activeApp.value = -1;
+      activeAppIndex.value = -1;
     } else {
-      activeApp.value = Math.min(activeApp.value, runningApps.value.length - 1);
+      activeAppIndex.value = Math.min(
+        activeAppIndex.value,
+        runningApps.value.length - 1
+      );
     }
   }
 
-  onMounted(async () => {
+  watchDebounced(
+    () => uiConfig.state,
+    async () => {
+      await muiConfig.save();
+    },
+    {
+      deep: true,
+      debounce: 500, // wait 500ms after last change
+      maxWait: 2000 // optional: force run after 2s max
+    }
+  );
+
+  onBeforeMount(async () => {
+    // Dev
     await login("kikx");
 
-    client.run(data => {
-      // $toast.success("Connected");
+    client.run(async data => {
+      await muiConfig.load();
+
       console.log("Client Event:", data);
+
+      loaded.value = true;
     });
   });
+
+  onMounted(async () => {});
 </script>
 
 <template>
@@ -235,25 +316,26 @@
     data-theme="light"
     class="h-dvh w-full flex flex-col overflow-hidden bg-transparent"
   >
-    <div
-      id="bg-frame"
-      class="fixed h-dvh w-full top-0 left-0 -z-10 shrink-0 bg"
-    >
-      <!-- Image Type -->
+    <!-- Loading -->
+    <Transition name="fade">
+      <div v-if="!loaded" class="fixed z-[999] inset-0 fscreen bg-black/60">
+        <Loading class="text-white" label="Loading" />
+      </div>
+    </Transition>
 
-      <!-- Video Type -->
-    </div>
+    <Bg v-if="loaded" />
+
     <!-- Top statusbar -->
-    <div
-      v-if="!showBottomFrame && !showTopFrame && !uiConfig.iScreen"
-      class="h-8 bg-black/60 w-full flex justify-between items-center text-xs text-white px-2"
-      v-swipe="onStatusbarSwipe"
-    >
-      <Statusbar />
-    </div>
+    <Transition name="statusbar-slide">
+      <Statusbar
+        v-if="!showBottomFrame && !uiConfig.state.iScreen && !currentModule"
+        :isSudoApp
+        :onStatusbarSwipe
+      />
+    </Transition>
 
     <!-- Main interactive frame -->
-    <div v-swipe="onHomeSwipe" class="flex-1 relative" v-show="!showTopFrame">
+    <div v-swipe="onHomeSwipe" class="flex-1 relative">
       <!-- Apps menu overlay -->
       <Transition name="slide-up">
         <div
@@ -267,8 +349,8 @@
 
       <!-- Running Apps Stack -->
       <div
-        v-show="!showTopFrame && (showAppsPanel || showBottomFrame)"
-        class="absolute w-full h-full bg-black/60 top-0 left-0 z-[20] flex flex-col items-center"
+        v-show="showAppsPanel || showBottomFrame"
+        class="absolute w-full h-full bg-black/60 top-0 left-0 z-20 flex flex-col items-center"
       >
         <div
           class="w-full transition duration-300"
@@ -278,7 +360,7 @@
             v-for="(app, index) in runningApps"
             :key="app.id"
             class="w-full h-full overflow-hidden"
-            v-show="activeApp === index && activeApp !== -1"
+            v-show="activeAppIndex === index && activeAppIndex !== -1"
             :app="app"
             :closeApp="() => closeApp(index)"
           />
@@ -287,93 +369,93 @@
     </div>
 
     <!-- Top / Control Center Frame -->
-    <Transition name="slide-down">
-      <div
-        v-if="showTopFrame"
-        v-swipe="onTopFrameSwipe"
-        @click="onTopFrameSwipe('up')"
-        class="fixed z-[60] h-full w-full top-0 left-0 flex flex-col gap-12 items-center pt-16"
-      >
-        <div
-          @click.stop
-          v-swipe-stop
-          class="w-[90%] h-1/3 rounded glass backdrop-blur overflow-hidden"
-        >
-          <ControlCenter />
-        </div>
-        <Transition name="slide-down">
-          <div
-            v-if="showTopFrameSub"
-            @click.stop
-            class="w-[90%] h-1/2 rounded border-white/60 glass backdrop-blur"
-          >
-            <TopPanelWidget />
-          </div>
-        </Transition>
-      </div>
+    <Transition name="slide">
+      <ControlCenter v-if="showTopFrame" :onTopFrameSwipe :showModule />
     </Transition>
 
     <!-- Bottom Frame -->
-    <Transition name="fade-scale">
+    <Transition name="slide-up">
+      <!-- Fullscreen frame -->
       <div
         v-if="showBottomFrame"
-        @click="closeBottomFrame"
-        v-swipe="onBottomFrameSwipe"
-        class="fixed z-[40] h-full w-full top-0 left-0 flex flex-col items-center justify-end gap-4 pb-5"
+        class="fixed z-30 fscreen inset-0 flex flex-col items-center justify-end pb-5"
       >
+        <!-- Background swipe layer / control panel depends -->
         <div
-          @click.stop
-          v-swipe-stop
-          class="w-[80%] h-16 border border-white/80 glass backdrop-blur rounded px-2 gap-2 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
+          class="absolute inset-0 h-[80%]"
+          @click.self="closeBottomFrame"
+          v-swipe="onBottomFrameSwipe"
+        ></div>
+
+        <!-- App Title -->
+        <div
+          v-if="activeApp"
+          class="w-64 bg-white/10 rounded-t-lg border-t truncate flex items-center justify-center opacity-80"
+          :class="isSudoApp ? 'text-error' : 'text-primary-content'"
         >
-          <pre
-            v-if="activeApp < 0"
-            class="h-full w-full flex items-center justify-center text-white"
-          >
-\(°.°)/</pre
-          >
-          <!-- Running apps list -->
+          {{ activeApp.manifest.title }}
+        </div>
+        <!-- App switcher -->
+        <div class="px-2 w-full flex items-center">
+          <button
+            @click="showTopFrame = true"
+            class="w-16 h-full rounded-l-full bg-info"
+          ></button>
           <div
-            v-for="(app, index) in runningApps"
-            :key="app.id"
-            :id="'app_tab_' + app.id"
             @click.stop
-            @click="setActiveApp(index)"
-            class="min-w-12 min-h-12 max-h-12 max-w-12 rounded-full border-3 overflow-hidden transition duration-300 scroll-smooth"
-            :class="
-              activeApp === index
-                ? 'border-white -translate-y-1'
-                : 'border-white/60'
-            "
+            class="flex-1 h-16 border border-white/20 bg-white/20 px-2 gap-1 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
           >
-            <img :src="finalUrl(app.manifest.icon)" />
+            <div
+              v-if="activeAppIndex < 0"
+              class="h-full w-full flex items-center justify-center text-white opacity-60"
+            >
+              No active apps
+            </div>
+            <!-- Running apps list -->
+            <div
+              v-for="(app, index) in runningApps"
+              :key="app.id"
+              :id="'app_tab_' + app.id"
+              @click.stop
+              @click="setActiveApp(index)"
+              class="min-w-12 min-h-12 max-h-12 max-w-12 rounded-full border-3 overflow-hidden transition duration-300 scroll-smooth"
+              :class="
+                activeAppIndex === index ? 'border-white' : 'border-white/10'
+              "
+            >
+              <img :src="getUrl(app.manifest.icon)" />
+            </div>
           </div>
+          <button
+            @click="closeActiveApp"
+            class="w-16 h-full rounded-r-full bg-error flex items-center justify-center"
+          ></button>
         </div>
       </div>
     </Transition>
 
     <!-- Bottom bubble Triggers -->
     <div
-      v-if="uiConfig.iScreen"
-      class="absolute bottom-0 right-0 z-[150] bg-white/20 w-12 h-12 rounded-tl-full"
+      v-if="uiConfig.state.iScreen && !uiConfig.state.stickBar"
+      class="absolute bottom-0 right-0 z-[150] bg-white/10 w-12 h-12 rounded-tl-full"
       @click="onRightBubbleClick"
     ></div>
     <!-- swipe bubble stick -->
     <Transition name="slide-left">
       <div
-        v-if="uiConfig.stickBar"
+        v-if="uiConfig.state.stickBar"
         v-swipe="onStickBarSwipe"
-        class="fixed right-0 z-[160] bg-purple-400/40 w-4 h-26 top-1/2 -translate-y-1/2 rounded-l-lg border border-white/60 border-r-0"
+        class="fixed right-0 z-[160] bg-white/20 w-4 h-26 top-1/2 -translate-y-1/2 rounded-l-lg border border-white/60 border-r-0 opacity-80"
       ></div>
     </Transition>
 
-    <!-- Settings -->
-    <Transition name="fade-scale">
-      <div
-        v-if="uiConfig.showSettings"
-        class="fixed top-0 left-0 w-full h-full z-[200]"
-      >
-        <Settings />
+    <!-- Modules -->
+    <Transition name="slide-down">
+      <div v-if="currentModule">
+        <WallpaperChanger
+          v-if="currentModule === 'WallpaperChanger'"
+          :close="hideModule"
+        />
       </div>
     </Transition>
   </div>
@@ -381,8 +463,69 @@
 
 <style scoped>
   .bg {
-    background-image: url("assets/images/bg.jpg");
+    background-image: url("images/waifu.png");
     background-size: cover;
     background-repeat: no-repeat;
+    background-position: center; /* or center center */
+  }
+
+  /* ENTER — slide from right to left */
+  .slide-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  .slide-enter-to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* LEAVE — slide up */
+  .slide-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .slide-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  /* Active (shared timing) */
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  /* ENTER (slide down) */
+  .statusbar-slide-enter-active {
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .statusbar-slide-enter-from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  .statusbar-slide-enter-to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* LEAVE (slide up) */
+  .statusbar-slide-leave-active {
+    transition: none;
+  }
+
+  .statusbar-slide-leave-from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .statusbar-slide-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
   }
 </style>

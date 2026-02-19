@@ -3,7 +3,7 @@
     <div class="p-2 glass flex justify-between">
       <h1>UI Settings</h1>
       <Icon
-        @click="uiConfig.showSettings = false"
+        @click="uiConfig.state.showSettings = false"
         class="active:scale-105"
         icon="line-md:close"
         width="24"

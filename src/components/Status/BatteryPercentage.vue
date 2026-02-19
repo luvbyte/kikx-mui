@@ -1,34 +1,65 @@
 <template>
-  <div>{{ batteryLevel }}%</div>
+  <div class="relative flex items-center justify-center gap-1">
+    <svg class="w-4 -rotate-90" viewBox="0 0 120 120">
+      <!-- Background -->
+      <circle
+        cx="60"
+        cy="60"
+        r="54"
+        stroke-width="10"
+        fill="none"
+        class="stroke-gray-200"
+      />
+
+      <!-- Progress -->
+      <circle
+        cx="60"
+        cy="60"
+        r="54"
+        stroke-width="10"
+        fill="none"
+        stroke-linecap="round"
+        :class="batteryLevel < 20 ? 'stroke-red-500' : 'stroke-green-500'"
+        :stroke-dasharray="circumference"
+        :stroke-dashoffset="dashOffset"
+        class="transition-all duration-300"
+      />
+    </svg>
+
+    <div class="font-bold">{{ batteryLevel }}%</div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+  import { ref, computed, onMounted, onUnmounted } from "vue";
 
-const batteryLevel = ref("—");
-let batteryRef = null;
+  const batteryLevel = ref(0);
+  let batteryRef = null;
 
-// Update battery percentage
-const updateBattery = () => {
-  if (!batteryRef) return;
-  batteryLevel.value = Math.round(batteryRef.level * 100);
-};
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
 
-onMounted(async () => {
-  if (!navigator.getBattery) {
-    batteryLevel.value = "Not Supported";
-    return;
-  }
+  const dashOffset = computed(
+    () => circumference - (batteryLevel.value / 100) * circumference
+  );
 
-  batteryRef = await navigator.getBattery();
-  updateBattery();
+  const updateBattery = () => {
+    if (!batteryRef) return;
+    batteryLevel.value = Math.round(batteryRef.level * 100);
+  };
 
-  // Attach listeners to auto-update
-  batteryRef.addEventListener("levelchange", updateBattery);
-});
+  onMounted(async () => {
+    if (!navigator.getBattery) {
+      batteryLevel.value = 0;
+      return;
+    }
 
-onUnmounted(() => {
-  if (!batteryRef) return;
-  batteryRef.removeEventListener("levelchange", updateBattery);
-});
+    batteryRef = await navigator.getBattery();
+    updateBattery();
+    batteryRef.addEventListener("levelchange", updateBattery);
+  });
+
+  onUnmounted(() => {
+    batteryRef?.removeEventListener("levelchange", updateBattery);
+  });
 </script>

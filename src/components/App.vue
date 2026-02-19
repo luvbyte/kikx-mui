@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { finalUrl } from "@/kikx/config";
+  import { getUrl } from "@/kikx/config";
 
   const props = defineProps(["app"]);
 </script>
@@ -7,7 +7,7 @@
 <template>
   <iframe
     :name="app.id"
-    :src="finalUrl(app.url)"
+    :src="getUrl(app.url)"
     :sandbox="app.iframe.sandbox"
     :allowFullscreen="app.iframe.allowfullscreen"
     :allow="app.iframe.allow"

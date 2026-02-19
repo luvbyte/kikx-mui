@@ -1,20 +1,19 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
+
+import { defaultBackground } from "@/kikx/config"
 
 export const useUIConfig = defineStore("uiConfig", () => {
-  const isSilent = ref<boolean>(false);
-  const canToast = ref<boolean>(false);
-  const isFullScreen = ref<boolean>(false);
+  const state = reactive({
+    isSilent: false,
+    canToast: false,
+    isFullScreen: false,
+    stickBar: true,
+    bg: defaultBackground,
+    iScreen: false,
+    fMode: true
+  });
 
-  const stickBar = ref<boolean>(true);
-
-  const background = ref<string>("");
-
-  // immersive full screen only on apps
-  const iScreen = ref<boolean>(false);
-  const fMode = ref<boolean>(true);
-  
-  const showSettings = ref(false)
   //
   const notifications = ref([
     {
@@ -43,5 +42,9 @@ export const useUIConfig = defineStore("uiConfig", () => {
       type: "warning"
     }
   ]);
-  return { isSilent, canToast, isFullScreen, notifications, iScreen, stickBar, fMode, showSettings };
+
+  return {
+    notifications,
+    state
+  };
 });
