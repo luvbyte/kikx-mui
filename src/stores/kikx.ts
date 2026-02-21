@@ -16,33 +16,30 @@ export const useUIConfig = defineStore("uiConfig", () => {
 
   //
   const alerts = ref([]);
-  const toastedAlertIDList: string[] = [];
 
   //
   const pendingToastAlerts = computed(() => {
-    return [...alerts.value]
-      .filter((alert: any) => !toastedAlertIDList.includes(alert.uid))
+    return alerts.value
+      .filter(alert => !alert._toasted)
       .sort(
-        (a: any, b: any) =>
+        (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
   });
 
-  function toastComplete(alertID) {
-    toastedAlertIDList.push(alertID);
-    console.log("Toast complete: ", alertID);
-
-    console.log(toastedAlertIDList);
-    console.log(pendingToastAlerts.value);
+  function toastComplete(alertID: string) {
+    const alert = alerts.value.find(a => a.uid === alertID);
+    if (alert && !alert._toasted) {
+      alert._toasted = true;
+    }
   }
 
   function addAppAlert(payload) {
-    // If toast off then add it to complete list
-    if (!state.canToast) {
-      toastComplete(payload.uid);
-    }
-
-    alerts.value.push(payload);
+    alerts.value.push({
+      ...payload,
+      // _toasted: !state.canToast || state.iScreen
+      _toasted: !state.canToast // if toast disabled, mark immediately
+    });
   }
 
   // not required
@@ -67,45 +64,23 @@ export const useUIConfig = defineStore("uiConfig", () => {
     });
   }
 
-  // Remove all alerts
   function clearAlerts() {
-    alerts.value.length = 0;
-    toastedAlertIDList.length = 0;
-
-    console.log("Cleared alerts: ", toastedAlertIDList, alerts.value);
+    alerts.value.splice(0);
   }
-
-  // Remove all alerts based on appID
-  //function removeAppAlerts(appID) {
-  //alerts.value = alerts.value.filter(alert => alert.id !== appID);
-  //}
 
   function removeAppAlerts(appID: string) {
-    const removedAlerts = alerts.value.filter(alert => alert.id === appID);
-
-    // Remove from alerts
-    alerts.value = alerts.value.filter(alert => alert.id !== appID);
-
-    // Remove their uids from toasted list
-    removedAlerts.forEach(alert => {
-      const index = toastedAlertIDList.indexOf(alert.uid);
-      if (index !== -1) {
-        toastedAlertIDList.splice(index, 1);
+    for (let i = alerts.value.length - 1; i >= 0; i--) {
+      if (alerts.value[i].id === appID) {
+        alerts.value.splice(i, 1);
       }
-    });
-    console.log("Remove App: ", appID, toastedAlertIDList);
+    }
   }
 
-  // Remove alert based on alertID
   function removeAppAlert(alertID: string) {
-    alerts.value = alerts.value.filter(alert => alert.uid !== alertID);
-
-    const index = toastedAlertIDList.indexOf(alertID);
+    const index = alerts.value.findIndex(a => a.uid === alertID);
     if (index !== -1) {
-      toastedAlertIDList.splice(index, 1);
+      alerts.value.splice(index, 1);
     }
-
-    console.log("Remove alert ID: ", alertID, toastedAlertIDList);
   }
 
   return {

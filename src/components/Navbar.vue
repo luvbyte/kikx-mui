@@ -1,6 +1,7 @@
 <template>
   <div
-    class="bg-black/60 w-full h-10 flex items-center justify-stretch text-white"
+    class="w-full h-10 flex items-center justify-stretch"
+    :class="getAppTheme(theme)"
   >
     <!-- Recents -->
     <button
@@ -79,7 +80,9 @@
 <script setup>
   import { useKeyboard } from "@/composables/useKeyboard";
 
-  defineProps(["onNavbarClick"]);
+  import { getAppTheme } from "@/kikx/style";
+
+  defineProps(["onNavbarClick", "theme"]);
 
   const { isKeyboardOpen } = useKeyboard();
 

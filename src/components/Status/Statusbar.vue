@@ -1,5 +1,8 @@
 <script setup lang="ts">
-  import { ref, watch } from "vue";
+  import { ref, computed, watch } from "vue";
+
+  import { getAppTheme } from "@/kikx/style";
+
   import Clock from "./Clock.vue";
   import BatteryPercentage from "./BatteryPercentage.vue";
   import NetworkStatus from "./NetworkStatus.vue";
@@ -11,27 +14,25 @@
 
   const uiConfig = useUIConfig();
 
-  defineProps(["onStatusbarSwipe", "isSudoApp"]);
+  defineProps(["onStatusbarSwipe", "isSudoApp", "theme"]);
 
-  const showAlertsPanel = ref(false);
+  //const showAlertsPanel = ref(false);
+  const showAlertsPanel = computed(() => {
+    return uiConfig.state.canToast && uiConfig.pendingToastAlerts.length > 0;
+  });
 
-  watch(
-    () => uiConfig.alerts.length,
-    () => {
-      // show panel
-      if (
-        uiConfig.state.canToast &&
-        uiConfig.pendingToastAlerts.length > 0
-      ) {
-        showAlertsPanel.value = true;
-      }
-    }
-  );
+  // complete all alerts
+  function onClose() {
+    uiConfig.pendingToastAlerts.forEach(alert => {
+      uiConfig.toastComplete(alert.uid);
+    });
+  }
 </script>
 
 <template>
   <div
-    class="min-h-8 overflow-hidden bg-black/60 w-full text-xs text-white"
+    class="min-h-8 overflow-hidden w-full text-xs"
+    :class="getAppTheme(theme)"
     v-swipe="onStatusbarSwipe"
   >
     <div class="relative h-full w-full">
@@ -39,7 +40,7 @@
         <AppAlertsPanel
           v-if="showAlertsPanel"
           key="alerts-panel"
-          :close="() => (showAlertsPanel = false)"
+          :close="onClose"
         />
         <!-- Icons -->
         <div

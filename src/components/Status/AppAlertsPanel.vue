@@ -7,25 +7,15 @@
   const uiConfig = useUIConfig();
   const props = defineProps(["close"]);
 
-  const currentIndex = ref(0);
-
-  // Sort alerts (not required)
-  const sortedAlerts = computed(() => {
-    return [...uiConfig.alerts].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-  });
-
-  // Current alert derived from index
   const currentAlert = computed(() => {
-    return uiConfig.pendingToastAlerts[currentIndex.value] || null;
+    return uiConfig.pendingToastAlerts[0] || null;
   });
 
   // Alert Class
   const alertTypeClasses = {
-    success: "bg-success/60 text-success-content",
-    error: "bg-error/60 text-error-content",
-    warning: "bg-warning/60 text-warning-content",
+    success: "bg-success/80 text-success-content",
+    error: "bg-error/80 text-error-content",
+    warning: "bg-warning/80 text-warning-content",
     info: "bg-black/60",
     default: ""
   };
@@ -55,14 +45,16 @@
 
   // Move to next alert
   function goNext() {
-    // tracking completed or skipped
-    uiConfig.toastComplete(currentAlert.value.uid);
+    const alert = currentAlert.value;
+    if (!alert) return;
 
-    if (currentIndex.value >= uiConfig.pendingToastAlerts.length - 1) {
-      props.close?.();
-      return;
+    uiConfig.toastComplete(alert.uid);
+
+    // After removal, the next alert shifts into same index.
+
+    if (uiConfig.pendingToastAlerts.length === 0) {
+      props.close();
     }
-    currentIndex.value++;
   }
 
   function handleAnimationEnd() {

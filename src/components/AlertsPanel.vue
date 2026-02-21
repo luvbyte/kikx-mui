@@ -154,7 +154,7 @@
       <div
         v-for="appAlert in sortedAlerts"
         :key="appAlert.uid"
-        class="relative flex items-start gap-2 p-3 bg-white/80 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-200"
+        class="relative flex items-start gap-2 p-3 bg-white/80 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
         :style="
           swiping === appAlert.uid
             ? {
@@ -166,7 +166,7 @@
         @touchstart="e => onTouchStart(e, appAlert.uid)"
         @touchmove="onTouchMove"
         @touchend="() => onTouchEnd(appAlert)"
-        @click="onAlertClick(appAlert.id)"
+        @click="onAlertClick(appAlert)"
       >
         <!-- Icon Image -->
         <div v-if="appAlert.icon" class="flex-shrink-0">
@@ -182,7 +182,9 @@
         </div>
 
         <!-- Content -->
-        <div class="flex-1 flex flex-col gap-1 min-w-0">
+        <div
+          class="flex-1 flex flex-col gap-1 min-w-0 transition-all duration-600"
+        >
           <!-- Header -->
           <div class="flex items-start justify-between gap-2">
             <div class="flex gap-1 items-center">

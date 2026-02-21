@@ -188,13 +188,6 @@
     return activeApp.value && activeApp.value.isSudo && showAppsPanel.value;
   });
 
-  const activeAppTheme = computed(() => {
-    if (activeApp.value && showAppsPanel.value) {
-      return activeApp.value.manifest.theme;
-    }
-    return "default";
-  });
-
   function closeBottomFrame() {
     showBottomFrame.value = false;
     if (activeAppIndex.value < 0) {
@@ -422,7 +415,6 @@
       <Statusbar
         v-if="!showBottomFrame && !uiConfig.state.iScreen && !currentModule"
         :isSudoApp
-        :theme="activeAppTheme"
         :onStatusbarSwipe
       />
     </Transition>
@@ -446,7 +438,7 @@
         class="absolute w-full h-full bg-black/60 top-0 left-0 z-20 flex flex-col items-center"
       >
         <div
-          class="w-full transition-scale duration-200"
+          class="w-full transition duration-300"
           :class="[showBottomFrame ? 'h-[85%]' : 'h-full']"
         >
           <App
@@ -543,7 +535,6 @@
           !showAppsMenu
         "
         :onNavbarClick
-        :theme="activeAppTheme"
       />
     </Transition>
 
