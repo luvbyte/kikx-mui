@@ -104,7 +104,7 @@
   >
     <!-- Header -->
     <div
-      class="px-2 py-1 border-b border-white/20 bg-pink-400/80 flex justify-between items-center shadow-lg"
+      class="px-2 py-1 border-b border-white/20 bg-pink-400/60 flex justify-between items-center shadow-lg"
     >
       <div class="flex gap-2 items-center justify-center p-2">
         <h1 class="text-white font-semibold tracking-wide">Alerts</h1>
@@ -149,12 +149,12 @@
     <TransitionGroup
       name="alert"
       tag="div"
-      class="flex-1 overflow-y-auto p-2 space-y-3 scrollbar-hide scroll-smooth"
+      class="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-hide scroll-smooth"
     >
       <div
         v-for="appAlert in sortedAlerts"
         :key="appAlert.uid"
-        class="relative flex items-start gap-2 p-3 bg-white/80 border-white/60 rounded-xl border-2 shadow-lg transition-all duration-300"
+        class="relative flex items-start gap-2 p-3 bg-white/60 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
         :style="
           swiping === appAlert.uid
             ? {
@@ -173,11 +173,11 @@
           <img
             :src="getUrl(appAlert.icon)"
             alt="alert icon"
-            class="h-12 rounded-lg object-cover aspect-square border-2 border-white/40 bg-white/20"
+            class="h-12 rounded-lg object-cover aspect-square border-2 border-white/20 bg-white/20"
           />
         </div>
         <!-- Timestamp -->
-        <div class="absolute top-2 right-2 badge badge-sm opacity-80">
+        <div class="absolute top-2 right-2 badge badge-sm opacity-60">
           <TimeStampRelative :timestamp="appAlert.createdAt" />
         </div>
 
@@ -330,7 +330,7 @@
     </TransitionGroup>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-white/20 bg-pink-400/80"></div>
+    <div class="p-4 border-t border-white/20 bg-pink-400/60"></div>
   </div>
 </template>
 

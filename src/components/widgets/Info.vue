@@ -3,47 +3,54 @@
 
   <div v-else class="flex-1 overflow-y-auto scrollbar-hide">
     <!-- User Info -->
-    <div class="p-2 flex justify-between items-center bg-white/40">
-      <h1 class="font-semibold">{{ info.user.name }}</h1>
+    <div class="p-2 flex justify-between items-center bg-white/20">
+      <h1 class="font-semibold text-white">{{ info.user.name }}</h1>
       <div class="badge badge-sm badge-primary shadow-lg">
         {{ info.user.username }}
       </div>
     </div>
 
     <!-- Client Info -->
-    <div class="flex flex-col">
+    <div class="flex flex-col text-white">
       <div
         class="p-2 flex justify-center items-center bg-white/60 border-y border-white/40"
       >
         <h1 class="font-semibold">Session</h1>
       </div>
-      <div class="p-2 flex justify-between items-center bg-white/40">
-        <h1>ID</h1>
-        <button
-          @click="revealID = !revealID"
-          class="badge badge-sm badge-soft shadow-lg"
-        >
-          {{ revealID ? info.id : "Click to reveal" }}
-        </button>
-      </div>
-      <div class="p-2 flex justify-between items-center bg-white/40">
-        <h1>Uptime</h1>
-        <div class="badge badge-sm badge-soft shadow-lg">
+      <!-- Up Time -->
+      <div class="p-1 flex justify-between items-center bg-white/20">
+        <h1 class="text-white">Uptime</h1>
+        <div class="badge badge-sm badge-soft shadow-lg opacity-80">
           <TimeStampRelative :timestamp="info.created_at" />
         </div>
       </div>
-      <div class="p-2 flex justify-between items-center bg-white/40">
-        <h1>Access Token</h1>
+      <!-- ID -->
+      <div class="px-1 flex justify-center items-center bg-white/20">
+        <button
+          @click="revealID = !revealID"
+          class="badge badge-sm badge-soft shadow-lg opacity-80"
+        >
+          {{ revealID ? info.id : "Click to reveal session ID" }}
+        </button>
+      </div>
+      <!-- Access Token -->
+      <div
+        class="p-1 flex justify-center items-center gap-2 bg-white/20 whitespace-nowrap"
+      >
         <button
           @click="revealAccessToken = !revealAccessToken"
-          class="badge badge-sm badge-soft shadow-lg"
+          class="badge badge-sm badge-soft shadow-lg opacity-80"
         >
-          {{ revealAccessToken ? info.access_token : "Click to reveal" }}
+          {{
+            revealAccessToken
+              ? info.access_token
+              : "Click to reveal Access Token"
+          }}
         </button>
       </div>
     </div>
     <!-- Apps Info -->
-    <div class="flex flex-col">
+    <div class="flex flex-col text-white">
       <div
         class="p-2 flex justify-center items-center bg-white/60 border-y border-white/40"
       >
@@ -65,13 +72,13 @@
           <div class="divider m-0"></div>
 
           <div
-            class="px-2 flex items-center justify-center bg-white/40 p-0.5 rounded"
+            class="px-2 flex items-center justify-center bg-white/40 p-0.5 rounded text-black"
           >
             <button @click="toggleAppIDReveal(app.id)" class="text-sm">
               {{
                 revealedAppNames.includes(app.id)
                   ? app.id
-                  : "Click to reveal id"
+                  : "Click to reveal App ID"
               }}
             </button>
           </div>

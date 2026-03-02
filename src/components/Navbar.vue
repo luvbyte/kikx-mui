@@ -61,7 +61,7 @@
     <button
       @click="onNavbarClick(2)"
       v-else
-      class="w-1/3 p-1 flex justify-center items-center active:bg-white/60 rounded-lg transition duration-300"
+      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-300"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

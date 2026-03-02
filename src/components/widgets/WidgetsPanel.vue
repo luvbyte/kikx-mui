@@ -15,7 +15,7 @@
   >
     <!-- Header -->
     <div
-      class="px-2 py-3 border-b border-white/20 bg-blue-400/80 flex justify-between items-center"
+      class="px-2 py-3 border-b border-white/20 bg-blue-400/60 flex justify-between items-center"
     >
       <h1 class="text-white font-semibold tracking-wide">KIKX MUI</h1>
       <button @click="closePanel" class="btn btn-xs opacity-80">
@@ -36,6 +36,6 @@
     <Info />
 
     <!-- Footer -->
-    <div class="p-4 border-t border-white/20 bg-blue-400/80"></div>
+    <div class="p-4 border-t border-white/20 bg-blue-400/60"></div>
   </div>
 </template>

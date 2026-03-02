@@ -2,6 +2,9 @@
   import { getUrl } from "@/kikx/config";
 
   const props = defineProps(["app"]);
+  
+  const getSandbox = () => {}
+  
 </script>
 
 <template>
