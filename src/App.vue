@@ -59,7 +59,8 @@
     switchAppRight,
     openApp,
     closeApp,
-    closeAppById
+    closeAppById,
+    closeAppByName
   } = useRunningApps(client, uiConfig, changeScreen);
   const { isKeyboardOpen, closeKeyboard } = useKeyboard();
 
@@ -296,6 +297,18 @@
     // Client reconnect
     client.on("reconnected", () => {
       connecting.value = false;
+    });
+
+    // App installed or updated close it
+    client.on("app:installed", payload => {
+      console.log("Installed : ", payload);
+      closeAppByName(payload.name);
+    });
+
+    // App uninstalled
+    client.on("app:uninstalled", payload => {
+      console.log("Uninstalled : ", payload);
+      closeAppByName(payload.name);
     });
 
     // App closing by itself

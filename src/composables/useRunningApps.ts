@@ -34,9 +34,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     if (total === 0) return -1;
     if (index < 0) return 0;
 
-    return next
-      ? (index + 1) % total
-      : (index - 1 + total) % total;
+    return next ? (index + 1) % total : (index - 1 + total) % total;
   }
 
   function switchAppLeft() {
@@ -123,6 +121,16 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     }
   }
 
+  // ---------------- CLOSE APP BY NAME
+  function closeAppByName(appName: string) {
+    const indexes = runningApps.value
+      .map((app, i) => (app.manifest.name === appName ? i : -1))
+      .filter(i => i !== -1)
+      .reverse();
+
+    indexes.forEach(i => closeApp(i));
+  }
+
   return {
     runningApps,
     activeAppIndex,
@@ -132,6 +140,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     switchAppRight,
     openApp,
     closeApp,
-    closeAppById
+    closeAppById,
+    closeAppByName
   };
 }
