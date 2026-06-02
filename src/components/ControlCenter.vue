@@ -2,14 +2,14 @@
   <div
     v-swipe="onSwipe"
     @click="close"
-    class="absolute fscreen inset-0 z-20 flex flex-col p-2 bg-black/60"
+    class="absolute fscreen inset-0 z-20 flex flex-col p-2 bg-black/60 gap-2"
   >
     <!-- Top Panle -->
-    <div class="p-4 w-full flex items-center justify-center">
-      <div
-        class="px-4 w-full max-w-md border-2 border-white/60 bg-white/20 rounded-2xl"
-      >
-        <div @click.stop class="grid grid-cols-5 gap-4 p-4">
+    <div
+      class="p-4 w-full flex items-center justify-center border-2 border-white/60 bg-white/20 rounded-2xl"
+    >
+      <div class="px-4 max-w-md">
+        <div @click.stop class="grid grid-cols-4 gap-3 p-3">
           <!-- Buttons -->
           <CCButton v-model="uiConfig.state.isSilent">
             <template #before>

@@ -1,18 +1,35 @@
 <template>
-  <div class="fscreen flex flex-col items-center justify-center bg-black/60">
+  <div
+    class="fscreen flex flex-col items-center justify-center transition-colors duration-1000"
+    :style="{
+      backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`
+    }"
+  >
     <div
-      class="bg-white/20 p-8 rounded-xl shadow-lg text-center space-y-6 w-80"
+      class="flex flex-col items-center bg-white/20 backdrop-blur-sm p-8 rounded-xl shadow-lg text-center w-80"
     >
-      <Loading label="Logging out..." class="font-semibold text-white" />
+      <!-- Anime loading GIF -->
+      <img
+        src="/images/ldt2.gif"
+        alt="Loading"
+        class="w-32 h-32 object-contain rounded-2xl transition-transform duration-1000 select-none pointer-events-none"
+        :style="{
+          transform: `scale(${1 + (8 - countdown) * 0.03})`
+        }"
+        draggable="false"
+      />
+
+      <p class="mt-4 font-semibold text-white">Logging out...</p>
 
       <!-- Timer -->
-      <p class="mt-8 text-lg font-medium text-white/80">
+      <p class="mt-4 text-lg font-medium text-white/80">
         Logging out in
-        <span class="text-red-500 font-bold">{{ countdown }}</span> seconds
+        <span class="text-red-400 font-bold">{{ countdown }}</span>
+        seconds
       </p>
 
       <!-- Buttons -->
-      <div class="flex justify-center gap-4">
+      <div class="mt-6 flex justify-center gap-4">
         <button @click="cancelLogout" class="btn w-32">Cancel</button>
 
         <button @click="logoutNow" class="btn w-32 btn-secondary">
@@ -24,16 +41,46 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onBeforeUnmount } from "vue";
-  import Loading from "@/components/Loading.vue";
+  import { ref, computed, onMounted, onBeforeUnmount } from "vue";
   import { useClient } from "@/kikx";
 
   const client = useClient();
 
-  const props = defineProps(["close"]);
+  const props = defineProps({
+    close: {
+      type: Function,
+      required: true
+    }
+  });
 
-  const countdown = ref(8);
+  const START_SECONDS = 8;
+
+  const countdown = ref(START_SECONDS);
   let timer = null;
+
+  const overlayOpacity = computed(() => {
+    // Starts at 30% darkness and ends at 75%
+    return 0.3 + ((START_SECONDS - countdown.value) / START_SECONDS) * 0.45;
+  });
+
+  const logoutNow = async () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+
+    await client._logout();
+    location.reload();
+  };
+
+  const cancelLogout = () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+
+    props.close();
+  };
 
   const startTimer = () => {
     timer = setInterval(() => {
@@ -45,22 +92,13 @@
     }, 1000);
   };
 
-  const logoutNow = async () => {
-    clearInterval(timer);
-    await client._logout();
-    location.reload();
-  };
-
-  const cancelLogout = () => {
-    clearInterval(timer);
-    props.close();
-  };
-
   onMounted(() => {
     startTimer();
   });
 
   onBeforeUnmount(() => {
-    clearInterval(timer);
+    if (timer) {
+      clearInterval(timer);
+    }
   });
 </script>

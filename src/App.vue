@@ -441,7 +441,7 @@
             <div class="px-2 pb-2 w-full flex items-center">
               <button
                 @click="onAppControlBtnClick(0)"
-                class="w-16 h-full rounded-l-full bg-info glass"
+                class="w-16 h-full rounded-l-2xl bg-info glass"
               ></button>
               <!-- Middle Panel -->
               <div
@@ -476,7 +476,7 @@
               </div>
               <button
                 @click="onAppControlBtnClick(1)"
-                class="w-16 h-full rounded-r-full bg-error glass flex items-center justify-center"
+                class="w-16 h-full rounded-r-2xl bg-error glass flex items-center justify-center"
               ></button>
             </div>
           </div>

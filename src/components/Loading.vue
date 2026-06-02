@@ -3,7 +3,14 @@
     class="fscreen flex flex-col items-center justify-center"
     :class="{ 'opacity-60': dim }"
   >
+    <img
+      v-if="icon"
+      class="aspect-square w-32 h-32 rounded-full border-2 border-base-content/10 bg-white/10 shadow-lg"
+      :src="icon"
+    />
+
     <svg
+      v-else
       xmlns="http://www.w3.org/2000/svg"
       width="32"
       height="32"
@@ -42,6 +49,10 @@
     dim: {
       type: Boolean,
       default: false
+    },
+    icon: {
+      type: String,
+      required: false
     }
   });
 </script>

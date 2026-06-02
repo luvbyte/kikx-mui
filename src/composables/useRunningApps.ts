@@ -79,7 +79,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- CLOSE APP
-  async function closeApp(index: number) {
+  async function __closeApp(index: number) {
     const app = runningApps.value[index];
     if (!app) return;
 
@@ -112,6 +112,32 @@ export function useRunningApps(client, uiConfig, changeScreen) {
       activeAppIndex.value = total - 1;
     }
   }
+  
+  async function closeApp(index: number) {
+  const app = runningApps.value[index];
+  if (!app) return;
+
+  // Keep the same app active when removing an app before it
+  if (index < activeAppIndex.value) {
+    activeAppIndex.value--;
+  }
+
+  runningApps.value.splice(index, 1);
+
+  // ... existing fetch code ...
+
+  const total = runningApps.value.length;
+
+  if (total === 0) {
+    activeAppIndex.value = -1;
+    changeScreen("home");
+    return;
+  }
+
+  if (index >= total) {
+    activeAppIndex.value = total - 1;
+  }
+}
 
   // ---------------- EXTERNAL CLOSE (ws event safe)
   function closeAppById(appId: string) {

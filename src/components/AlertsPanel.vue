@@ -154,7 +154,7 @@
       <div
         v-for="appAlert in sortedAlerts"
         :key="appAlert.uid"
-        class="relative flex items-start gap-2 p-3 bg-white/60 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
+        class="relative flex items-start gap-2 bg-white/60 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
         :style="
           swiping === appAlert.uid
             ? {

@@ -28,7 +28,8 @@
     } else if (direction === "left") {
       props.changeScreen("control");
     } else if (direction === "down") {
-      props.changeScreen("control");
+      // Problem when many apps
+      // props.changeScreen("control");
     } else if (direction === "right") {
       props.changeScreen("app-control");
     }
