@@ -6,7 +6,7 @@
     }"
   >
     <div
-      class="flex flex-col items-center bg-white/20 backdrop-blur-sm p-8 rounded-xl shadow-lg text-center w-80"
+      class="flex flex-col items-center bg-white/20 p-8 rounded-xl shadow-lg text-center w-80"
     >
       <!-- Anime loading GIF -->
       <img

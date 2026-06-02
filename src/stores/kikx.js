@@ -27,7 +27,7 @@ export const useUIConfig = defineStore("uiConfig", () => {
       );
   });
 
-  function toastComplete(alertID: string) {
+  function toastComplete(alertID) {
     const alert = alerts.value.find(a => a.uid === alertID);
     if (alert && !alert._toasted) {
       alert._toasted = true;
@@ -68,7 +68,7 @@ export const useUIConfig = defineStore("uiConfig", () => {
     alerts.value.splice(0);
   }
 
-  function removeAppAlerts(appID: string) {
+  function removeAppAlerts(appID) {
     for (let i = alerts.value.length - 1; i >= 0; i--) {
       if (alerts.value[i].id === appID) {
         alerts.value.splice(i, 1);
@@ -76,7 +76,7 @@ export const useUIConfig = defineStore("uiConfig", () => {
     }
   }
 
-  function removeAppAlert(alertID: string) {
+  function removeAppAlert(alertID) {
     const index = alerts.value.findIndex(a => a.uid === alertID);
     if (index !== -1) {
       alerts.value.splice(index, 1);

@@ -2,8 +2,8 @@ import { ref, computed } from "vue";
 import { getUrl } from "@/kikx/config";
 
 export function useRunningApps(client, uiConfig, changeScreen) {
-  const runningApps = ref<any[]>([]);
-  const activeAppIndex = ref<number>(-1);
+  const runningApps = ref([]);
+  const activeAppIndex = ref(-1);
 
   // ---------------- ACTIVE APP
   const activeApp = computed(() => {
@@ -18,7 +18,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   });
 
   // ---------------- SET ACTIVE
-  function setActiveApp(index: number) {
+  function setActiveApp(index) {
     if (index < 0 || index >= runningApps.value.length) {
       activeAppIndex.value = -1;
       return;
@@ -28,7 +28,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- MOVE INDEX
-  function moveIndex(arr: any[], index: number, next: boolean) {
+  function moveIndex(arr, index, next) {
     const total = arr.length;
 
     if (total === 0) return -1;
@@ -56,7 +56,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- OPEN APP
-  async function openApp(name: string, sudo = false) {
+  async function openApp(name, sudo = false) {
     try {
       const res = await fetch(getUrl("/open-app"), {
         method: "POST",
@@ -79,7 +79,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- CLOSE APP
-  async function __closeApp(index: number) {
+  async function __closeApp(index) {
     const app = runningApps.value[index];
     if (!app) return;
 
@@ -112,35 +112,35 @@ export function useRunningApps(client, uiConfig, changeScreen) {
       activeAppIndex.value = total - 1;
     }
   }
-  
-  async function closeApp(index: number) {
-  const app = runningApps.value[index];
-  if (!app) return;
 
-  // Keep the same app active when removing an app before it
-  if (index < activeAppIndex.value) {
-    activeAppIndex.value--;
+  async function closeApp(index) {
+    const app = runningApps.value[index];
+    if (!app) return;
+
+    // Keep the same app active when removing an app before it
+    if (index < activeAppIndex.value) {
+      activeAppIndex.value--;
+    }
+
+    runningApps.value.splice(index, 1);
+
+    // ... existing fetch code ...
+
+    const total = runningApps.value.length;
+
+    if (total === 0) {
+      activeAppIndex.value = -1;
+      changeScreen("home");
+      return;
+    }
+
+    if (index >= total) {
+      activeAppIndex.value = total - 1;
+    }
   }
-
-  runningApps.value.splice(index, 1);
-
-  // ... existing fetch code ...
-
-  const total = runningApps.value.length;
-
-  if (total === 0) {
-    activeAppIndex.value = -1;
-    changeScreen("home");
-    return;
-  }
-
-  if (index >= total) {
-    activeAppIndex.value = total - 1;
-  }
-}
 
   // ---------------- EXTERNAL CLOSE (ws event safe)
-  function closeAppById(appId: string) {
+  function closeAppById(appId) {
     const index = runningApps.value.findIndex(a => a.id === appId);
     if (index !== -1) {
       closeApp(index);
@@ -148,7 +148,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- CLOSE APP BY NAME
-  function closeAppByName(appName: string) {
+  function closeAppByName(appName) {
     const indexes = runningApps.value
       .map((app, i) => (app.manifest.name === appName ? i : -1))
       .filter(i => i !== -1)
