@@ -123,8 +123,22 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     }
 
     runningApps.value.splice(index, 1);
+    
+    // Send close request to client
+    try {
+      await fetch(getUrl("/close-app"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          app_id: app.id,
+          client_id: client.clientID
+        })
+      });
 
-    // ... existing fetch code ...
+      uiConfig.removeAppAlerts(app.id);
+    } catch (err) {
+      console.error("Close app failed:", err);
+    }
 
     const total = runningApps.value.length;
 
