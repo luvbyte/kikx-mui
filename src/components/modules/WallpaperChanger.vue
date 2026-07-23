@@ -1,3 +1,198 @@
+<script setup>
+  import { ref, reactive, computed, onMounted } from "vue";
+
+  import { getImageUrl, defaultBackground } from "@/kikx/config";
+
+  import { getFS, muiConfig } from "@/kikx";
+
+  import { useUIConfig } from "@/stores/kikx";
+
+  const props = defineProps({
+    options: Object
+  });
+  const emit = defineEmits(["close"]);
+
+  const fs = getFS();
+
+  const uiConfig = useUIConfig();
+
+  const loaded = ref(false);
+  const images = ref([]);
+  const selectedImage = ref(null);
+  const customUrl = ref("");
+  const error = ref("");
+
+  const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
+
+  const imagePaths = reactive([
+    {
+      name: "SHARE",
+      virtual: "share://images/bg",
+      url: "/share/images/bg",
+      canUpdate: false
+    },
+    {
+      name: "LOCAL",
+      virtual: "home://share/images/bg",
+      url: "/files/images/bg",
+      canUpdate: true
+    }
+  ]);
+
+  const currentPathVirtual = ref(imagePaths[0].virtual);
+
+  const currentPath = computed(() =>
+    imagePaths.find(p => p.virtual === currentPathVirtual.value)
+  );
+
+  const basePath = computed(() =>
+    currentPath.value.url.endsWith("/")
+      ? currentPath.value.url
+      : currentPath.value.url + "/"
+  );
+
+  // Render Images
+  async function renderImages() {
+    error.value = "";
+    images.value = [];
+
+    const { virtual } = currentPath.value;
+
+    await fs.createDirectory(virtual);
+    const res = await fs.listFiles(virtual);
+
+    if (res.error) {
+      error.value = res.message || "Failed to load images.";
+      return;
+    }
+
+    console.log(res);
+
+    images.value = res.data.files
+      .filter(
+        file =>
+          !file.directory && imageExtensions.includes(file.suffix.toLowerCase())
+      )
+      .map(file => basePath.value + file.name);
+  }
+
+  // Select Image
+  function selectImage(src) {
+    selectedImage.value = src;
+    uiConfig.state.bg = src;
+  }
+
+  // Delete Image
+  async function handleDeleteSelectedImage() {
+    error.value = "";
+
+    if (!currentPath.value.canUpdate) return;
+    if (!selectedImage.value) {
+      error.value = "No image selected.";
+      return;
+    }
+
+    const fileName = selectedImage.value.replace(basePath.value, "");
+    const fullPath = `${currentPath.value.virtual}/${fileName}`;
+
+    const res = await fs.deleteFile(fullPath);
+    if (res.error) {
+      error.value = res.message || "Delete failed.";
+      return;
+    }
+
+    images.value = images.value.filter(i => i !== selectedImage.value);
+    selectImage(defaultBackground);
+  }
+
+  // Upload Image
+  async function handleImageUpload(event) {
+    error.value = "";
+
+    if (!currentPath.value.canUpdate) return;
+
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      error.value = "Only image files allowed.";
+      return;
+    }
+
+    const ext = file.name.substring(file.name.lastIndexOf("."));
+    const randomId = Math.random().toString(36).substring(2, 10);
+    const newFileName = `${randomId}${ext}`;
+
+    const renamedFile = new File([file], newFileName, {
+      type: file.type
+    });
+
+    const res = await fs.uploadFile(renamedFile, currentPath.value.virtual);
+    if (res.error) {
+      error.value = res.message || "Upload failed.";
+      return;
+    }
+
+    const imageUrl = basePath.value + newFileName;
+    images.value.unshift(imageUrl);
+    selectImage(imageUrl);
+  }
+
+  // Custum URL
+  function setBackgroundCustomUrl() {
+    error.value = "";
+
+    if (customUrl.value.length <= 0) return;
+
+    const test = new Image();
+    test.onload = () => {
+      images.value.unshift(customUrl.value);
+      selectImage(customUrl.value);
+      customUrl.value = "";
+    };
+    test.onerror = () => {
+      error.value = "Failed to load image.";
+    };
+
+    test.src = customUrl.value;
+  }
+
+  // Utils
+  async function handlePathChange() {
+    await renderImages();
+  }
+
+  function handleClose() {
+    emit("close");
+  }
+
+  // Init with options
+  async function init() {
+    const url = props.options.url;
+    if (!url) return false;
+
+    console.log("Got url", url);
+
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      customUrl.value = url;
+      setBackgroundCustomUrl();
+      return true;
+    }
+    if (url.startsWith("/share") || url.startsWith("/files")) {
+      selectImage(url);
+      return true;
+    }
+
+    return false;
+  }
+
+  onMounted(async () => {
+    setTimeout(() => (loaded.value = true), 300);
+    // Init
+    (await init()) ? emit("close") : await renderImages();
+  });
+</script>
+
 <template>
   <div
     @click.self="handleClose"
@@ -67,6 +262,20 @@
     <Transition name="slide-up" mode="out-in">
       <div v-if="loaded" :key="currentPathVirtual" class="bg-black/40 p-2 py-4">
         <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+          <!-- Default Background Image -->
+          <div class="flex-none w-32 aspect-[9/16]">
+            <img
+              :src="getImageUrl(defaultBackground)"
+              @click="selectImage(defaultBackground)"
+              class="w-full h-full object-cover rounded cursor-pointer border-2 transition"
+              :class="
+                selectedImage === defaultBackground
+                  ? 'border-white/80'
+                  : 'border-white/20 hover:border-blue-400'
+              "
+            />
+          </div>
+
           <div
             v-for="img in images"
             :key="img"
@@ -88,176 +297,3 @@
     </Transition>
   </div>
 </template>
-
-<script setup>
-  import { ref, reactive, computed, onMounted } from "vue";
-
-  import { getImageUrl, defaultBackground } from "@/kikx/config";
-
-  import { getFS, muiConfig } from "@/kikx";
-
-  import { useUIConfig } from "@/stores/kikx";
-
-  const props = defineProps(["close"]);
-
-  const fs = getFS();
-
-  const uiConfig = useUIConfig();
-
-  const loaded = ref(false);
-  const images = ref([]);
-  const selectedImage = ref(null);
-  const customUrl = ref("");
-  const error = ref("");
-
-  const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
-
-  const imagePaths = reactive([
-    {
-      name: "SHARE",
-      virtual: "share://images/bg",
-      url: "/share/images/bg",
-      canUpdate: false
-    },
-    {
-      name: "LOCAL",
-      virtual: "home://share/images/bg",
-      url: "/files/images/bg",
-      canUpdate: true
-    }
-  ]);
-
-  const currentPathVirtual = ref(imagePaths[0].virtual);
-
-  const currentPath = computed(() =>
-    imagePaths.find(p => p.virtual === currentPathVirtual.value)
-  );
-
-  const basePath = computed(() =>
-    currentPath.value.url.endsWith("/")
-      ? currentPath.value.url
-      : currentPath.value.url + "/"
-  );
-
-  // Render Images
-  async function renderImages() {
-    error.value = "";
-    images.value = [];
-
-    const { virtual } = currentPath.value;
-
-    await fs.createDirectory(virtual);
-    const res = await fs.listFiles(virtual);
-
-    if (res.error) {
-      error.value = res.message || "Failed to load images.";
-      return;
-    }
-
-    images.value = res.data
-      .filter(
-        file =>
-          !file.directory && imageExtensions.includes(file.suffix.toLowerCase())
-      )
-      .map(file => basePath.value + file.name);
-  }
-
-  // Select Image
-  function selectImage(src) {
-    selectedImage.value = src;
-    uiConfig.state.bg = src;
-  }
-
-  // Delete Image
-  async function handleDeleteSelectedImage() {
-    error.value = "";
-  
-    if (!currentPath.value.canUpdate) return;
-    if (!selectedImage.value) {
-      error.value = "No image selected.";
-      return;
-    }
-
-    const fileName = selectedImage.value.replace(basePath.value, "");
-    const fullPath = `${currentPath.value.virtual}/${fileName}`;
-
-    const res = await fs.deleteFile(fullPath);
-    if (res.error) {
-      error.value = res.message || "Delete failed.";
-      return;
-    }
-
-    images.value = images.value.filter(i => i !== selectedImage.value);
-    selectImage(defaultBackground);
-  }
-
-  // Upload Image
-  async function handleImageUpload(event) {
-    error.value = "";
-  
-    if (!currentPath.value.canUpdate) return;
-
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      error.value = "Only image files allowed.";
-      return;
-    }
-
-    const ext = file.name.substring(file.name.lastIndexOf("."));
-    const randomId = Math.random().toString(36).substring(2, 10);
-    const newFileName = `${randomId}${ext}`;
-    const fullVirtualPath = `${currentPath.value.virtual}/${newFileName}`;
-
-    const renamedFile = new File([file], fullVirtualPath, {
-      type: file.type
-    });
-
-    const res = await fs.uploadFile(renamedFile);
-    if (res.error) {
-      error.value = res.message || "Upload failed.";
-      return;
-    }
-
-    const imageUrl = basePath.value + newFileName;
-    images.value.unshift(imageUrl);
-    selectImage(imageUrl);
-  }
-
-  // Custum URL
-  function setBackgroundCustomUrl() {
-    error.value = "";
-  
-    if (customUrl.value.length <= 0) return;
-
-    const test = new Image();
-    test.onload = () => {
-      images.value.unshift(customUrl.value);
-      selectImage(customUrl.value);
-      customUrl.value = "";
-    };
-    test.onerror = () => {
-      error.value = "Failed to load image.";
-    };
-
-    test.src = customUrl.value;
-  }
-
-  // Utils
-  async function handlePathChange() {
-    await renderImages();
-  }
-  function handleClose() {
-    // since state watches and auto saves no need
-    // if (selectedImage.value) {
-    // await muiConfig.save();
-    // }
-    props.close();
-  }
-
-  onMounted(async () => {
-    setTimeout(() => (loaded.value = true), 300);
-    await renderImages();
-  });
-</script>

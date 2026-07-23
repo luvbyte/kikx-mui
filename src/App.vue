@@ -1,10 +1,11 @@
 <script setup lang="ts">
   import {
     ref,
-    onMounted,
+    toRaw,
     watch,
-    nextTick,
     computed,
+    nextTick,
+    onMounted,
     onBeforeMount
   } from "vue";
   import { watchDebounced } from "@vueuse/core";
@@ -23,7 +24,7 @@
   import HomeScreen from "@/components/HomeScreen.vue";
 
   import Logout from "@/components/modules/Logout.vue";
-  import Settings from "@/components/modules/Settings.vue";
+  import Share from "@/components/modules/Share.vue";
   import WallpaperChanger from "@/components/modules/WallpaperChanger.vue";
 
   import { getUrl } from "@/kikx/config";
@@ -44,13 +45,17 @@
   const connecting = ref(true);
   const connected = ref(false);
 
+  const wsopen = ref(false);
+
   // home, app, app-control, control
   const currentScreen = ref("home");
   const lastScreen = ref("home");
 
   const currentModule = ref(null);
+  let currentModuleOptions = {};
 
   const {
+    getAppByID,
     runningApps,
     activeAppIndex,
     activeApp,
@@ -67,21 +72,39 @@
   // ------------------ Utils
   // Change active screen
   function changeScreen(name) {
+    // If screen is in home and switch app-control
+    if (currentScreen.value === "home" && name === "app-control") {
+      setTimeout(() => {
+        if (runningApps.value.length > 0) {
+          changeScreen("app");
+        }
+      }, 1000);
+    }
+
     lastScreen.value = currentScreen.value;
     currentScreen.value = name;
   }
 
   // Show Module
-  function showModule(name) {
+  function showModule(name, options = {}) {
+    currentModuleOptions = options;
+
+    // if screen is control / app-control switch to home screen
     if (["control", "app-control"].includes(currentScreen.value)) {
+      changeScreen("home");
+    }
+    // If module name has these switch to home screen
+    if (["WallpaperChanger"].includes(name)) {
       changeScreen("home");
     }
 
     currentModule.value = name;
   }
 
+  // Close module and reset module options
   function closeModule() {
     currentModule.value = false;
+    currentModuleOptions = {};
   }
 
   // Scroll Tab To App
@@ -115,6 +138,7 @@
         !navbarHiddenScreens.includes(currentScreen.value))
   );
 
+  // Bottom right transparent button
   const canShowFallbackTrigger = computed(
     () =>
       !uiConfig.state.navbar &&
@@ -183,11 +207,12 @@
     changeScreen(lastScreen.value);
   }
 
+  // Bottom capsule buttons
   function onAppControlBtnClick(btnIndex) {
-    if (btnIndex === 1) {
-      closeActiveApp();
-    } else if (btnIndex === 0) {
+    if (btnIndex === 0) {
       changeScreen("control");
+    } else if (btnIndex === 1) {
+      closeActiveApp();
     }
   }
 
@@ -234,11 +259,11 @@
 
   // On app alert
   function appAlert(payload) {
-    if (!uiConfig.state.isSilent) {
+    if (!uiConfig.state.isSilent && !payload.silent) {
       playSound("alert");
     }
 
-    // Only toast alert if its active (backend checks already)
+    // Only toast alert if app is running (backend checks already)
     const index = runningApps.value.findIndex(app => app.id === payload.id);
     if (index !== -1) {
       uiConfig.addAppAlert(payload);
@@ -280,6 +305,46 @@
     );
   }
 
+  // Share action using app
+  function shareUsingApp(name, payload) {
+    openApp(name, {
+      args: [],
+      query: { share: payload },
+      sudo: false
+    });
+  }
+
+  // App actions
+  function onAppAction(invoker, payload) {
+    const { name, options } = payload;
+
+    // Get app info
+    const app = toRaw(getAppByID(invoker.id));
+
+    // Set Wallpaper
+    if (name === "set-wallpaper") {
+      const { url } = options;
+      if (!url) return;
+
+      showModule("WallpaperChanger", { url });
+    }
+    // Share screen
+    else if (name === "share") {
+      const { item } = options;
+      if (!item) return;
+
+      showModule("Share", { item, app: app.manifest });
+    }
+    // Theme for app
+    else if (name === "set-theme") {
+      const { theme } = options;
+      if (!theme) return;
+
+      //
+      getAppByID(invoker.id).manifest.theme = theme;
+    }
+  }
+
   // On before mount
   onBeforeMount(async () => {
     // Dev - test login wont work in prod
@@ -288,10 +353,15 @@
     // Event bindings
     client.on("ws:onclose", e => {
       if (e.code === 1008) {
-        // unauthorized then reload
+        // unauthorized / closed by others then reload
         location.reload();
       }
+      wsopen.value = false;
       connecting.value = true;
+    });
+
+    client.on("ws:onopen", e => {
+      wsopen.value = true;
     });
 
     // Client reconnect
@@ -301,13 +371,13 @@
 
     // App installed or updated close it
     client.on("app:installed", payload => {
-      console.log("Installed : ", payload);
+      console.log("App Installed : ", payload);
       closeAppByName(payload.name);
     });
 
     // App uninstalled
     client.on("app:uninstalled", payload => {
-      console.log("Uninstalled : ", payload);
+      console.log("App Uninstalled : ", payload);
       closeAppByName(payload.name);
     });
 
@@ -316,9 +386,28 @@
       closeAppById(app.id);
     });
 
+    // Invoke actions from app
+    client.on("app:invoke", payload => {
+      // Open app from an app
+      if (payload.action === "openApp") {
+        openApp(payload.name, {
+          args: payload.args,
+          query: payload.query,
+          sudo: payload.sudo
+        });
+      } else if (payload.action === "action") {
+        try {
+          onAppAction(payload.invoker, payload.payload);
+        } catch (e) {
+          console.log("Error on app:invoke:action:", payload, e);
+        }
+      }
+    });
+
     // app alert event
     client.on("app:alert", payload => appAlert(payload));
 
+    // run
     client.run(async data => {
       // load config and watch
       await loadConfigAndWatch();
@@ -339,7 +428,7 @@
     <!-- Loading -->
     <Transition name="fade">
       <div v-if="connecting" class="fixed z-[999] inset-0 fscreen bg-black/60">
-        <Loading class="text-white" label="Loading" />
+        <Loading class="text-white" label="Connecting" />
       </div>
     </Transition>
 
@@ -350,7 +439,8 @@
     <Transition name="statusbar-slide">
       <Statusbar
         v-if="!uiConfig.state.iScreen && !currentModule"
-        :isSudoApp
+        :wsopen="wsopen"
+        :isSudoApp="isSudoApp"
         :theme="activeAppTheme"
       />
     </Transition>
@@ -358,14 +448,19 @@
     <!-- Screens -->
     <div class="flex-1 relative">
       <!-- Apps menu overlay -->
-      <HomeScreen v-if="currentScreen === 'home'" :openApp :changeScreen />
+      <HomeScreen
+        v-if="currentScreen === 'home'"
+        @openApp="openApp"
+        :uninstallApp="client.uninstallApp"
+        @changeScreen="changeScreen"
+      />
 
       <Transition name="fade">
         <ControlCenter
           v-if="currentScreen === 'control'"
           :close="onControlCenterClose"
-          :showModule
-          :onAlertClick
+          :showModule="showModule"
+          :onAlertClick="onAlertClick"
         />
       </Transition>
 
@@ -377,7 +472,7 @@
       >
         <div
           @click.self="onAppScreenClick"
-          class="w-full flex-1 overflow-hidden transition-all duration-300"
+          class="w-full flex-1 overflow-hidden"
         >
           <App
             v-for="(app, index) in runningApps"
@@ -488,9 +583,9 @@
     <Transition name="nav-slide">
       <Navbar
         v-if="canShowNavbar"
-        :onNavbarClick
-        :isKeyboardOpen
-        :closeKeyboard
+        :onNavbarClick="onNavbarClick"
+        :isKeyboardOpen="isKeyboardOpen"
+        :closeKeyboard="closeKeyboard"
         :theme="activeAppTheme"
       />
     </Transition>
@@ -504,17 +599,26 @@
 
     <!-- swipe bubble stick -->
     <Transition name="slide-left">
-      <RightStick v-if="uiConfig.state.stickBar" :onStickBarSwipe />
+      <RightStick
+        v-if="uiConfig.state.stickBar"
+        :onStickBarSwipe="onStickBarSwipe"
+      />
     </Transition>
 
     <!-- Modules -->
     <div v-if="currentModule" class="fixed fscreen inset-0 z-[99]">
       <WallpaperChanger
         v-if="currentModule === 'WallpaperChanger'"
-        :close="closeModule"
+        :options="currentModuleOptions"
+        @close="closeModule"
       />
-      <Settings v-else-if="currentModule === 'Settings'" :close="closeModule" />
-      <Logout v-else-if="currentModule === 'Logout'" :close="closeModule" />
+      <Share
+        v-else-if="currentModule === 'Share'"
+        :options="currentModuleOptions"
+        @shareUsingApp="shareUsingApp"
+        @close="closeModule"
+      />
+      <Logout v-else-if="currentModule === 'Logout'" @close="closeModule" />
     </div>
   </div>
 </template>

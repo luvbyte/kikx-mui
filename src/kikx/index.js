@@ -23,7 +23,7 @@ const muiConfigSchema = z.object({
 const client = new Client();
 
 // Fetch apps list
-async function fetchAppsList() {
+export async function fetchAppsList() {
   const res = await fetch(getUrl("/api/apps/list"), {
     method: "POST",
     headers: {
@@ -37,7 +37,7 @@ async function fetchAppsList() {
   return await res.json();
 }
 
-const muiConfig = {
+export const muiConfig = {
   configFilePath: muiPath + "/config.json",
 
   // Get object from store values
@@ -92,15 +92,14 @@ export async function devLogin(key, ui = "mui") {
   }
 }
 
-function useClient() {
+export function useClient() {
   return client;
 }
 
-function getFS() {
+export function getFS() {
   return useClient().fs;
 }
-function getSystem() {
+
+export function getSystem() {
   return useClient().system;
 }
-
-export { useClient, getFS, getSystem, muiConfig, fetchAppsList };

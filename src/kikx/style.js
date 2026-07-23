@@ -3,6 +3,8 @@ const appThemes = {
   light: "bg-white text-black",
   transparent: "bg-black/60 text-white",
 
+  invisible: "bg-transparent text-white",
+
   default: "bg-black/60 text-white",
 
   // New themes
@@ -10,6 +12,7 @@ const appThemes = {
   softDark: "bg-zinc-800 text-zinc-200",
   softLight: "bg-gray-100 text-gray-800",
 
+  // Daisyui
   primary: "bg-primary text-primary-content",
   secondary: "bg-secondary text-secondary-content",
   success: "bg-success text-success-content",

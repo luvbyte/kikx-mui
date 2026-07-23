@@ -1,3 +1,40 @@
+import DOMPurify from "dompurify";
+
+export function sanitizeAlert(code) {
+  return DOMPurify.sanitize(code, {
+    USE_PROFILES: { html: true },
+
+    ALLOWED_TAGS: [
+      "div",
+      "span",
+      "p",
+      "h1",
+      "h2",
+      "h3",
+      "ul",
+      "ol",
+      "li",
+      "table",
+      "tr",
+      "td",
+      "th",
+      "a",
+      "img",
+      "style",
+      "br",
+      "hr"
+    ],
+
+    ALLOWED_ATTR: {
+      "*": ["class", "id", "style"],
+      a: ["href", "title"],
+      img: ["src", "alt", "title"]
+    },
+
+    ALLOWED_URI_REGEXP: /^(?:(?:https?):|\/|#)/i
+  });
+}
+
 // Generate UUID
 export function generateUUID() {
   if (crypto.randomUUID) {

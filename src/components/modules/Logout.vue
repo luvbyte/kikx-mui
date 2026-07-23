@@ -8,11 +8,11 @@
     <div
       class="flex flex-col items-center bg-white/20 p-8 rounded-xl shadow-lg text-center w-80"
     >
-      <!-- Anime loading GIF -->
+      <!-- Gif -->
       <img
-        src="/images/ldt2.gif"
+        :src="gifSrc"
         alt="Loading"
-        class="w-32 h-32 object-contain rounded-2xl transition-transform duration-1000 select-none pointer-events-none"
+        class="w-42 object-contain rounded-lg transition-transform duration-1000 select-none pointer-events-none"
         :style="{
           transform: `scale(${1 + (8 - countdown) * 0.03})`
         }"
@@ -42,18 +42,15 @@
 
 <script setup>
   import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+  import { getImageUrl } from "@/kikx/config";
   import { useClient } from "@/kikx";
 
   const client = useClient();
+  const emit = defineEmits(["close"]);
 
-  const props = defineProps({
-    close: {
-      type: Function,
-      required: true
-    }
-  });
+  const gifSrc = ref(getImageUrl("/images/logout.gif"));
 
-  const START_SECONDS = 8;
+  const START_SECONDS = 3;
 
   const countdown = ref(START_SECONDS);
   let timer = null;
@@ -79,7 +76,7 @@
       timer = null;
     }
 
-    props.close();
+    emit("close");
   };
 
   const startTimer = () => {
@@ -93,6 +90,7 @@
   };
 
   onMounted(() => {
+    gifSrc.value = getImageUrl(`images/logout.gif?t=${Date.now()}`);
     startTimer();
   });
 

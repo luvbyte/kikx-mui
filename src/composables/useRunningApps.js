@@ -55,15 +55,22 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     );
   }
 
+  // ---------------- GET APP
+  function getAppByID(appId) {
+    return runningApps.value.find(app => app.id === appId) ?? null;
+  }
+
   // ---------------- OPEN APP
-  async function openApp(name, sudo = false) {
+  async function openApp(name, { sudo = false, args = [], query = {} }) {
+    const options = { sudo, query, args };
+
     try {
       const res = await fetch(getUrl("/open-app"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          sudo,
+          options,
           client_id: client.clientID
         })
       });
@@ -123,7 +130,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     }
 
     runningApps.value.splice(index, 1);
-    
+
     // Send close request to client
     try {
       await fetch(getUrl("/close-app"), {
@@ -172,6 +179,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   return {
+    getAppByID,
     runningApps,
     activeAppIndex,
     activeApp,

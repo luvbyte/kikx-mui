@@ -3,6 +3,8 @@
   import { useUIConfig } from "@/stores/kikx";
 
   import { getUrl } from "@/kikx/config";
+  import { sanitizeAlert } from "@/kikx/utils";
+
   import TimeStampRelative from "@/components/utils/TimeStampRelative.vue";
 
   const props = defineProps(["onAlertClick", "close", "closePanel"]);
@@ -154,7 +156,7 @@
       <div
         v-for="appAlert in sortedAlerts"
         :key="appAlert.uid"
-        class="relative flex items-start gap-2 bg-white/60 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
+        class="p-1 relative flex items-start gap-2 bg-white/60 border-white/40 rounded-xl border-2 shadow-lg transition-all duration-300"
         :style="
           swiping === appAlert.uid
             ? {
@@ -176,18 +178,15 @@
             class="h-12 rounded-lg object-cover aspect-square border-2 border-white/20 bg-white/20"
           />
         </div>
-        <!-- Timestamp -->
-        <div class="absolute top-2 right-2 badge badge-sm opacity-60">
-          <TimeStampRelative :timestamp="appAlert.createdAt" />
-        </div>
 
         <!-- Content -->
         <div
-          class="flex-1 flex flex-col gap-1 min-w-0 transition-all duration-600"
+          class="font-semibold flex-1 flex flex-col min-w-0 transition-all duration-600"
         >
           <!-- Header -->
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex gap-1 items-center">
+          <div class="w-full pr-2 flex items-center justify-between gap-2">
+            <!---->
+            <div class="py-1 flex items-center gap-1">
               <h1 class="max-w-32 font-semibold leading-tight truncate">
                 {{ appAlert.title }}
               </h1>
@@ -263,33 +262,28 @@
                 </svg>
               </div>
             </div>
+
+            <div class="badge badge-xs opacity-60">
+              <TimeStampRelative :timestamp="appAlert.createdAt" />
+            </div>
           </div>
 
           <!-- Message -->
           <div class="relative text-sm">
             <div
+              class="py-1"
               :class="[
-                'whitespace-pre-line w-[85%] font-medium',
+                'w-[85%] font-medium',
                 !expandedAlerts.has(appAlert.uid) ? 'line-clamp-2' : ''
               ]"
-            >
-              <template v-if="Array.isArray(appAlert.msg)">
-                {{ appAlert.msg.join(" ") }}
-              </template>
-              <template v-else>
-                {{ appAlert.msg }}
-              </template>
-            </div>
+              v-html="sanitizeAlert(appAlert.msg)"
+            ></div>
 
             <!-- Expand Button -->
             <button
-              v-if="
-                (Array.isArray(appAlert.msg)
-                  ? appAlert.msg.join(' ').length
-                  : appAlert.msg?.length) > 120
-              "
+              v-if="appAlert.msg?.length > 100"
               @click.stop="toggleExpand(appAlert.uid)"
-              class="absolute -bottom-2 -right-1 text-xs text-secondary bg-white/80 px-2 py-0.5 rounded-md shadow"
+              class="absolute bottom-0 right-0.5 text-xs text-white px-2 py-0.5"
             >
               <svg
                 v-if="expandedAlerts.has(appAlert.uid)"

@@ -2,10 +2,11 @@
   <Loading v-if="loading" class="text-white" />
 
   <div v-else class="flex-1 overflow-y-auto scrollbar-hide">
+
     <!-- User Info -->
     <div class="p-2 flex justify-between items-center bg-white/20">
       <h1 class="font-semibold text-white">{{ info.user.name }}</h1>
-      <div class="badge badge-sm badge-primary shadow-lg">
+      <div class="badge badge-sm shadow-lg font-heading">
         {{ info.user.username }}
       </div>
     </div>
@@ -13,7 +14,7 @@
     <!-- Client Info -->
     <div class="flex flex-col text-white">
       <div
-        class="p-2 flex justify-center items-center bg-white/60 border-y border-white/40"
+        class="p-2 flex justify-center items-center bg-white/30 border-y border-white/40"
       >
         <h1 class="font-semibold">Session</h1>
       </div>
@@ -52,7 +53,7 @@
     <!-- Apps Info -->
     <div class="flex flex-col text-white">
       <div
-        class="p-2 flex justify-center items-center bg-white/60 border-y border-white/40"
+        class="p-2 flex justify-center items-center bg-white/30 border-y border-white/40"
       >
         <h1 class="font-semibold">Apps</h1>
       </div>
@@ -135,13 +136,7 @@
 
   async function fetchInfo() {
     try {
-      const res = await system.func("info");
-
-      console.log(res);
-
-      if (res?.data) {
-        info.value = res.data;
-      }
+      info.value = await system.getClientInfo();
     } catch (err) {
       console.error("Failed to fetch info:", err);
     }

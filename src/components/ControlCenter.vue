@@ -121,7 +121,7 @@
           </CCButton>
 
           <!-- Fullscreen Button -->
-          <CCButton v-if="!isAndroidWebView()" @click="toggleFullscreen">
+          <CCButton @click="toggleFullscreen">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="26"
@@ -156,6 +156,7 @@
               />
             </svg>
           </button>
+
           <!-- Settings Button -->
           <button
             v-if="false"
@@ -178,6 +179,7 @@
               </g>
             </svg>
           </button>
+
           <!-- Logout Button -->
           <button
             class="btn btn-lg btn-secondary btn-circle"
@@ -215,8 +217,6 @@
 
 <script setup lang="ts">
   import { ref } from "vue";
-
-  import { Icon } from "@iconify/vue";
   import { useUIConfig } from "@/stores/kikx";
 
   import { isAndroidWebView } from "@/kikx/utils";
@@ -299,3 +299,4 @@
     }
   }
 </script>
+

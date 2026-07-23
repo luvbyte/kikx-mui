@@ -17,7 +17,7 @@
     <div
       class="px-2 py-3 border-b border-white/20 bg-blue-400/60 flex justify-between items-center"
     >
-      <h1 class="text-white font-semibold tracking-wide">KIKX MUI</h1>
+      <h1 class="text-white font-semibold tracking-wide">KIKX - MUI</h1>
       <button @click="closePanel" class="btn btn-xs opacity-80">
         <svg
           xmlns="http://www.w3.org/2000/svg"

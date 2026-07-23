@@ -7,7 +7,8 @@
     <Transition name="fade">
       <AppsMenu
         v-if="showMenu"
-        :openApp="openApp"
+        @openApp="(name, options = {}) => emit('openApp', name, options)"
+        :uninstallApp="uninstallApp"
         class="absolute inset-0 bg-black/60"
       />
     </Transition>
@@ -18,7 +19,10 @@
   import { ref } from "vue";
   import AppsMenu from "@/components/AppsMenu.vue";
 
-  const props = defineProps(["openApp", "changeScreen"]);
+  import AppLaunchInfo from "@/components/AppLaunchInfo.vue";
+
+  const props = defineProps(["uninstallApp"]);
+  const emit = defineEmits(["openApp", "changeScreen"]);
 
   const showMenu = ref(false);
 
@@ -26,12 +30,12 @@
     if (direction === "up") {
       showMenu.value = true;
     } else if (direction === "left") {
-      props.changeScreen("control");
+      emit("changeScreen", "control");
     } else if (direction === "down") {
       // Problem when many apps
       // props.changeScreen("control");
     } else if (direction === "right") {
-      props.changeScreen("app-control");
+      emit("changeScreen", "app-control");
     }
   }
 </script>
