@@ -1,6 +1,8 @@
 import { ref, computed } from "vue";
 import { getUrl } from "@/kikx/config";
 
+import { requestOpenApp, requestCloseApp } from "@/kikx";
+
 export function useRunningApps(client, uiConfig, changeScreen) {
   const runningApps = ref([]);
   const activeAppIndex = ref(-1);
@@ -65,64 +67,22 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     const options = { sudo, query, args };
 
     try {
-      const res = await fetch(getUrl("/open-app"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          options,
-          client_id: client.clientID
-        })
-      });
-
-      const data = await res.json();
+      const data = await requestOpenApp(name, options, client.clientID);
 
       runningApps.value.push(data);
       setActiveApp(runningApps.value.length - 1);
       changeScreen("app");
     } catch (err) {
-      console.error("Open app failed:", err);
+      console.log(err);
     }
   }
 
   // ---------------- CLOSE APP
-  async function __closeApp(index) {
-    const app = runningApps.value[index];
-    if (!app) return;
-
-    runningApps.value.splice(index, 1);
-
-    try {
-      await fetch(getUrl("/close-app"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          app_id: app.id,
-          client_id: client.clientID
-        })
-      });
-
-      uiConfig.removeAppAlerts(app.id);
-    } catch (err) {
-      console.error("Close app failed:", err);
-    }
-
-    const total = runningApps.value.length;
-
-    if (total === 0) {
-      activeAppIndex.value = -1;
-      changeScreen("home");
-      return;
-    }
-
-    if (index >= total) {
-      activeAppIndex.value = total - 1;
-    }
-  }
-
   async function closeApp(index) {
     const app = runningApps.value[index];
     if (!app) return;
+
+    requestCloseApp(app.id, client.clientID).catch(() => {});
 
     // Keep the same app active when removing an app before it
     if (index < activeAppIndex.value) {
@@ -131,21 +91,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
 
     runningApps.value.splice(index, 1);
 
-    // Send close request to client
-    try {
-      await fetch(getUrl("/close-app"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          app_id: app.id,
-          client_id: client.clientID
-        })
-      });
-
-      uiConfig.removeAppAlerts(app.id);
-    } catch (err) {
-      console.error("Close app failed:", err);
-    }
+    uiConfig.removeAppAlerts(app.id);
 
     const total = runningApps.value.length;
 

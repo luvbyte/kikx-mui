@@ -11,8 +11,12 @@
       <h1 class="p-2 text-lg font-semibold bg-white/30">Alert</h1>
       <p class="p-2">{{ message }}</p>
 
+      <slot />
+
       <div class="p-4 flex justify-end gap-2">
-        <button class="btn btn-sm" @click="emit('onResponse', false)">Cancel</button>
+        <button class="btn btn-sm" @click="emit('onResponse', false)">
+          Cancel
+        </button>
 
         <button
           class="btn btn-sm btn-success min-w-18"

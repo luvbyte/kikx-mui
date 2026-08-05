@@ -371,13 +371,11 @@
 
     // App installed or updated close it
     client.on("app:installed", payload => {
-      console.log("App Installed : ", payload);
       closeAppByName(payload.name);
     });
 
     // App uninstalled
     client.on("app:uninstalled", payload => {
-      console.log("App Uninstalled : ", payload);
       closeAppByName(payload.name);
     });
 

@@ -37,6 +37,47 @@ export async function fetchAppsList() {
   return await res.json();
 }
 
+// Open App
+export async function requestOpenApp(name, options, clientID) {
+  const res = await fetch(getUrl("/open-app"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      options,
+      client_id: clientID
+    })
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(data?.detail ?? `Failed to open "${name}"`);
+  }
+
+  return data;
+}
+
+// Close App
+export async function requestCloseApp(appID, clientID) {
+  const res = await fetch(getUrl("/close-app"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      app_id: appID,
+      client_id: clientID
+    })
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(data?.detail ?? `Failed to close "${name}"`);
+  }
+
+  return data;
+}
+
 export const muiConfig = {
   configFilePath: muiPath + "/config.json",
 

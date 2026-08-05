@@ -180,6 +180,7 @@ class Client {
       console.warn("Cannot send. WebSocket not open.");
     }
   }
+
   async _logout() {
     this._loggedOut = true;
     if (this.ws) this.ws.close();
@@ -195,9 +196,9 @@ class Client {
     });
   }
 
-  uninstallApp = async name => {
+  uninstallApp = async (name, keepData = false) => {
     const res = await this.system.request(
-      `app/uninstall?app_name=${name}`,
+      `app/uninstall?app_name=${name}&keep_data=${keepData}`,
       "DELETE"
     );
 

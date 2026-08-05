@@ -66,7 +66,16 @@
         v-if="showAlert"
         :message="`Do you want to uninstall '${app.title}' app?`"
         @onResponse="onResponse"
-      />
+      >
+        <label class="label cursor-pointer p-2">
+          <input
+            type="checkbox"
+            v-model="keepData"
+            class="checkbox border border-white text-white"
+          />
+          <span class="label-text">Keep Data</span>
+        </label>
+      </Alert>
     </Transition>
   </div>
 </template>
@@ -78,6 +87,7 @@
   import Alert from "@/components/ui/Alert.vue";
 
   const showAlert = ref(false);
+  const keepData = ref(false);
 
   const props = defineProps(["app", "uninstallApp"]);
   const emit = defineEmits(["openApp", "close"]);
@@ -85,7 +95,7 @@
   function onResponse(success) {
     showAlert.value = false;
     if (success) {
-      props.uninstallApp(props.app.name);
+      props.uninstallApp(props.app.name, keepData.value);
     }
   }
 

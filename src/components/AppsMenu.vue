@@ -15,9 +15,9 @@
     appsList.value = await fetchAppsList();
   }
 
-  async function uninstall(name) {
+  async function uninstall(name, keepData) {
     selected.value = null;
-    await props.uninstallApp(name);
+    await props.uninstallApp(name, keepData);
     await loadAppsList();
   }
 
