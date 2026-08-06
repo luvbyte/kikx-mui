@@ -1,6 +1,7 @@
 export const muiPath = "home://.config/mui";
 export const defaultBackground = "images/bg.png";
 
+export const VERSION = "0.3.2";
 // ----------------
 
 export const DEV = process.env.NODE_ENV !== "production";

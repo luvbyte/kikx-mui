@@ -196,15 +196,11 @@ class Client {
     });
   }
 
-  uninstallApp = async (name, keepData = false) => {
-    const res = await this.system.request(
+  uninstallApp = (name, keepData = false) => {
+    return this.system.request(
       `app/uninstall?app_name=${name}&keep_data=${keepData}`,
       "DELETE"
     );
-
-    if (!res.ok) {
-      throw new Error(res.error.detail);
-    }
   };
 }
 

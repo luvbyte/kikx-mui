@@ -1,11 +1,14 @@
 import { ref, computed } from "vue";
 import { getUrl } from "@/kikx/config";
 
+import { useErrorStore } from "@/stores/error";
+
 import { requestOpenApp, requestCloseApp } from "@/kikx";
 
 export function useRunningApps(client, uiConfig, changeScreen) {
   const runningApps = ref([]);
   const activeAppIndex = ref(-1);
+  const errors = useErrorStore();
 
   // ---------------- ACTIVE APP
   const activeApp = computed(() => {
@@ -73,7 +76,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
       setActiveApp(runningApps.value.length - 1);
       changeScreen("app");
     } catch (err) {
-      console.log(err);
+      errors.raiseError(err, "error", `Error opening app: ${name}`);
     }
   }
 
@@ -82,7 +85,16 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     const app = runningApps.value[index];
     if (!app) return;
 
-    requestCloseApp(app.id, client.clientID).catch(() => {});
+    try {
+      await requestCloseApp(app.id, client.clientID);
+    } catch (err) {
+      errors.raiseError(
+        err,
+        "error",
+        `Error closing app: ${app.manifest.name}`
+      );
+      return;
+    }
 
     // Keep the same app active when removing an app before it
     if (index < activeAppIndex.value) {
@@ -106,7 +118,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
     }
   }
 
-  // ---------------- EXTERNAL CLOSE (ws event safe)
+  // ---------------- EXTERNAL APP BY ID
   function closeAppById(appId) {
     const index = runningApps.value.findIndex(a => a.id === appId);
     if (index !== -1) {

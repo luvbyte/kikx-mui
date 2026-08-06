@@ -39,43 +39,57 @@ export async function fetchAppsList() {
 
 // Open App
 export async function requestOpenApp(name, options, clientID) {
-  const res = await fetch(getUrl("/open-app"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      options,
-      client_id: clientID
-    })
-  });
+  const url = getUrl("/open-app");
 
-  const data = await res.json().catch(() => null);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        options,
+        client_id: clientID
+      })
+    });
 
-  if (!res.ok) {
-    throw new Error(data?.detail ?? `Failed to open "${name}"`);
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.detail ?? `Failed to open "${name}"`);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    throw err;
   }
-
-  return data;
 }
 
 // Close App
 export async function requestCloseApp(appID, clientID) {
-  const res = await fetch(getUrl("/close-app"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      app_id: appID,
-      client_id: clientID
-    })
-  });
+  const url = getUrl("/close-app");
 
-  const data = await res.json().catch(() => null);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        app_id: appID,
+        client_id: clientID
+      })
+    });
+    const data = await res.json().catch(() => null);
 
-  if (!res.ok) {
-    throw new Error(data?.detail ?? `Failed to close "${name}"`);
+    if (!res.ok) {
+      throw new Error(data?.detail ?? `Failed to close app`);
+    }
+    return data;
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    throw err;
   }
-
-  return data;
 }
 
 export const muiConfig = {

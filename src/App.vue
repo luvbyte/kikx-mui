@@ -27,12 +27,16 @@
   import Share from "@/components/modules/Share.vue";
   import WallpaperChanger from "@/components/modules/WallpaperChanger.vue";
 
+  import AlertError from "@/components/ui/AlertError.vue";
+
   import { getUrl } from "@/kikx/config";
   import { useClient, devLogin, muiConfig } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
 
   import { useUIConfig } from "@/stores/kikx";
+  import { useErrorStore } from "@/stores/error";
+
   import { useKeyboard } from "@/composables/useKeyboard";
   import { useRunningApps } from "@/composables/useRunningApps";
 
@@ -40,6 +44,7 @@
   // Kikx Client
   const client = useClient();
   const uiConfig = useUIConfig();
+  const errors = useErrorStore();
 
   // Loading, connected state
   const connecting = ref(true);
@@ -257,6 +262,18 @@
     closeApp(activeAppIndex.value);
   }
 
+  async function uninstallApp(name, keepData = false) {
+    const { error } = await client.uninstallApp(name, keepData);
+
+    if (error) {
+      errors.raiseError(
+        error.detail || "Error uninstalling app",
+        "error",
+        `Error uninstalling: ${name}`
+      );
+    }
+  }
+
   // On app alert
   function appAlert(payload) {
     if (!uiConfig.state.isSilent && !payload.silent) {
@@ -410,8 +427,6 @@
       // load config and watch
       await loadConfigAndWatch();
 
-      console.log("Client Event:", data);
-
       connected.value = true;
       connecting.value = false;
     });
@@ -449,7 +464,7 @@
       <HomeScreen
         v-if="currentScreen === 'home'"
         @openApp="openApp"
-        :uninstallApp="client.uninstallApp"
+        :uninstallApp="uninstallApp"
         @changeScreen="changeScreen"
       />
 
@@ -618,6 +633,15 @@
       />
       <Logout v-else-if="currentModule === 'Logout'" @close="closeModule" />
     </div>
+
+    <!-- Global Error Alerts -->
+    <Transition name="fade-scale">
+      <AlertError
+        v-if="errors.errorStack.length > 0"
+        :message="errors.getErrorMessage()"
+        @close="errors.closeError"
+      />
+    </Transition>
   </div>
 </template>
 
