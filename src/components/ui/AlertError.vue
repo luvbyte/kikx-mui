@@ -5,7 +5,7 @@
   >
     <div
       @click.stop
-      class="w-full max-w-md rounded-2xl border border-white/30 bg-white/15 backdrop-blur-xl shadow-2xl text-white overflow-hidden"
+      class="w-full max-w-md rounded-2xl border border-white/30 bg-white/15 shadow-2xl text-white overflow-hidden"
     >
       <div
         v-if="message.title"
