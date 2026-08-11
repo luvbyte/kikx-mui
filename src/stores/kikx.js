@@ -10,8 +10,20 @@ export const useUIConfig = defineStore("uiConfig", () => {
     isSilent: false, // Silent
     canToast: true, // Top toast alert
     iScreen: false, // IScreen mode ( hides statusbar )
-    stickBar: false, // Side stick
-    navbar: true // navbar
+    navbar: true, // navbar
+    swipeNav: false, // Swipe Navigation
+
+    // Settings
+    networkIcon: true,
+    // Block Alerts
+    blockAlerts: true,
+
+    navLayout: "normal",
+
+    iconsStyle: "wrap",
+    splash: "pulse",
+    batteryIcon: "circle",
+    haptic: "crisp"
   });
 
   //

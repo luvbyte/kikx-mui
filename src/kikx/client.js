@@ -1,11 +1,3 @@
-import {
-  generateUUID,
-  getCookie,
-  setCookie,
-  blobToText,
-  parseArgsAndKwargs
-} from "./utils";
-
 import { wsUrl } from "./config";
 import { FileSystemService, SystemService } from "./service";
 
@@ -32,8 +24,8 @@ class Client {
       this.reconnectAttempts = 0;
     });
 
-    window.addEventListener("app:exit", async () => {
-      // app exit
+    window.addEventListener("client:logout", async () => {
+      // Logout
       await this._logout();
     });
 
@@ -43,7 +35,7 @@ class Client {
         try {
           this.send({ event: "ping", payload: {} });
         } catch (e) {
-          // alert("kikx disconnected refresh");
+          // alert("kikx disconnected");
         }
       }
     });
@@ -181,15 +173,8 @@ class Client {
     }
   }
 
-  async _logout() {
-    this._loggedOut = true;
-    if (this.ws) this.ws.close();
-    // send logout request
-    return await this.system.request("client-logout", "POST");
-  }
-
-  async sendAppEvent(event, appID, payload = {}) {
-    await this.system.request("client-app-event", "POST", {
+  sendAppEvent(event, appID, payload = {}) {
+    return this.system.request("client-app-event", "POST", {
       app_id: appID,
       event,
       payload
@@ -202,6 +187,13 @@ class Client {
       "DELETE"
     );
   };
+
+  _logout() {
+    this._loggedOut = true;
+    if (this.ws) this.ws.close();
+    // send logout request
+    return this.system.request("client-logout", "POST");
+  }
 }
 
 export { Client };

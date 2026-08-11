@@ -45,6 +45,8 @@
   import { getImageUrl } from "@/kikx/config";
   import { useClient } from "@/kikx";
 
+  import { vibrate } from "@/kikx/vibrate";
+
   const client = useClient();
   const emit = defineEmits(["close"]);
 
@@ -92,11 +94,13 @@
   onMounted(() => {
     gifSrc.value = getImageUrl(`images/logout.gif?t=${Date.now()}`);
     startTimer();
+    vibrate("jutsu");
   });
 
   onBeforeUnmount(() => {
     if (timer) {
       clearInterval(timer);
     }
+    vibrate(null);
   });
 </script>

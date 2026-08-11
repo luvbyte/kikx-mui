@@ -128,7 +128,7 @@
 
   const fileInfo = ref(null);
 
-  const item = props.options.item;
+  const item = String(props.options.item);
 
   // Share item type
   const itemType = (() => {

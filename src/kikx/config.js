@@ -1,12 +1,13 @@
+const { protocol, hostname, port } = window.location;
+
+// ----------------
 export const muiPath = "home://.config/mui";
 export const defaultBackground = "images/bg.png";
 
-export const VERSION = "0.3.2";
+export const VERSION = "0.3.3";
 // ----------------
 
 export const DEV = process.env.NODE_ENV !== "production";
-
-const { protocol, hostname, port } = window.location;
 
 export const apiUrl = DEV
   ? "http://localhost:8000"
@@ -25,7 +26,7 @@ export const getUrl = end => {
   return apiUrl + endUrl;
 };
 
-export const getImageUrl = url => {
+export const getAssetUrl = url => {
   if (url.startsWith("/")) {
     return apiUrl + url;
   } else if (url.startsWith("http")) {
@@ -34,11 +35,10 @@ export const getImageUrl = url => {
   return DEV ? "/" + url : url;
 };
 
+export const getImageUrl = url => {
+  return getAssetUrl(url);
+};
+
 export const getAudioUrl = url => {
-  if (url.startsWith("/")) {
-    return apiUrl + url;
-  } else if (url.startsWith("http")) {
-    return url;
-  }
-  return DEV ? "/" + url : url;
+  return getAssetUrl(url);
 };

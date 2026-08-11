@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
   import {
     ref,
     toRaw,
@@ -10,22 +10,21 @@
   } from "vue";
   import { watchDebounced } from "@vueuse/core";
 
-  import { getAppTheme } from "@/kikx/style";
-
   import Bg from "@/components/Bg.vue";
   import App from "@/components/App.vue";
   import Navbar from "@/components/Navbar.vue";
   import Loading from "@/components/Loading.vue";
-  import RightStick from "@/components/RightStick.vue";
+  import SwipeNav from "@/components/SwipeNav.vue";
   import ControlCenter from "@/components/ControlCenter.vue";
 
-  import Statusbar from "@/components/Status/Statusbar.vue";
+  import Statusbar from "@/components/status/Statusbar.vue";
 
   import HomeScreen from "@/components/HomeScreen.vue";
 
   import Logout from "@/components/modules/Logout.vue";
   import Share from "@/components/modules/Share.vue";
   import WallpaperChanger from "@/components/modules/WallpaperChanger.vue";
+  import Settings from "@/components/modules/Settings.vue";
 
   import AlertError from "@/components/ui/AlertError.vue";
 
@@ -33,6 +32,8 @@
   import { useClient, devLogin, muiConfig } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
+  import { haptic, vibrate } from "@/kikx/vibrate";
+  import { getAppTheme, hasAppTheme } from "@/kikx/style";
 
   import { useUIConfig } from "@/stores/kikx";
   import { useErrorStore } from "@/stores/error";
@@ -59,9 +60,15 @@
   const currentModule = ref(null);
   let currentModuleOptions = {};
 
+  // hidden screens for navbar
+  const appScreens = ["app-control", "app"];
+  // Hide navbar in these screens
+  const navbarHiddenScreens = ["app-control", "control"];
+
   const {
     getAppByID,
     runningApps,
+    hasRunningApps,
     activeAppIndex,
     activeApp,
     setActiveApp,
@@ -80,7 +87,7 @@
     // If screen is in home and switch app-control
     if (currentScreen.value === "home" && name === "app-control") {
       setTimeout(() => {
-        if (runningApps.value.length > 0) {
+        if (hasRunningApps.value) {
           changeScreen("app");
         }
       }, 1000);
@@ -88,6 +95,10 @@
 
     lastScreen.value = currentScreen.value;
     currentScreen.value = name;
+  }
+
+  function runHaptic() {
+    haptic(uiConfig.state.haptic);
   }
 
   // Show Module
@@ -113,7 +124,7 @@
   }
 
   // Scroll Tab To App
-  function scrollTabToApp(index: number) {
+  function scrollTabToApp(index) {
     if (index < 0) return;
     if (currentScreen.value !== "app-control") return;
     if (!runningApps.value[index]) return;
@@ -131,10 +142,6 @@
     }
   }
 
-  // hidden screens for navbar
-  const appScreens = ["app-control", "app"];
-  const navbarHiddenScreens = ["app-control", "control"];
-
   const canShowNavbar = computed(
     () =>
       uiConfig.state.navbar &&
@@ -146,8 +153,9 @@
   // Bottom right transparent button
   const canShowFallbackTrigger = computed(
     () =>
+      !currentModule.value &&
       !uiConfig.state.navbar &&
-      !uiConfig.state.stickBar &&
+      !uiConfig.state.swipeNav &&
       !navbarHiddenScreens.includes(currentScreen.value)
   );
 
@@ -167,6 +175,8 @@
 
   // ------------------ Event Handlers
   function onAppControlSwipe(direction) {
+    runHaptic();
+
     if (direction === "up") {
       changeScreen("home");
     }
@@ -180,7 +190,7 @@
   }
 
   function onAppControlClick() {
-    if (runningApps.value.length > 0) {
+    if (hasRunningApps.value) {
       changeScreen("app");
     } else {
       changeScreen("home");
@@ -188,15 +198,21 @@
   }
 
   function onAppScreenClick() {
-    if (runningApps.value.length <= 0) {
+    if (!hasRunningApps.value) {
       changeScreen("home");
     }
   }
 
-  function onStickBarSwipe(direction) {
+  function onSwipeNav(direction) {
+    runHaptic();
+
     if (direction === "up") {
       const screen =
-        currentScreen.value === "app-control" ? "app" : "app-control";
+        currentScreen.value === "app-control"
+          ? hasRunningApps.value
+            ? "app"
+            : "home"
+          : "app-control";
       changeScreen(screen);
     } else if (direction === "down") {
       changeScreen("home");
@@ -205,6 +221,8 @@
 
   // On bottom fallback bubble click
   function onFallbackBubbleClick() {
+    runHaptic();
+
     changeScreen("app-control");
   }
 
@@ -217,6 +235,7 @@
     if (btnIndex === 0) {
       changeScreen("control");
     } else if (btnIndex === 1) {
+      runHaptic();
       closeActiveApp();
     }
   }
@@ -229,8 +248,10 @@
     }
   }
 
-  // 0 - home, 1 - app-control, 2 close (depends)
+  // 0 - home, 1 - app-control, 2 close / back (depends)
   function onNavbarClick(btnIndex) {
+    runHaptic();
+
     if (btnIndex === 0) {
       changeScreen("home");
     } else if (btnIndex === 1) {
@@ -262,6 +283,7 @@
     closeApp(activeAppIndex.value);
   }
 
+  // Uninstall App
   async function uninstallApp(name, keepData = false) {
     const { error } = await client.uninstallApp(name, keepData);
 
@@ -276,6 +298,8 @@
 
   // On app alert
   function appAlert(payload) {
+    if (uiConfig.state.blockAlerts) return;
+
     if (!uiConfig.state.isSilent && !payload.silent) {
       playSound("alert");
     }
@@ -310,7 +334,6 @@
 
     watchDebounced(
       () => ({ ...uiConfig.state }),
-      // () => uiConfig.state,
       async () => {
         await muiConfig.save();
       },
@@ -355,9 +378,11 @@
     // Theme for app
     else if (name === "set-theme") {
       const { theme } = options;
-      if (!theme) return;
 
-      //
+      if (!hasAppTheme(theme)) {
+        throw new Error(`Invalid Theme: ${theme}`);
+      }
+
       getAppByID(invoker.id).manifest.theme = theme;
     }
   }
@@ -413,8 +438,8 @@
       } else if (payload.action === "action") {
         try {
           onAppAction(payload.invoker, payload.payload);
-        } catch (e) {
-          console.log("Error on app:invoke:action:", payload, e);
+        } catch (err) {
+          console.log("Error on app:invoke:action:", payload, err);
         }
       }
     });
@@ -423,7 +448,7 @@
     client.on("app:alert", payload => appAlert(payload));
 
     // run
-    client.run(async data => {
+    client.run(async () => {
       // load config and watch
       await loadConfigAndWatch();
 
@@ -460,20 +485,23 @@
 
     <!-- Screens -->
     <div class="flex-1 relative">
-      <!-- Apps menu overlay -->
+      <!-- Home -->
       <HomeScreen
         v-if="currentScreen === 'home'"
-        @openApp="openApp"
+        :openApp="openApp"
         :uninstallApp="uninstallApp"
+        :runHaptic="runHaptic"
+        :iconsStyle="uiConfig.state.iconsStyle"
         @changeScreen="changeScreen"
       />
 
       <Transition name="fade">
         <ControlCenter
           v-if="currentScreen === 'control'"
-          :close="onControlCenterClose"
           :showModule="showModule"
           :onAlertClick="onAlertClick"
+          :runHaptic="runHaptic"
+          @close="onControlCenterClose"
         />
       </Transition>
 
@@ -493,6 +521,7 @@
             class="fscreen overflow-hidden"
             v-show="activeAppIndex === index && activeAppIndex !== -1"
             :app="app"
+            :splash="uiConfig.state.splash"
           />
         </div>
 
@@ -600,21 +629,22 @@
         :isKeyboardOpen="isKeyboardOpen"
         :closeKeyboard="closeKeyboard"
         :theme="activeAppTheme"
+        :navLayout="uiConfig.state.navLayout"
       />
     </Transition>
 
     <!-- Bottom bubble Triggers (fallback) -->
     <div
       v-if="canShowFallbackTrigger"
-      class="absolute bottom-0 right-0 z-[150] bg-white/10 w-12 h-12 rounded-tl-full"
+      class="absolute bottom-0 right-0 z-[150] bg-white/5 w-12 h-12 rounded-tl-full"
       @click="onFallbackBubbleClick"
     ></div>
 
-    <!-- swipe bubble stick -->
+    <!-- Swipenav -->
     <Transition name="slide-left">
-      <RightStick
-        v-if="uiConfig.state.stickBar"
-        :onStickBarSwipe="onStickBarSwipe"
+      <SwipeNav
+        v-if="uiConfig.state.swipeNav && !currentModule"
+        :onSwipeNav="onSwipeNav"
       />
     </Transition>
 
@@ -629,6 +659,11 @@
         v-else-if="currentModule === 'Share'"
         :options="currentModuleOptions"
         @shareUsingApp="shareUsingApp"
+        @close="closeModule"
+      />
+      <Settings
+        v-else-if="currentModule === 'Settings'"
+        :options="currentModuleOptions"
         @close="closeModule"
       />
       <Logout v-else-if="currentModule === 'Logout'" @close="closeModule" />

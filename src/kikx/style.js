@@ -37,6 +37,9 @@ const appThemes = {
   highContrast: "bg-black text-yellow-400"
 };
 
+// Check if theme exists
+export const hasAppTheme = theme => Boolean(theme) && theme in appThemes;
+
 // Theme apply to statusbar & navbar
 export function getAppTheme(theme) {
   return appThemes[theme] || appThemes.default;

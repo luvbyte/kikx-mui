@@ -9,7 +9,7 @@
       class="p-4 w-full flex items-center justify-center border-2 border-white/60 bg-white/20 rounded-2xl"
     >
       <div class="px-4 max-w-md">
-        <div @click.stop class="grid grid-cols-4 gap-3 p-3">
+        <div @click.stop class="grid grid-cols-5 gap-3 p-3">
           <!-- Buttons -->
           <CCButton v-model="uiConfig.state.isSilent">
             <template #before>
@@ -35,7 +35,6 @@
                 </g>
               </svg>
             </template>
-
             <template #after>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -51,7 +50,6 @@
               </svg>
             </template>
           </CCButton>
-
           <!-- Notify / Toast Button -->
           <CCButton v-model="uiConfig.state.canToast">
             <svg
@@ -70,22 +68,51 @@
               />
             </svg>
           </CCButton>
-
-          <!-- Navigation Button -->
-          <CCButton v-model="uiConfig.state.navbar">
+          <!-- Block Alerts -->
+          <CCButton v-model="uiConfig.state.blockAlerts">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="28"
               height="28"
               viewBox="0 0 24 24"
             >
+              <path d="M0 0h24v24H0z" fill="none" />
               <path
                 fill="currentColor"
-                d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1m0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1M3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1"
+                d="M12 2c5.5 0 10 4.5 10 10s-4.5 10-10 10S2 17.5 2 12S6.5 2 12 2m0 2c-1.9 0-3.6.6-4.9 1.7l11.2 11.2c1-1.4 1.7-3.1 1.7-4.9c0-4.4-3.6-8-8-8m4.9 14.3L5.7 7.1C4.6 8.4 4 10.1 4 12c0 4.4 3.6 8 8 8c1.9 0 3.6-.6 4.9-1.7"
               />
             </svg>
           </CCButton>
-
+          <!-- Navigation Button -->
+          <CCButton v-model="uiConfig.state.navbar">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 20 20"
+            >
+              <path d="M0 0h20v20H0z" fill="none" />
+              <path
+                fill="currentColor"
+                d="M4 12a2 2 0 1 1 0-4a2 2 0 0 1 0 4m6 0a2 2 0 1 1 0-4a2 2 0 0 1 0 4m6 0a2 2 0 1 1 0-4a2 2 0 0 1 0 4"
+              />
+            </svg>
+          </CCButton>
+                    <!-- Swipenav Button -->
+          <CCButton v-model="uiConfig.state.swipeNav">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M5.325 3.95q-.175.625-.25 1.263T5 6.5q0 1.575.45 3.038t1.3 2.762q.2.275.175.6t-.25.55t-.525.2t-.5-.3q-1.05-1.5-1.6-3.25T3.5 6.5q0-.675.075-1.35T3.8 3.8L2.575 5.025q-.225.225-.525.225t-.525-.225T1.3 4.5t.225-.525L3.8 1.7q.3-.3.7-.3t.7.3l2.275 2.275Q7.7 4.2 7.7 4.5t-.225.525t-.525.213t-.525-.213zM16.45 20.825q-.575.2-1.162.188t-1.138-.288L8.5 18.1q-.375-.175-.525-.562T8 16.775l.05-.1q.25-.5.7-.812t1-.363l1.7-.125L8.65 7.7q-.15-.4.025-.763t.575-.512t.762.025t.513.575l2.4 6.575l.95-.35l-1.025-2.825q-.15-.4.025-.763t.575-.512t.762.025t.513.575l1.025 2.825l.925-.35L16 10.35q-.15-.4.025-.762t.575-.513t.762.025t.513.575l.675 1.875l.95-.35q-.15-.4.025-.762t.575-.513t.762.025t.513.575l1.375 3.75q.575 1.575-.113 3.063T20.375 19.4z"
+              />
+            </svg>
+          </CCButton>
+ 
           <!-- Iscreen Button -->
           <CCButton v-model="uiConfig.state.iScreen">
             <svg
@@ -104,23 +131,7 @@
               />
             </svg>
           </CCButton>
-
-          <!-- Stickbar Button -->
-          <CCButton v-model="uiConfig.state.stickBar">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="26"
-              height="26"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M5.325 3.95q-.175.625-.25 1.263T5 6.5q0 1.575.45 3.038t1.3 2.762q.2.275.175.6t-.25.55t-.525.2t-.5-.3q-1.05-1.5-1.6-3.25T3.5 6.5q0-.675.075-1.35T3.8 3.8L2.575 5.025q-.225.225-.525.225t-.525-.225T1.3 4.5t.225-.525L3.8 1.7q.3-.3.7-.3t.7.3l2.275 2.275Q7.7 4.2 7.7 4.5t-.225.525t-.525.213t-.525-.213zM16.45 20.825q-.575.2-1.162.188t-1.138-.288L8.5 18.1q-.375-.175-.525-.562T8 16.775l.05-.1q.25-.5.7-.812t1-.363l1.7-.125L8.65 7.7q-.15-.4.025-.763t.575-.512t.762.025t.513.575l2.4 6.575l.95-.35l-1.025-2.825q-.15-.4.025-.763t.575-.512t.762.025t.513.575l1.025 2.825l.925-.35L16 10.35q-.15-.4.025-.762t.575-.513t.762.025t.513.575l.675 1.875l.95-.35q-.15-.4.025-.762t.575-.513t.762.025t.513.575l1.375 3.75q.575 1.575-.113 3.063T20.375 19.4z"
-              />
-            </svg>
-          </CCButton>
-
-          <!-- Fullscreen Button -->
+         <!-- Fullscreen Button -->
           <CCButton @click="toggleFullscreen">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +149,6 @@
               />
             </svg>
           </CCButton>
-
           <!-- Wallpaper Button -->
           <button
             class="btn btn-lg btn-neutral btn-square"
@@ -156,10 +166,8 @@
               />
             </svg>
           </button>
-
           <!-- Settings Button -->
           <button
-            v-if="false"
             class="btn btn-lg btn-neutral btn-square"
             @click="showModule('Settings')"
           >
@@ -179,11 +187,13 @@
               </g>
             </svg>
           </button>
-
           <!-- Logout Button -->
           <button
             class="btn btn-lg btn-secondary btn-circle"
-            @click="showModule('Logout')"
+            @click="
+              runHaptic();
+              showModule('Logout');
+            "
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -215,21 +225,30 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
   import { ref } from "vue";
   import { useUIConfig } from "@/stores/kikx";
 
-  import { isAndroidWebView } from "@/kikx/utils";
+  import { haptic } from "@/kikx/vibrate";
+
+  import { toggleFullscreen } from "@/kikx/utils";
 
   import AlertsPanel from "@/components/AlertsPanel.vue";
   import WidgetsPanel from "@/components/widgets/WidgetsPanel.vue";
 
   import CCButton from "@/components/ui/CCButton.vue";
 
-  const props = defineProps(["close", "showModule", "onAlertClick"]);
+  const props = defineProps(["showModule", "onAlertClick", "runHaptic"]);
+  const emit = defineEmits(["close"]);
 
   const showAlerts = ref(false);
   const showWidgets = ref(false);
+
+  const uiConfig = useUIConfig();
+
+  function close() {
+    emit("close");
+  }
 
   function onSwipe(direction) {
     // if alerts panel open
@@ -255,48 +274,4 @@
       }
     }
   }
-
-  const uiConfig = useUIConfig();
-
-  function toggleFullscreen() {
-    const doc = document;
-    const elem = document.documentElement;
-
-    const isFullscreen =
-      doc.fullscreenElement ||
-      doc.webkitFullscreenElement ||
-      doc.mozFullScreenElement ||
-      doc.msFullscreenElement;
-
-    if (!isFullscreen) {
-      // Enter fullscreen
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        // Firefox
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        // Chrome, Safari, Opera
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        // IE/Edge
-        elem.msRequestFullscreen();
-      }
-
-      uiConfig.state.isFullScreen = true;
-    } else {
-      // Exit fullscreen
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen();
-      } else if (doc.mozCancelFullScreen) {
-        doc.mozCancelFullScreen();
-      } else if (doc.webkitExitFullscreen) {
-        doc.webkitExitFullscreen();
-      } else if (doc.msExitFullscreen) {
-        doc.msExitFullscreen();
-      }
-      uiConfig.state.isFullScreen = false;
-    }
-  }
 </script>
-

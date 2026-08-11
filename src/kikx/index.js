@@ -1,4 +1,5 @@
 import { Client } from "./client";
+import { request } from "./api";
 import { blobToText } from "./utils";
 
 import { getUrl, muiPath, defaultBackground, DEV } from "./config";
@@ -16,80 +17,63 @@ const muiConfigSchema = z.object({
   isSilent: z.boolean(),
   canToast: z.boolean(),
   iScreen: z.boolean(),
-  stickBar: z.boolean(),
-  navbar: z.boolean()
+  swipeNav: z.boolean(),
+  navbar: z.boolean(),
+
+  // Navigation bar layouts
+  navLayout: z.enum(["normal", "reverse"]),
+  // App icons style
+  iconsStyle: z.enum(["solid", "wrap", "icon"]),
+  // App opening animation
+  splash: z.enum(["static", "pulse", "hide"]),
+  // Battery icon style
+  batteryIcon: z.enum(["box", "circle", "hide"]),
+  // Haptics
+  haptic: z.enum(["soft", "crisp", "off"]),
+  // Network Icon
+  networkIcon: z.boolean(),
+  // Block Alerts
+  blockAlerts: z.boolean()
 });
 
+// Client Instance
 const client = new Client();
 
-// Fetch apps list
 export async function fetchAppsList() {
-  const res = await fetch(getUrl("/api/apps/list"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      client_id: client.clientID
-    })
-  });
-
-  return await res.json();
-}
-
-// Open App
-export async function requestOpenApp(name, options, clientID) {
-  const url = getUrl("/open-app");
-
   try {
-    const res = await fetch(url, {
+    return await request("/api/apps/list", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+      body: {
+        client_id: client.clientID
       },
-      body: JSON.stringify({
-        name,
-        options,
-        client_id: clientID
-      })
+      fallbackMessage: "Failed to fetch apps list"
     });
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      throw new Error(data?.detail ?? `Failed to open "${name}"`);
-    }
-
-    return data;
-  } catch (err) {
-    console.error("Fetch failed:", err);
-    throw err;
+  } catch {
+    return [];
   }
 }
 
-// Close App
-export async function requestCloseApp(appID, clientID) {
-  const url = getUrl("/close-app");
+export function requestOpenApp(name, options, clientID) {
+  return request("/open-app", {
+    method: "POST",
+    body: {
+      name,
+      options,
+      client_id: clientID
+    },
+    fallbackMessage: `Failed to open "${name}"`
+  });
+}
 
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        app_id: appID,
-        client_id: clientID
-      })
-    });
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      throw new Error(data?.detail ?? `Failed to close app`);
-    }
-    return data;
-  } catch (err) {
-    console.error("Fetch failed:", err);
-    throw err;
-  }
+export function requestCloseApp(appID, clientID) {
+  return request("/close-app", {
+    method: "POST",
+    body: {
+      app_id: appID,
+      client_id: clientID
+    },
+    fallbackMessage: "Failed to close app"
+  });
 }
 
 export const muiConfig = {

@@ -1,12 +1,16 @@
-<script setup lang="ts">
+<script setup>
   import { ref, onMounted } from "vue";
   import { fetchAppsList } from "@/kikx";
 
   import AppIcon from "@/components/ui/AppIcon.vue";
   import AppLaunchInfo from "@/components/AppLaunchInfo.vue";
 
-  const props = defineProps(["uninstallApp"]);
-  const emit = defineEmits(["openApp"]);
+  const props = defineProps([
+    "openApp",
+    "uninstallApp",
+    "runHaptic",
+    "iconsStyle"
+  ]);
 
   const appsList = ref([]);
   const selected = ref(null);
@@ -21,6 +25,11 @@
     await loadAppsList();
   }
 
+  async function selectApp(app) {
+    props.runHaptic();
+    selected.value = app;
+  }
+
   onMounted(loadAppsList);
 </script>
 
@@ -30,21 +39,22 @@
       <AppLaunchInfo
         v-if="selected"
         :app="selected"
-        @openApp="(name, options = {}) => emit('openApp', name, options)"
+        :openApp="openApp"
         :uninstallApp="uninstall"
         @close="selected = null"
       />
     </Transition>
 
     <div class="flex justify-center">
-      <div class="py-6 px-2 grid grid-cols-4 gap-4">
+      <div class="py-6 px-3 grid grid-cols-4 gap-2">
         <AppIcon
           v-for="app in appsList"
           :key="app.name"
-          @click="emit('openApp', app.name)"
-          v-longpress="() => (selected = app)"
+          @click="openApp(app.name)"
+          v-longpress="() => selectApp(app)"
           :title="app.title"
           :icon="app.icon"
+          :iconStyle="iconsStyle"
           class="w-full aspect-square max-w-20 justify-self-center"
         />
       </div>

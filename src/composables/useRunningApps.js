@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { getUrl } from "@/kikx/config";
 
 import { useErrorStore } from "@/stores/error";
@@ -21,6 +21,8 @@ export function useRunningApps(client, uiConfig, changeScreen) {
 
     return runningApps.value[activeAppIndex.value];
   });
+
+  const hasRunningApps = computed(() => runningApps.value.length > 0);
 
   // ---------------- SET ACTIVE
   function setActiveApp(index) {
@@ -66,7 +68,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   }
 
   // ---------------- OPEN APP
-  async function openApp(name, { sudo = false, args = [], query = {} }) {
+  async function openApp(name, { sudo = false, args = [], query = {} } = {}) {
     const options = { sudo, query, args };
 
     try {
@@ -74,9 +76,16 @@ export function useRunningApps(client, uiConfig, changeScreen) {
 
       runningApps.value.push(data);
       setActiveApp(runningApps.value.length - 1);
-      changeScreen("app");
     } catch (err) {
       errors.raiseError(err, "error", `Error opening app: ${name}`);
+    } finally {
+      changeScreen("app");
+
+      await nextTick();
+
+      if (!hasRunningApps.value) {
+        changeScreen("home");
+      }
     }
   }
 
@@ -139,6 +148,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
   return {
     getAppByID,
     runningApps,
+    hasRunningApps,
     activeAppIndex,
     activeApp,
     setActiveApp,

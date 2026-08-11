@@ -2,12 +2,15 @@
   <div
     v-if="show"
     class="w-full h-10 flex items-center justify-stretch"
-    :class="getAppTheme(theme)"
+    :class="[
+      getAppTheme(theme),
+      { 'flex-row-reverse': navLayout === 'reverse' }
+    ]"
   >
     <!-- Recents -->
     <button
       @click="onNavbarClick(1)"
-      class="w-1/3 flex justify-center items-center p-1 active:bg-white/20 rounded-lg transition duration-300"
+      class="w-1/3 flex justify-center items-center p-1 active:bg-white/20 rounded-lg transition duration-100"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +27,7 @@
     <!-- Home -->
     <button
       @click="onNavbarClick(0)"
-      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-300"
+      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-100"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +45,7 @@
     <button
       v-if="isKeyboardOpen"
       @click="closeKeyboard"
-      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-300"
+      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-100"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +64,7 @@
     <button
       @click="onNavbarClick(2)"
       v-else
-      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-300"
+      class="w-1/3 p-1 flex justify-center items-center active:bg-white/20 rounded-lg transition duration-100"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -79,23 +82,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import { getAppTheme } from "@/kikx/style";
+  import { ref, onMounted, onBeforeUnmount } from "vue";
+  import { getAppTheme } from "@/kikx/style";
 
-defineProps(["onNavbarClick", "theme", "isKeyboardOpen", "closeKeyboard"]);
+  defineProps([
+    "onNavbarClick",
+    "theme",
+    "isKeyboardOpen",
+    "closeKeyboard",
+    "navLayout"
+  ]);
 
-const show = ref(false);
-let timer = null;
+  const show = ref(false);
+  let timer = null;
 
-onMounted(() => {
-  timer = setTimeout(() => {
-    show.value = true;
-  }, 300);
-});
+  onMounted(() => {
+    timer = setTimeout(() => {
+      show.value = true;
+    }, 300);
+  });
 
-onBeforeUnmount(() => {
-  if (timer) {
-    clearTimeout(timer);
-  }
-});
+  onBeforeUnmount(() => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  });
 </script>

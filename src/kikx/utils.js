@@ -152,3 +152,44 @@ export function formatTimestamp(timestamp) {
   // --- Previous years ---
   return `${year} ${month} ${day} at ${timeStr}`;
 }
+
+export function toggleFullscreen() {
+  const doc = document;
+  const elem = document.documentElement;
+
+  const isFullscreen =
+    doc.fullscreenElement ||
+    doc.webkitFullscreenElement ||
+    doc.mozFullScreenElement ||
+    doc.msFullscreenElement;
+
+  if (!isFullscreen) {
+    // Enter fullscreen
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      // Firefox
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      // Chrome, Safari, Opera
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      // IE/Edge
+      elem.msRequestFullscreen();
+    }
+
+    uiConfig.state.isFullScreen = true;
+  } else {
+    // Exit fullscreen
+    if (doc.exitFullscreen) {
+      doc.exitFullscreen();
+    } else if (doc.mozCancelFullScreen) {
+      doc.mozCancelFullScreen();
+    } else if (doc.webkitExitFullscreen) {
+      doc.webkitExitFullscreen();
+    } else if (doc.msExitFullscreen) {
+      doc.msExitFullscreen();
+    }
+    uiConfig.state.isFullScreen = false;
+  }
+}

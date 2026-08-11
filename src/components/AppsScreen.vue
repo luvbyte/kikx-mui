@@ -2,46 +2,29 @@
   <div
     v-swipe="onSwipe"
     @click="showMenu = false"
-    class="absolute inset-0 z-30 overflow-hidden bg-black/60 transition-opacity duration-300"
-    :class="{
-      'opacity-100': showMenu || opening,
-      'opacity-0': !showMenu && !opening
-    }"
+    class="absolute inset-0 z-30 overflow-hidden"
   >
     <Transition name="fade">
       <AppsMenu
         v-if="showMenu"
-        :openApp="openApp"
+        @openApp="(name, options = {}) => emit('openApp', name, options)"
         :uninstallApp="uninstallApp"
-        :runHaptic="runHaptic"
-        :iconsStyle="iconsStyle"
-        class="absolute inset-0"
+        class="absolute inset-0 bg-black/60"
       />
     </Transition>
   </div>
 </template>
 
 <script setup>
-  import { ref, onUnmounted } from "vue";
+  import { ref } from "vue";
   import AppsMenu from "@/components/AppsMenu.vue";
 
   import AppLaunchInfo from "@/components/AppLaunchInfo.vue";
 
-  const props = defineProps([
-    "openApp",
-    "uninstallApp",
-    "runHaptic",
-    "iconsStyle"
-  ]);
-  const emit = defineEmits(["changeScreen"]);
+  const props = defineProps(["uninstallApp"]);
+  const emit = defineEmits(["openApp", "changeScreen"]);
 
   const showMenu = ref(false);
-  const opening = ref(false);
-
-  function openApp(name, options = {}) {
-    opening.value = true;
-    props.openApp(name, options);
-  }
 
   function onSwipe(direction) {
     if (direction === "up") {

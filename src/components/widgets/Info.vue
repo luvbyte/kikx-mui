@@ -2,11 +2,12 @@
   <Loading v-if="loading" class="text-white" />
 
   <div v-else class="flex-1 overflow-y-auto scrollbar-hide">
-
     <!-- User Info -->
-    <div class="p-2 flex justify-between items-center bg-white/20">
+    <div
+      class="p-2 flex justify-between items-center bg-white/20 font-semibold"
+    >
       <h1 class="font-semibold text-white">{{ info.user.name }}</h1>
-      <div class="badge badge-sm shadow-lg font-heading">
+      <div class="text-sm text-white font-heading">
         {{ info.user.username }}
       </div>
     </div>
@@ -19,17 +20,21 @@
         <h1 class="font-semibold">Session</h1>
       </div>
       <!-- Up Time -->
-      <div class="p-1 flex justify-between items-center bg-white/20">
+      <div
+        class="p-1 flex justify-between items-center bg-white/20 font-semibold"
+      >
         <h1 class="text-white">Uptime</h1>
-        <div class="badge badge-sm badge-soft shadow-lg opacity-80">
+        <div class="text-sm shadow-lg">
           <TimeStampRelative :timestamp="info.created_at" />
         </div>
       </div>
       <!-- ID -->
-      <div class="px-1 flex justify-center items-center bg-white/20">
+      <div
+        class="px-1 flex justify-center items-center bg-white/20 whitespace-nowrap"
+      >
         <button
           @click="revealID = !revealID"
-          class="badge badge-sm badge-soft shadow-lg opacity-80"
+          class="text-sm bg-white/20 p-0.5 px-3 rounded-lg"
         >
           {{ revealID ? info.id : "Click to reveal session ID" }}
         </button>
@@ -40,7 +45,7 @@
       >
         <button
           @click="revealAccessToken = !revealAccessToken"
-          class="badge badge-sm badge-soft shadow-lg opacity-80"
+          class="text-sm bg-white/20 p-0.5 px-3 rounded-lg"
         >
           {{
             revealAccessToken

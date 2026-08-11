@@ -1,24 +1,52 @@
 <script setup>
-  import { ref } from "vue";
+  import { computed } from "vue";
   import { getImageUrl } from "@/kikx/config";
 
-  defineProps(["title", "icon"]);
+  const props = defineProps({
+    title: String,
+    icon: String,
+    iconStyle: {
+      type: String,
+      default: "solid" // solid | wrap | icon 
+    }
+  });
+
+  const icon = computed(() => getImageUrl(props.icon));
+
+  const containerClass = computed(() => {
+    switch (props.iconStyle) {
+      case "wrap":
+        return "w-12 h-12";
+      default:
+        return "w-16 h-16";
+    }
+  });
+
+  const imageClass = computed(() => {
+    switch (props.iconStyle) {
+      case "wrap":
+        return "fscreen rounded-xl object-cover";
+      default:
+        return "fscreen rounded-lg object-contain";
+    }
+  });
 </script>
 
 <template>
   <div
-    class="w-20 aspect-square flex flex-col items-center bg-white/30 border-2 border-white/30 active:bg-white/60 transition-colors duration-100 p-2 px-3 rounded-lg"
+    :class="[
+      'min-w-22 aspect-square flex flex-col items-center justify-center p-1 py-2 rounded-lg transition-colors duration-100',
+      iconStyle === 'wrap' &&
+        'bg-white/30 border-2 border-white/30 active:bg-white/60'
+    ]"
   >
-    <div class="w-10 aspect-square flex items-center justify-center relative">
-      <img
-        draggable="false"
-        class="w-10 aspect-square rounded-xl object-cover"
-        :src="getImageUrl(icon)"
-      />
+    <div :class="[containerClass, 'flex items-center justify-center']">
+      <img :src="icon" :class="imageClass" draggable="false" />
     </div>
 
     <div
-      class="text-white text-xs text-center truncate w-full font-heading mt-auto"
+      v-if="iconStyle !== 'icon'"
+      class="mt-auto w-full truncate pt-1 text-center text-sm text-white font-heading"
     >
       {{ title }}
     </div>

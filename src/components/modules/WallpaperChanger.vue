@@ -168,10 +168,7 @@
 
   // Init with options
   async function init() {
-    const url = props.options.url;
-    if (!url) return false;
-
-    console.log("Got url", url);
+    const url = String(props.options.url);
 
     if (url.startsWith("http://") || url.startsWith("https://")) {
       customUrl.value = url;

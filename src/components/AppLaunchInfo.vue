@@ -89,8 +89,8 @@
   const showAlert = ref(false);
   const keepData = ref(false);
 
-  const props = defineProps(["app", "uninstallApp"]);
-  const emit = defineEmits(["openApp", "close"]);
+  const props = defineProps(["app", "openApp", "uninstallApp"]);
+  const emit = defineEmits(["close"]);
 
   function onResponse(success) {
     showAlert.value = false;
@@ -100,6 +100,6 @@
   }
 
   function openApp(sudo = false) {
-    emit("openApp", props.app.name, { sudo });
+    props.openApp(props.app.name, { sudo });
   }
 </script>
