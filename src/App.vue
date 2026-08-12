@@ -169,6 +169,13 @@
       !navbarHiddenScreens.includes(currentScreen.value)
   );
 
+  const canGoBack = computed(
+    () =>
+      activeApp.value &&
+      activeApp.value.iframe.canGoBack &&
+      currentScreen.value !== "home"
+  );
+
   // ------------------ Watchers
   // Auto switch app if activeAppIndex change
   watch(activeAppIndex, async indexNew => {
@@ -267,9 +274,11 @@
     } else if (btnIndex === 1) {
       changeScreen("app-control");
     } else if (btnIndex === 2 && currentScreen.value !== "home") {
-      closeActiveApp();
-    } else if (btnIndex === 3) {
-      navigateBack();
+      if (canGoBack.value) {
+        navigateBack();
+      } else {
+        closeActiveApp();
+      }
     }
   }
 
@@ -637,7 +646,7 @@
     <Transition name="nav-slide">
       <Navbar
         v-if="canShowNavbar"
-        :activeApp="activeApp"
+        :canGoBack="canGoBack"
         :onNavbarClick="onNavbarClick"
         :isKeyboardOpen="isKeyboardOpen"
         :closeKeyboard="closeKeyboard"
