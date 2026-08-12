@@ -29,7 +29,7 @@
   import AlertError from "@/components/ui/AlertError.vue";
 
   import { getUrl } from "@/kikx/config";
-  import { useClient, devLogin, muiConfig } from "@/kikx";
+  import { useClient, devLogin, muiConfig, postAppMessage } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
   import { haptic, vibrate } from "@/kikx/vibrate";
@@ -140,6 +140,16 @@
         block: "nearest"
       });
     }
+  }
+
+  // Navigate back
+  function navigateBack() {
+    if (!activeApp.value) return;
+
+    postAppMessage(activeApp.value.id, {
+      event: "app:navigation",
+      payload: "back"
+    });
   }
 
   const canShowNavbar = computed(
@@ -258,6 +268,8 @@
       changeScreen("app-control");
     } else if (btnIndex === 2 && currentScreen.value !== "home") {
       closeActiveApp();
+    } else if (btnIndex === 3) {
+      navigateBack();
     }
   }
 
@@ -625,6 +637,7 @@
     <Transition name="nav-slide">
       <Navbar
         v-if="canShowNavbar"
+        :activeApp="activeApp"
         :onNavbarClick="onNavbarClick"
         :isKeyboardOpen="isKeyboardOpen"
         :closeKeyboard="closeKeyboard"

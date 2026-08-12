@@ -10,3 +10,7 @@
 - CC buttons update
 - Added settings module
 - Added Icons, Animations, Vibrations
+
+## [0.3.3]
+### Updates
+- Added back navigation

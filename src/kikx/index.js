@@ -76,6 +76,15 @@ export function requestCloseApp(appID, clientID) {
   });
 }
 
+// Send post message to app
+export function postAppMessage(appID, payload) {
+  const app = document.getElementById(`app_${appID}`);
+
+  if (!app) return;
+
+  app.contentWindow.postMessage(payload, "*");
+}
+
 export const muiConfig = {
   configFilePath: muiPath + "/config.json",
 
