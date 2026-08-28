@@ -2,7 +2,7 @@
   <Transition name="fade-scale">
     <div
       v-if="loaded"
-      class="fscreen bg-black/80 text-white overflow-hidden relative"
+      class="fscreen flex flex-col bg-black/80 text-white overflow-hidden relative"
     >
       <!-- Heading -->
       <div class="p-2 py-3 flex justify-between bg-orange-400/80">
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Sections -->
-      <div class="fscreen flex flex-col overflow-y-auto">
+      <div class="flex-1 flex flex-col overflow-y-auto">
         <!-- App Section -->
         <Section label="App">
           <!-- Icons Style  -->
@@ -49,6 +49,13 @@
               { value: 'hide', label: 'Hide' }
             ]"
           />
+          <!-- Active animation -->
+          <Selection
+            v-model="uiConfig.state.appIconFocusAnimation"
+            label="App Icon Animation"
+            description="Choose app icon animation on focus"
+            :options="animationOptions"
+          />
         </Section>
 
         <!-- Statusbar -->
@@ -64,7 +71,10 @@
             label="Network Icon"
           />
           <!-- Network Icon -->
-          <ToggleSwitch v-model="uiConfig.state.navbar" label="Navigation Bar" />
+          <ToggleSwitch
+            v-model="uiConfig.state.navbar"
+            label="Navigation Bar"
+          />
           <!-- Battery Style -->
           <SegmentedSelect
             v-model="uiConfig.state.batteryIcon"
@@ -117,6 +127,7 @@
   import Section from "@/components/ui/Section.vue";
   import SegmentedSelect from "@/components/ui/SegmentedSelect.vue";
   import ToggleSwitch from "@/components/ui/ToggleSwitch.vue";
+  import Selection from "@/components/ui/Selection.vue";
 
   import { haptic } from "@/kikx/vibrate";
   import { playSound } from "@/kikx/sound";
@@ -136,6 +147,17 @@
   function close() {
     emit("close");
   }
+
+  const animationOptions = [
+    { label: "Jello", value: "jello" },
+    { label: "Fade In", value: "fadeIn" },
+    { label: "Pulse", value: "pulse" },
+    { label: "Zoom In", value: "zoomIn" },
+    { label: "Rubber Band", value: "rubberBand" },
+    { label: "Flip", value: "flip" },
+    { label: "Tada", value: "tada" },
+    { label: "Wobble", value: "wobble" }
+  ];
 
   onMounted(() => {
     setTimeout(() => {

@@ -51,7 +51,7 @@
             </template>
           </CCButton>
           <!-- Notify / Toast Button -->
-          <CCButton v-model="uiConfig.state.canToast">
+          <CCButton v-model="isHideAlert">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="28"
@@ -98,7 +98,7 @@
               />
             </svg>
           </CCButton>
-                    <!-- Swipenav Button -->
+          <!-- Swipenav Button -->
           <CCButton v-model="uiConfig.state.swipeNav">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +112,7 @@
               />
             </svg>
           </CCButton>
- 
+
           <!-- Iscreen Button -->
           <CCButton v-model="uiConfig.state.iScreen">
             <svg
@@ -131,7 +131,7 @@
               />
             </svg>
           </CCButton>
-         <!-- Fullscreen Button -->
+          <!-- Fullscreen Button -->
           <CCButton @click="toggleFullscreen">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +226,7 @@
 </template>
 
 <script setup>
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
   import { useUIConfig } from "@/stores/kikx";
 
   import { haptic } from "@/kikx/vibrate";
@@ -245,6 +245,13 @@
   const showWidgets = ref(false);
 
   const uiConfig = useUIConfig();
+
+  const isHideAlert = computed({
+    get: () => !uiConfig.state.hideAlert,
+    set: value => {
+      uiConfig.state.hideAlert = !value;
+    }
+  });
 
   function close() {
     emit("close");
@@ -266,7 +273,7 @@
     // if no panels opened
     else {
       if (direction === "up") {
-        props.close();
+        emit('close')
       } else if (direction === "left") {
         showAlerts.value = true;
       } else if (direction === "right") {

@@ -22,7 +22,7 @@ const vibrations = {
   jutsu() {
     return [
       1000, 70, 120, 80, 170, 70, 120, 80, 70, 120, 70, 120, 70, 70, 70, 120,
-      70, 70, 70, 70, 70, 200, 200
+      70, 70, 90, 200, 200
     ];
   },
   soft() {
@@ -33,6 +33,7 @@ const vibrations = {
   }
 };
 
+// Vibrate pattern
 export function vibrate(pattern, ...args) {
   if (!navigator.vibrate) return false;
 
@@ -46,6 +47,7 @@ export function vibrate(pattern, ...args) {
   return navigator.vibrate(sequence);
 }
 
+// UI Haptic Feeback
 export function haptic(type = "soft") {
   switch (type) {
     case "off":

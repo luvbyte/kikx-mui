@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 
+// Sanitize Alert message
 export function sanitizeAlert(code) {
   return DOMPurify.sanitize(code, {
     USE_PROFILES: { html: true },
@@ -11,22 +12,14 @@ export function sanitizeAlert(code) {
       "h1",
       "h2",
       "h3",
-      "ul",
-      "ol",
-      "li",
-      "table",
-      "tr",
-      "td",
-      "th",
       "a",
       "img",
-      "style",
       "br",
       "hr"
     ],
 
     ALLOWED_ATTR: {
-      "*": ["class", "id", "style"],
+      "*": ["class", "style"],
       a: ["href", "title"],
       img: ["src", "alt", "title"]
     },
@@ -61,12 +54,12 @@ export const setCookie = (name, value) => {
   document.cookie = `${name}=${value}; path=/`;
 };
 
+// Convert blob to Text
 export async function blobToText(blob) {
-  const text = await blob.text();
-  // console.log(text);
-  return text;
+  return await blob.text();
 }
 
+// Parse args and kwargs from args
 export function parseArgsAndKwargs(...args) {
   if (
     args.length &&

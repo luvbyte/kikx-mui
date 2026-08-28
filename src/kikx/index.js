@@ -15,10 +15,13 @@ const muiConfigSchema = z.object({
   bg: z.string(),
 
   isSilent: z.boolean(),
-  canToast: z.boolean(),
+  hideAlert: z.boolean(),
   iScreen: z.boolean(),
   swipeNav: z.boolean(),
   navbar: z.boolean(),
+
+  // App icon active animation
+  appIconFocusAnimation: z.string(),
 
   // Navigation bar layouts
   navLayout: z.enum(["normal", "reverse"]),
@@ -33,7 +36,14 @@ const muiConfigSchema = z.object({
   // Network Icon
   networkIcon: z.boolean(),
   // Block Alerts
-  blockAlerts: z.boolean()
+  blockAlerts: z.boolean(),
+
+  // Swipe nav position
+  swipeNavPosition: z.object({
+    x: z.number(),
+    y: z.number(),
+    left: z.boolean()
+  })
 });
 
 // Client Instance
@@ -85,6 +95,14 @@ export function postAppMessage(appID, payload) {
   app.contentWindow.postMessage(payload, "*");
 }
 
+export function postAppMessageEvent(appID, event, payload = {}) {
+  return postAppMessage(appID, {
+    event,
+    payload
+  });
+}
+
+// MUI config
 export const muiConfig = {
   configFilePath: muiPath + "/config.json",
 
@@ -128,6 +146,7 @@ export const muiConfig = {
   }
 };
 
+// Auto login for development
 export async function devLogin(key, ui = "mui") {
   if (!DEV) return;
   try {
@@ -140,14 +159,17 @@ export async function devLogin(key, ui = "mui") {
   }
 }
 
+// Get client
 export function useClient() {
   return client;
 }
 
+// Get FileSystem
 export function getFS() {
   return useClient().fs;
 }
 
+// Get System
 export function getSystem() {
   return useClient().system;
 }

@@ -80,10 +80,29 @@ export class FileSystemService extends Service {
   constructor(client) {
     super("fs", client);
   }
-  thumbnail = filename =>
-    this.request(`thumbnail?filename=${encodeURIComponent(filename)}`);
-  listFiles = (directory = "") =>
-    this.request(`list?directory=${encodeURIComponent(directory)}`);
+  listFiles(
+    directory,
+    {
+      offset = 0,
+      limit = -1,
+      sort = "name",
+      asc = true,
+      thumbnails = false
+    } = {}
+  ) {
+    const params = new URLSearchParams({
+      directory,
+      offset: String(offset),
+      limit: String(limit),
+      sort,
+      asc: String(asc),
+      thumbnails: String(thumbnails)
+    });
+
+    return this.request(`list?${params.toString()}`);
+  }
+  // thumbnail = filename =>
+  //   this.request(`thumbnail?filename=${encodeURIComponent(filename)}`);
   readFile = filename =>
     this.request(`read?filename=${encodeURIComponent(filename)}`);
   writeFile = (filename, content) =>

@@ -1,13 +1,14 @@
 <script setup>
   import { computed } from "vue";
-  import { useUIConfig } from "@/stores/kikx";
   import { getUrl } from "@/kikx/config";
 
-  const uiConfig = useUIConfig();
+  import { useAlertsStore } from "@/stores/alert";
+
+  const alerts = useAlertsStore();
 
   // Newest first (no need for priority here)
   const recentIcons = computed(() => {
-    return [...uiConfig.alerts]
+    return [...alerts.alerts]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 4);
   });
@@ -27,7 +28,7 @@
       />
     </div>
     <div
-      v-if="uiConfig.alerts.length >= 5"
+      v-if="alerts.alerts.length >= 5"
       class="font-heading font-semibold flex justify-end"
     >
       ...

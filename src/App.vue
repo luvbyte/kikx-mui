@@ -11,7 +11,7 @@
   import { watchDebounced } from "@vueuse/core";
 
   import Bg from "@/components/Bg.vue";
-  import App from "@/components/App.vue";
+  import App from "@/components/app/App.vue";
   import Navbar from "@/components/Navbar.vue";
   import Loading from "@/components/Loading.vue";
   import SwipeNav from "@/components/SwipeNav.vue";
@@ -28,8 +28,8 @@
 
   import AlertError from "@/components/ui/AlertError.vue";
 
-  import { getUrl } from "@/kikx/config";
-  import { useClient, devLogin, muiConfig, postAppMessage } from "@/kikx";
+  import { getUrl, getAnimation } from "@/kikx/config";
+  import { useClient, devLogin, muiConfig, postAppMessageEvent } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
   import { haptic, vibrate } from "@/kikx/vibrate";
@@ -37,6 +37,7 @@
 
   import { useUIConfig } from "@/stores/kikx";
   import { useErrorStore } from "@/stores/error";
+  import { useAlertsStore } from "@/stores/alert";
 
   import { useKeyboard } from "@/composables/useKeyboard";
   import { useRunningApps } from "@/composables/useRunningApps";
@@ -44,8 +45,11 @@
   // ------------------ STATE
   // Kikx Client
   const client = useClient();
+
+  // Stores
   const uiConfig = useUIConfig();
   const errors = useErrorStore();
+  const alerts = useAlertsStore();
 
   // Loading, connected state
   const connecting = ref(true);
@@ -57,6 +61,7 @@
   const currentScreen = ref("home");
   const lastScreen = ref("home");
 
+  // Active Module
   const currentModule = ref(null);
   let currentModuleOptions = {};
 
@@ -65,6 +70,7 @@
   // Hide navbar in these screens
   const navbarHiddenScreens = ["app-control", "control"];
 
+  // Composables
   const {
     getAppByID,
     runningApps,
@@ -78,7 +84,7 @@
     closeApp,
     closeAppById,
     closeAppByName
-  } = useRunningApps(client, uiConfig, changeScreen);
+  } = useRunningApps(client, changeScreen, alerts);
   const { isKeyboardOpen, closeKeyboard } = useKeyboard();
 
   // ------------------ Utils
@@ -97,6 +103,7 @@
     currentScreen.value = name;
   }
 
+  // Haptic Feedback
   function runHaptic() {
     haptic(uiConfig.state.haptic);
   }
@@ -146,10 +153,7 @@
   function navigateBack() {
     if (!activeApp.value) return;
 
-    postAppMessage(activeApp.value.id, {
-      event: "app:navigation",
-      payload: "back"
-    });
+    postAppMessageEvent(activeApp.value.id, "app:navigation", "back");
   }
 
   const canShowNavbar = computed(
@@ -169,6 +173,7 @@
       !navbarHiddenScreens.includes(currentScreen.value)
   );
 
+  // Back navigation
   const canGoBack = computed(
     () =>
       activeApp.value &&
@@ -176,7 +181,7 @@
       currentScreen.value !== "home"
   );
 
-  // ------------------ Watchers
+  // ------------------ Watchers (app, screen)
   // Auto switch app if activeAppIndex change
   watch(activeAppIndex, async indexNew => {
     await nextTick();
@@ -221,6 +226,10 @@
   }
 
   function onSwipeNav(direction) {
+    if (direction === "click") {
+      return;
+    }
+
     runHaptic();
 
     if (direction === "up") {
@@ -279,6 +288,8 @@
       } else {
         closeActiveApp();
       }
+    } else if (btnIndex === 3) {
+      closeActiveApp();
     }
   }
 
@@ -318,7 +329,12 @@
   }
 
   // On app alert
-  function appAlert(payload) {
+  function addAlert(payload) {
+    if (payload.message.length <= 0) {
+      alerts.removeAlert(payload.uid);
+      return;
+    }
+
     if (uiConfig.state.blockAlerts) return;
 
     if (!uiConfig.state.isSilent && !payload.silent) {
@@ -328,22 +344,26 @@
     // Only toast alert if app is running (backend checks already)
     const index = runningApps.value.findIndex(app => app.id === payload.id);
     if (index !== -1) {
-      uiConfig.addAppAlert(payload);
+      alerts.addAlert(payload, uiConfig.state.hideAlert || payload.silent);
     }
   }
 
   // On app alert click
-  function onAlertClick(appAlert) {
+  function onAlertClick(alt) {
     // Remove alert
-    uiConfig.removeAppAlert(appAlert.uid);
+    if (!alt.sticky) {
+      alerts.removeAlert(alt.uid);
+    }
 
-    const index = runningApps.value.findIndex(app => app.id === appAlert.id);
+    const index = runningApps.value.findIndex(app => app.id === alt.id);
 
     if (index !== -1) {
       setActiveApp(index);
       changeScreen("app");
       // Sending signal to app
-      client.sendAppEvent("alert:click", appAlert.id, appAlert.uid);
+      postAppMessageEvent(alt.id, "alert:click", {
+        uid: alt.uid
+      });
     } else {
       changeScreen("home");
     }
@@ -413,6 +433,14 @@
     // Dev - test login wont work in prod
     await devLogin("kikx");
 
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") return;
+
+      runningApps.value.forEach(app => {
+        postAppMessageEvent(app.id, "CHECK_WS");
+      });
+    });
+
     // Event bindings
     client.on("ws:onclose", e => {
       if (e.code === 1008) {
@@ -466,7 +494,7 @@
     });
 
     // app alert event
-    client.on("app:alert", payload => appAlert(payload));
+    client.on("app:alert", payload => addAlert(payload));
 
     // run
     client.run(async () => {
@@ -561,7 +589,7 @@
               <!-- App title -->
               <div
                 v-if="activeApp"
-                class="flex justify-center items-center gap-1 bg-white/10 border-t border-white/40 p-2 w-1/2 rounded-t-lg"
+                class="flex justify-center items-center gap-1 bg-black/5 border-t border-white/40 p-2 w-1/2 rounded-t-lg"
               >
                 <svg
                   v-if="isSudoApp"
@@ -603,7 +631,7 @@
               ></button>
               <!-- Middle Panel -->
               <div
-                class="flex-1 h-16 border border-white/20 bg-white/20 shadow-lg px-2 gap-1 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
+                class="flex-1 h-16 border-y border-black/10 bg-white/20 shadow-lg px-2 gap-1 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
               >
                 <div
                   v-if="activeAppIndex < 0"
@@ -620,14 +648,15 @@
                   @click="onAppControlIconClick(index)"
                   class="animate__animated shadow-lg min-w-12 min-h-12 max-h-12 max-w-12 rounded-full border-2 overflow-hidden transition duration-300 scroll-smooth"
                   :class="[
-                    activeAppIndex === index
-                      ? 'border-white'
-                      : 'border-white/10',
-                    {
-                      '-translate-y-1 animate__jello':
-                        activeAppIndex === index && runningApps.length > 1
-                    }
-                  ]"
+  activeAppIndex === index
+    ? 'border-white'
+    : 'border-white/10',
+
+  activeAppIndex === index && runningApps.length > 1 && [
+    '-translate-y-1',
+    getAnimation(uiConfig.state.appIconFocusAnimation)
+  ]
+]"
                 >
                   <img :src="getUrl(app.manifest.icon)" />
                 </div>

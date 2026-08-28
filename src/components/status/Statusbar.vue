@@ -13,20 +13,24 @@
   import { isAndroidWebView } from "@/kikx/utils";
 
   import { useUIConfig } from "@/stores/kikx";
+  import { useAlertsStore } from "@/stores/alert";
 
-  const uiConfig = useUIConfig();
-
+  // Props
   defineProps(["isSudoApp", "theme", "wsopen"]);
+
+  // Stores
+  const uiConfig = useUIConfig();
+  const alerts = useAlertsStore();
 
   //const showAlertsPanel = ref(false);
   const showAlertsPanel = computed(() => {
-    return uiConfig.state.canToast && uiConfig.pendingToastAlerts.length > 0;
+    return !uiConfig.state.hideAlert && alerts.pendingAlerts.length > 0;
   });
 
-  // complete all alerts
+  // complete alerts
   function onClose() {
-    uiConfig.pendingToastAlerts.forEach(alert => {
-      uiConfig.toastComplete(alert.uid);
+    alerts.pendingAlerts.forEach(alert => {
+      alerts.alertComplete(alert.uid);
     });
   }
 </script>
@@ -119,10 +123,10 @@
                 </svg>
               </div>
             </Transition>
-            <!-- If Toast off -->
+            <!-- If Alert off -->
             <Transition name="fade">
               <div
-                v-if="!uiConfig.state.canToast && !uiConfig.state.blockAlerts"
+                v-if="uiConfig.state.hideAlert && !uiConfig.state.blockAlerts"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

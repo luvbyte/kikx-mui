@@ -2,9 +2,9 @@ const { protocol, hostname, port } = window.location;
 
 // ----------------
 export const muiPath = "home://.config/mui";
-export const defaultBackground = "images/bg.png";
+export const defaultBackground = "images/bg.jpg";
 
-export const VERSION = "0.3.4";
+export const VERSION = "0.3.5";
 // ----------------
 
 export const DEV = process.env.NODE_ENV !== "production";
@@ -41,4 +41,145 @@ export const getImageUrl = url => {
 
 export const getAudioUrl = url => {
   return getAssetUrl(url);
+};
+
+// ---------------- Animations
+export const animateAnimations = [
+  "backInDown",
+  "backInLeft",
+  "backInRight",
+  "backInUp",
+  "backOutDown",
+  "backOutLeft",
+  "backOutRight",
+  "backOutUp",
+
+  "bounce",
+  "bounceIn",
+  "bounceInDown",
+  "bounceInLeft",
+  "bounceInRight",
+  "bounceInUp",
+  "bounceOut",
+  "bounceOutDown",
+  "bounceOutLeft",
+  "bounceOutRight",
+  "bounceOutUp",
+
+  "fadeIn",
+  "fadeInBottomLeft",
+  "fadeInBottomRight",
+  "fadeInDown",
+  "fadeInDownBig",
+  "fadeInLeft",
+  "fadeInLeftBig",
+  "fadeInRight",
+  "fadeInRightBig",
+  "fadeInTopLeft",
+  "fadeInTopRight",
+  "fadeInUp",
+  "fadeInUpBig",
+  "fadeInUpSmall",
+  "fadeInDownSmall",
+  "fadeOut",
+  "fadeOutBottomLeft",
+  "fadeOutBottomRight",
+  "fadeOutDown",
+  "fadeOutDownBig",
+  "fadeOutLeft",
+  "fadeOutLeftBig",
+  "fadeOutRight",
+  "fadeOutRightBig",
+  "fadeOutTopLeft",
+  "fadeOutTopRight",
+  "fadeOutUp",
+  "fadeOutUpBig",
+  "fadeOutUpSmall",
+  "fadeOutDownSmall",
+
+  "flash",
+
+  "flip",
+  "flipInX",
+  "flipInY",
+  "flipOutX",
+  "flipOutY",
+
+  "headShake",
+  "heartBeat",
+
+  "hinge",
+
+  "jackInTheBox",
+
+  "jello",
+
+  "lightSpeedInRight",
+  "lightSpeedInLeft",
+  "lightSpeedOutRight",
+  "lightSpeedOutLeft",
+
+  "pulse",
+
+  "rollIn",
+  "rollOut",
+
+  "rotateIn",
+  "rotateInDownLeft",
+  "rotateInDownRight",
+  "rotateInUpLeft",
+  "rotateInUpRight",
+  "rotateOut",
+  "rotateOutDownLeft",
+  "rotateOutDownRight",
+  "rotateOutUpLeft",
+  "rotateOutUpRight",
+
+  "rubberBand",
+
+  "shake",
+  "shakeX",
+  "shakeY",
+
+  "slideInDown",
+  "slideInLeft",
+  "slideInRight",
+  "slideInUp",
+  "slideOutDown",
+  "slideOutLeft",
+  "slideOutRight",
+  "slideOutUp",
+
+  "swing",
+
+  "tada",
+
+  "wobble",
+
+  "zoomIn",
+  "zoomInDown",
+  "zoomInLeft",
+  "zoomInRight",
+  "zoomInUp",
+  "zoomOut",
+  "zoomOutDown",
+  "zoomOutLeft",
+  "zoomOutRight",
+  "zoomOutUp"
+];
+
+export const isValidAnimation = name => {
+  if (animateAnimations.includes(name)) {
+    return true;
+  }
+  return false;
+};
+
+//
+export const getAnimation = name => {
+  if (!isValidAnimation(name)) {
+    return "";
+  }
+
+  return `animate__${name}`;
 };

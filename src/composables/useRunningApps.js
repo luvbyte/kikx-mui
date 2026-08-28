@@ -5,7 +5,7 @@ import { useErrorStore } from "@/stores/error";
 
 import { requestOpenApp, requestCloseApp } from "@/kikx";
 
-export function useRunningApps(client, uiConfig, changeScreen) {
+export function useRunningApps(client, changeScreen, alerts) {
   const runningApps = ref([]);
   const activeAppIndex = ref(-1);
   const errors = useErrorStore();
@@ -112,7 +112,7 @@ export function useRunningApps(client, uiConfig, changeScreen) {
 
     runningApps.value.splice(index, 1);
 
-    uiConfig.removeAppAlerts(app.id);
+    alerts.removeAlerts(app.id);
 
     const total = runningApps.value.length;
 

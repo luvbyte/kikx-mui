@@ -1,7 +1,7 @@
 <template>
   <Loading v-if="loading" class="text-white" />
 
-  <div v-else class="flex-1 overflow-y-auto scrollbar-hide">
+  <div v-else class="flex-1 flex flex-col overflow-hidden">
     <!-- User Info -->
     <div
       class="p-2 flex justify-between items-center bg-white/20 font-semibold"
@@ -55,21 +55,25 @@
         </button>
       </div>
     </div>
+
     <!-- Apps Info -->
-    <div class="flex flex-col text-white">
+    <div class="flex-1 flex flex-col text-white overflow-y-auto">
       <div
         class="p-2 flex justify-center items-center bg-white/30 border-y border-white/40"
       >
         <h1 class="font-semibold">Apps</h1>
       </div>
 
-      <div v-for="app in info.apps" class="p-2">
-        <div class="p-2 border-2 rounded-lg border-white/20 bg-white/40">
+      <div class="p-2 flex-1 flex flex-col overflow-y-auto gap-2 scrollbar-hide">
+        <div
+          v-for="app in info.apps"
+          class="p-2 border-2 rounded-lg border-white/20 bg-white/20"
+        >
           <div class="flex items-center justify-between">
             <h1 class="text-lg font-bold">{{ app.title }}</h1>
             <div
-              class="badge badge-sm"
-              :class="app.sudo ? 'badge-secondary' : 'badge-primary'"
+              class="text-sm p-0.5 px-3 rounded-lg"
+              :class="app.sudo ? 'bg-secondary' : 'bg-white/20'"
             >
               {{ app.name }}
             </div>
@@ -78,7 +82,7 @@
           <div class="divider m-0"></div>
 
           <div
-            class="px-2 flex items-center justify-center bg-white/40 p-0.5 rounded text-black"
+            class="px-2 flex items-center justify-center text-sm bg-white/20 p-0.5 px-3 rounded-lg"
           >
             <button @click="toggleAppIDReveal(app.id)" class="text-sm">
               {{
@@ -97,7 +101,7 @@
 
             <div
               v-if="app.connection.connected"
-              class="badge badge-sm badge-secondary"
+              class="text-sm bg-green-400/80 p-0.5 px-3 rounded-lg"
             >
               WS Connected
             </div>

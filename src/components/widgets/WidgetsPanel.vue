@@ -12,14 +12,15 @@
 <template>
   <div
     @click.stop
-    class="flex-1 flex flex-col rounded-2xl border-2 border-white/60 bg-white/20 shadow-2xl overflow-hidden"
+    class="flex-1 flex flex-col rounded-2xl border-2 border-white/60 shadow-2xl overflow-hidden"
   >
     <!-- Header -->
     <div
       class="px-2 py-3 border-b border-white/20 bg-blue-400/60 flex justify-between items-center"
     >
       <h1 class="text-white font-semibold tracking-wide">
-        MUI <span class="bg-white/20 rounded-lg px-2">{{ VERSION }}</span>
+        MUI
+        <span class="bg-white/20 rounded-lg px-2">{{ VERSION }}</span>
       </h1>
       <button @click="closePanel" class="btn btn-xs opacity-80">
         <svg

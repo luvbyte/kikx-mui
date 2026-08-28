@@ -1,21 +1,24 @@
 <script setup>
   import { computed, ref, watch } from "vue";
-  import { useUIConfig } from "@/stores/kikx";
 
   import { getUrl } from "@/kikx/config";
+  import { useAlertsStore } from "@/stores/alert";
 
-  const uiConfig = useUIConfig();
+  // Props
   const props = defineProps(["close"]);
 
+  // Alerts Store
+  const alerts = useAlertsStore();
+
   const currentAlert = computed(() => {
-    return uiConfig.pendingToastAlerts[0] || null;
+    return alerts.pendingAlerts[0] || null;
   });
 
   // Alert Class
   const alertTypeClasses = {
-    success: "bg-success/80 text-success-content",
-    error: "bg-error/80 text-error-content",
-    warning: "bg-warning/80 text-warning-content",
+    success: "bg-success/60 text-white",
+    error: "bg-error/60 text-white",
+    warning: "bg-warning/60 text-white",
     info: "bg-black/60",
     default: ""
   };
@@ -28,7 +31,7 @@
   function getTickerStyle(alert) {
     if (!alert) return { animationDuration: "8s" };
 
-    const text = (alert.title || "") + " " + (alert.msg || "");
+    const text = (alert.title || "") + " " + (alert.message || "");
     const length = text.length;
 
     const baseSpeed = 0.09;
@@ -43,20 +46,16 @@
     };
   }
 
-  const getAlertMessage = msg => {
-    return Array.isArray(msg) ? msg.join(" ") : msg;
-  };
-
   // Move to next alert
   function goNext() {
     const alert = currentAlert.value;
     if (!alert) return;
 
-    uiConfig.toastComplete(alert.uid);
+    alerts.alertComplete(alert.uid);
 
     // After removal, the next alert shifts into same index.
 
-    if (uiConfig.pendingToastAlerts.length === 0) {
+    if (alerts.pendingAlerts.length === 0) {
       props.close();
     }
   }
@@ -90,7 +89,7 @@
       />
       <h1 v-if="false" class="font-bold">{{ currentAlert.title }}</h1>
       <p>
-        {{ getAlertMessage(currentAlert.msg) }}
+        {{ currentAlert.label || currentAlert.message }}
       </p>
     </div>
   </div>

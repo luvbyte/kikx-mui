@@ -59,14 +59,15 @@
     const { virtual } = currentPath.value;
 
     await fs.createDirectory(virtual);
-    const res = await fs.listFiles(virtual);
+    const res = await fs.listFiles(virtual, {
+      sort: "modified",
+      asc: false
+    });
 
     if (res.error) {
       error.value = res.message || "Failed to load images.";
       return;
     }
-
-    console.log(res);
 
     images.value = res.data.files
       .filter(
