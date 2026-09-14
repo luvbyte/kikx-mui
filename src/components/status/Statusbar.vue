@@ -16,7 +16,7 @@
   import { useAlertsStore } from "@/stores/alert";
 
   // Props
-  defineProps({
+  const props = defineProps({
     isSudoApp: {
       type: Boolean,
       required: true
@@ -40,6 +40,11 @@
     return !uiConfig.state.hideAlert && alerts.pendingAlerts.length > 0;
   });
 
+  // No theme on alerts
+  const alertsTheme = computed(() => {
+    return showAlertsPanel.value ? "bg-black/60" : getAppTheme(props.theme);
+  });
+
   // complete alerts
   function onClose() {
     alerts.pendingAlerts.forEach(alert => {
@@ -49,10 +54,7 @@
 </script>
 
 <template>
-  <div
-    class="min-h-8 overflow-hidden w-full text-xs"
-    :class="getAppTheme(theme)"
-  >
+  <div class="min-h-8 overflow-hidden w-full text-xs" :class="alertsTheme">
     <div class="relative h-full w-full">
       <Transition name="slide-down" mode="out-in">
         <AppAlertsPanel

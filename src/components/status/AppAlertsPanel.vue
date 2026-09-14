@@ -27,7 +27,7 @@
     success: "bg-success/60 text-white",
     error: "bg-error/60 text-white",
     warning: "bg-warning/60 text-white",
-    info: "bg-black/60",
+    info: "bg-black/60 text-white",
     default: ""
   };
 

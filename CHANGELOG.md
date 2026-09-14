@@ -34,6 +34,7 @@
 ### Updates
 - Updates share, wallpapers, settings modules
 - Client info ui update
+- Changed config path -> root
 
 ### Fixes
 - Fixed share image bug
