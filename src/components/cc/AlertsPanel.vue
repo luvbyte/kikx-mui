@@ -3,9 +3,15 @@
 
   import { useAlertsStore } from "@/stores/alert";
 
-  import AppAlert from "@/components/AppAlert.vue";
+  import AppAlert from "@/components/app/AppAlert.vue";
 
-  const props = defineProps(["onAlertClick", "close", "closePanel"]);
+  const props = defineProps({
+    onAlertClick: {
+      type: Function,
+      required: true
+    }
+  });
+  const emit = defineEmits(["close"]);
 
   const alerts = useAlertsStore();
 
@@ -77,7 +83,7 @@
             />
           </svg>
         </button>
-        <button @click="closePanel" class="btn btn-xs opacity-80">
+        <button @click="emit('close')" class="btn btn-xs opacity-80">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"

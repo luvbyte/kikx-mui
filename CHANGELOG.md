@@ -24,3 +24,17 @@
 - Fixed Alerts UI
 - Updated navigation bar
 
+## [0.4.0]
+### Addded
+- Display effects
+- Advance settings
+- Kikx settings tab
+- Alerts status update
+
+### Updates
+- Updates share, wallpapers, settings modules
+- Client info ui update
+
+### Fixes
+- Fixed share image bug
+- Slider bugs

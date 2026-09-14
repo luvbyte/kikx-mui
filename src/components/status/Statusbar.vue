@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, watch } from "vue";
+  import { computed } from "vue";
 
   import { getAppTheme } from "@/kikx/style";
 
@@ -16,7 +16,20 @@
   import { useAlertsStore } from "@/stores/alert";
 
   // Props
-  defineProps(["isSudoApp", "theme", "wsopen"]);
+  defineProps({
+    isSudoApp: {
+      type: Boolean,
+      required: true
+    },
+    theme: {
+      type: String,
+      required: true
+    },
+    wsopen: {
+      type: Boolean,
+      required: true
+    }
+  });
 
   // Stores
   const uiConfig = useUIConfig();
@@ -45,7 +58,8 @@
         <AppAlertsPanel
           v-if="showAlertsPanel"
           key="alerts-panel"
-          :close="onClose"
+          :prefix="uiConfig.state.alertSliderPrefix"
+          @close="onClose"
         />
         <!-- Icons -->
         <div

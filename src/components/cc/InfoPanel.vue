@@ -6,7 +6,7 @@
 
   const uiConfig = useUIConfig();
 
-  defineProps(["closePanel"]);
+  const emit = defineEmits(["close"]);
 </script>
 
 <template>
@@ -22,7 +22,7 @@
         MUI
         <span class="bg-white/20 rounded-lg px-2">{{ VERSION }}</span>
       </h1>
-      <button @click="closePanel" class="btn btn-xs opacity-80">
+      <button @click="emit('close')" class="btn btn-xs opacity-80">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

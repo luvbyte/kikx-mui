@@ -4,7 +4,16 @@
 
   import Loading from "@/components/Loading.vue";
 
-  const props = defineProps(["app", "splash"]);
+  const props = defineProps({
+    app: {
+      type: Object,
+      required: true
+    },
+    splash: {
+      type: String,
+      required: true
+    }
+  });
 
   const loading = ref(true);
   const closing = ref(false);

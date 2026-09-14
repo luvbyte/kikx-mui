@@ -1,5 +1,5 @@
 import { Client } from "./client";
-import { request } from "./api";
+import { fetchData } from "./api";
 import { blobToText } from "./utils";
 
 import { getUrl, muiPath, defaultBackground, DEV } from "./config";
@@ -20,8 +20,54 @@ const muiConfigSchema = z.object({
   swipeNav: z.boolean(),
   navbar: z.boolean(),
 
+  // Alert slider prefix icon
+  alertSliderPrefix: z.string(),
+
   // App icon active animation
-  appIconFocusAnimation: z.string(),
+  appIconFocusAnimation: z.enum([
+    "jello",
+    "fadeIn",
+    "pulse",
+    "zoomIn",
+    "rubberBand",
+    "flip",
+    "tada",
+    "wobble",
+    "swing",
+    "flipInX"
+  ]),
+
+  // Touch sprinkle effects
+  touchSprinkle: z.enum([
+    "white",
+    "ocean",
+    "rainbow",
+    "fire",
+    "neon",
+    "candy",
+    "gold",
+    "ice",
+    "sunset",
+    "purple",
+    "emerald",
+    "none"
+  ]),
+
+  // Bg Snow particle
+  snowParticles: z.enum([
+    "white",
+    "ocean",
+    "rainbow",
+    "fire",
+    "neon",
+    "candy",
+    "gold",
+    "ice",
+    "sunset",
+    "purple",
+    "emerald",
+    "none"
+  ]),
 
   // Navigation bar layouts
   navLayout: z.enum(["normal", "reverse"]),
@@ -43,51 +89,55 @@ const muiConfigSchema = z.object({
     x: z.number(),
     y: z.number(),
     left: z.boolean()
-  })
+  }),
+
+  // Advance options
+  autoHideAppCSwitch: z.boolean(),
+  useModuleReplace: z.boolean(),
+  enableAppActions: z.boolean()
 });
 
 // Client Instance
 const client = new Client();
 
-export async function fetchAppsList() {
-  try {
-    return await request("/api/apps/list", {
-      method: "POST",
-      body: {
-        client_id: client.clientID
-      },
-      fallbackMessage: "Failed to fetch apps list"
-    });
-  } catch {
-    return [];
-  }
+export function fetchAppsList() {
+  const url = getUrl("/api/apps/list");
+
+  return fetchData(url, {
+    method: "POST",
+    body: {
+      client_id: client.clientID
+    }
+  });
 }
 
 export function requestOpenApp(name, options, clientID) {
-  return request("/open-app", {
+  const url = getUrl("/open-app");
+
+  return fetchData(url, {
     method: "POST",
     body: {
       name,
       options,
       client_id: clientID
-    },
-    fallbackMessage: `Failed to open "${name}"`
+    }
   });
 }
 
 export function requestCloseApp(appID, clientID) {
-  return request("/close-app", {
+  const url = getUrl("/close-app");
+
+  return fetchData(url, {
     method: "POST",
     body: {
       app_id: appID,
       client_id: clientID
-    },
-    fallbackMessage: "Failed to close app"
+    }
   });
 }
 
 // Send post message to app
-export function postAppMessage(appID, payload) {
+export function postAppMessage(appID, payload = null) {
   const app = document.getElementById(`app_${appID}`);
 
   if (!app) return;
@@ -139,24 +189,28 @@ export const muiConfig = {
   // Save config
   async save() {
     const config = await this.getConfig();
-    await client.fs.createDirectory(muiPath);
-    await client.fs.writeFile(this.configFilePath, JSON.stringify(config));
-
-    console.log("Config saved: ", config);
+    await client.fs.writeFile(
+      this.configFilePath,
+      JSON.stringify(config),
+      true
+    );
   }
 };
 
 // Auto login for development
-export async function devLogin(key, ui = "mui") {
+export async function devLogin(key) {
   if (!DEV) return;
-  try {
-    // const res = await fetch("http://localhost:8000/generate?key=" + key);
-    const res = await fetch(getUrl(`/generate?key=${key}&ui=${ui}`));
-    const { access_token } = await res.json();
-    document.cookie = `access_token=${access_token}`;
-  } catch (err) {
-    console.error("Login error:", err);
-  }
+
+  const url = getUrl("/dev/generate");
+
+  const { access_token } = await fetchData(url, {
+    params: {
+      key,
+      ui: "mui"
+    }
+  });
+
+  document.cookie = `access_token=${access_token}`;
 }
 
 // Get client

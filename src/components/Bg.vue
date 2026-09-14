@@ -3,6 +3,16 @@
     id="bg-frame"
     class="fixed inset-0 -z-10 w-full h-dvh bg-black overflow-hidden"
   >
+    <SnowParticles
+      v-if="uiConfig.state.snowParticles !== 'none'"
+      :count="150"
+      :speed="0.8"
+      :size="3"
+      :opacity="0.7"
+      :wind="0.4"
+      :colors="getParticleColors(uiConfig.state.snowParticles)"
+    />
+
     <Transition name="fade-scale" mode="out-in">
       <img
         v-if="currentSrc && !isVideo"
@@ -36,7 +46,11 @@
   import { getImageUrl } from "@/kikx/config";
   import { useUIConfig } from "@/stores/kikx";
 
+  import { getParticleColors } from "@/kikx/style";
+
   import blackPoster from "@/assets/cover.png";
+
+  import SnowParticles from "@/components/ui/SnowParticles.vue";
 
   const uiConfig = useUIConfig();
 

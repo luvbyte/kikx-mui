@@ -2,14 +2,12 @@
   defineProps({
     label: {
       type: String,
-      default: ""
+      required: true
     },
-
     description: {
       type: String,
       default: ""
     },
-
     modelValue: {
       type: [String, Number],
       default: ""

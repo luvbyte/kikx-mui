@@ -1,36 +1,43 @@
 <script setup>
   import { ref, onMounted } from "vue";
-  import { fetchAppsList } from "@/kikx";
 
   import AppIcon from "@/components/ui/AppIcon.vue";
-  import AppLaunchInfo from "@/components/AppLaunchInfo.vue";
+  import AppLaunchInfo from "@/components/app/AppLaunchInfo.vue";
 
-  const props = defineProps([
-    "openApp",
-    "uninstallApp",
-    "runHaptic",
-    "iconsStyle"
-  ]);
+  const props = defineProps({
+    iconsStyle: {
+      type: String,
+      required: true
+    },
+    appsList: {
+      type: Array,
+      required: true
+    },
+    runHaptic: {
+      type: Function,
+      required: true
+    },
+    openApp: {
+      type: Function,
+      required: true
+    },
+    uninstallApp: {
+      type: Function,
+      required: true
+    }
+  });
 
-  const appsList = ref([]);
   const selected = ref(null);
-
-  async function loadAppsList() {
-    appsList.value = await fetchAppsList();
-  }
 
   async function uninstall(name, keepData) {
     selected.value = null;
     await props.uninstallApp(name, keepData);
-    await loadAppsList();
   }
 
   async function selectApp(app) {
     props.runHaptic();
     selected.value = app;
   }
-
-  onMounted(loadAppsList);
 </script>
 
 <template>

@@ -1,6 +1,12 @@
 import DOMPurify from "dompurify";
 
-// Sanitize Alert message
+export function sleep(seconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, seconds * 1000);
+  });
+}
+
+// Sanitize App Alert message
 export function sanitizeAlert(code) {
   return DOMPurify.sanitize(code, {
     USE_PROFILES: { html: true },
@@ -55,8 +61,8 @@ export const setCookie = (name, value) => {
 };
 
 // Convert blob to Text
-export async function blobToText(blob) {
-  return await blob.text();
+export function blobToText(blob) {
+  return blob.text();
 }
 
 // Parse args and kwargs from args
@@ -71,6 +77,7 @@ export function parseArgsAndKwargs(...args) {
   return { args, options: {} };
 }
 
+// Check if its android webview
 export function isAndroidWebView() {
   const ua = navigator.userAgent || "";
   return (
@@ -146,6 +153,7 @@ export function formatTimestamp(timestamp) {
   return `${year} ${month} ${day} at ${timeStr}`;
 }
 
+// Toggle full screen
 export function toggleFullscreen() {
   const doc = document;
   const elem = document.documentElement;

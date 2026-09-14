@@ -58,6 +58,9 @@ img {
 }
 
 
+/* Transitions */
+/* Fade */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -72,6 +75,8 @@ img {
 .fade-leave-from {
   opacity: 1;
 }
+
+/* Fade Scale */
 
 .fade-scale-enter-active,
 .fade-scale-leave-active {
@@ -97,6 +102,8 @@ img {
   opacity: 0;
   transform: scale(0.9);
 }
+
+/* Slide,  Up, Left, Right, Down */
 
 .slide-up-enter-active,
 .slide-up-leave-active {
@@ -197,3 +204,4 @@ img {
   opacity: 0;
   transform: translateY(-40px);
 }
+

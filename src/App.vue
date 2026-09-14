@@ -15,11 +15,13 @@
   import Navbar from "@/components/Navbar.vue";
   import Loading from "@/components/Loading.vue";
   import SwipeNav from "@/components/SwipeNav.vue";
-  import ControlCenter from "@/components/ControlCenter.vue";
+  import GhostPanel from "@/components/GhostPanel.vue";
+  import AppControl from "@/components/AppControl.vue";
 
   import Statusbar from "@/components/status/Statusbar.vue";
 
-  import HomeScreen from "@/components/HomeScreen.vue";
+  import HomeScreen from "@/components/screens/HomeScreen.vue";
+  import CCScreen from "@/components/screens/CCScreen.vue";
 
   import Logout from "@/components/modules/Logout.vue";
   import Share from "@/components/modules/Share.vue";
@@ -28,12 +30,20 @@
 
   import AlertError from "@/components/ui/AlertError.vue";
 
-  import { getUrl, getAnimation } from "@/kikx/config";
-  import { useClient, devLogin, muiConfig, postAppMessageEvent } from "@/kikx";
+  import TouchSprinkle from "@/components/ui/TouchSprinkle.vue";
+
+  // import { getUrl, getAnimation } from "@/kikx/config";
+  import {
+    fetchAppsList,
+    useClient,
+    devLogin,
+    muiConfig,
+    postAppMessageEvent
+  } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
   import { haptic, vibrate } from "@/kikx/vibrate";
-  import { getAppTheme, hasAppTheme } from "@/kikx/style";
+  import { getAppTheme, hasAppTheme, getParticleColors } from "@/kikx/style";
 
   import { useUIConfig } from "@/stores/kikx";
   import { useErrorStore } from "@/stores/error";
@@ -43,6 +53,7 @@
   import { useRunningApps } from "@/composables/useRunningApps";
 
   // ------------------ STATE
+  const appsList = ref([]);
   // Kikx Client
   const client = useClient();
 
@@ -61,14 +72,16 @@
   const currentScreen = ref("home");
   const lastScreen = ref("home");
 
-  // Active Module
+  // Active Module { name, options }
   const currentModule = ref(null);
-  let currentModuleOptions = {};
 
   // hidden screens for navbar
   const appScreens = ["app-control", "app"];
   // Hide navbar in these screens
   const navbarHiddenScreens = ["app-control", "control"];
+
+  //
+  const showGhostPanel = ref(false);
 
   // Composables
   const {
@@ -91,9 +104,13 @@
   // Change active screen
   function changeScreen(name) {
     // If screen is in home and switch app-control
-    if (currentScreen.value === "home" && name === "app-control") {
+    if (
+      uiConfig.state.autoHideAppCSwitch &&
+      currentScreen.value === "home" &&
+      name === "app-control"
+    ) {
       setTimeout(() => {
-        if (hasRunningApps.value) {
+        if (hasRunningApps.value && currentScreen.value === "app-control") {
           changeScreen("app");
         }
       }, 1000);
@@ -109,25 +126,30 @@
   }
 
   // Show Module
-  function showModule(name, options = {}) {
-    currentModuleOptions = options;
+  async function showModule(name, options = null) {
+    if (uiConfig.state.useModuleReplace) {
+      currentModule.value = null;
+      await nextTick();
+    }
 
     // if screen is control / app-control switch to home screen
     if (["control", "app-control"].includes(currentScreen.value)) {
-      changeScreen("home");
+      // Skip on Share module
+      if (name !== "Share") {
+        changeScreen("home");
+      }
     }
     // If module name has these switch to home screen
     if (["WallpaperChanger"].includes(name)) {
       changeScreen("home");
     }
 
-    currentModule.value = name;
+    currentModule.value = { name, options };
   }
 
   // Close module and reset module options
   function closeModule() {
-    currentModule.value = false;
-    currentModuleOptions = {};
+    currentModule.value = null;
   }
 
   // Scroll Tab To App
@@ -176,7 +198,7 @@
   // Back navigation
   const canGoBack = computed(
     () =>
-      activeApp.value &&
+      !!activeApp.value &&
       activeApp.value.iframe.canGoBack &&
       currentScreen.value !== "home"
   );
@@ -211,11 +233,29 @@
     }
   }
 
-  function onAppControlClick() {
+  function onAppControlHide() {
     if (hasRunningApps.value) {
       changeScreen("app");
     } else {
       changeScreen("home");
+    }
+  }
+
+  // Bottom capsule buttons
+  function onAppControlAction(btnIndex) {
+    if (btnIndex === 0) {
+      changeScreen("control");
+    } else if (btnIndex === 1) {
+      runHaptic();
+      closeActiveApp();
+    }
+  }
+
+  function changeActiveApp(index) {
+    if (activeAppIndex.value === index) {
+      changeScreen("app");
+    } else {
+      setActiveApp(index);
     }
   }
 
@@ -226,10 +266,6 @@
   }
 
   function onSwipeNav(direction) {
-    if (direction === "click") {
-      return;
-    }
-
     runHaptic();
 
     if (direction === "up") {
@@ -256,24 +292,6 @@
     changeScreen(lastScreen.value);
   }
 
-  // Bottom capsule buttons
-  function onAppControlBtnClick(btnIndex) {
-    if (btnIndex === 0) {
-      changeScreen("control");
-    } else if (btnIndex === 1) {
-      runHaptic();
-      closeActiveApp();
-    }
-  }
-
-  function onAppControlIconClick(index) {
-    if (activeAppIndex.value === index) {
-      changeScreen("app");
-    } else {
-      setActiveApp(index);
-    }
-  }
-
   // 0 - home, 1 - app-control, 2 close / back (depends)
   function onNavbarClick(btnIndex) {
     runHaptic();
@@ -294,9 +312,13 @@
   }
 
   // ------------------ App Functions
+  async function updateAppsList() {
+    appsList.value = await fetchAppsList();
+  }
+
   // if activa app is sudo
   const isSudoApp = computed(() => {
-    return activeApp.value && appScreens.includes(currentScreen.value)
+    return !!activeApp.value && appScreens.includes(currentScreen.value)
       ? activeApp.value.isSudo
       : false;
   });
@@ -304,8 +326,8 @@
   // Active app theme
   const activeAppTheme = computed(() => {
     // only show when screen is control & app-control
-    return activeApp.value && appScreens.includes(currentScreen.value)
-      ? activeApp.value.manifest.theme
+    return !!activeApp.value && appScreens.includes(currentScreen.value)
+      ? activeApp.value.state.theme
       : "default";
   });
 
@@ -389,8 +411,7 @@
   // Share action using app
   function shareUsingApp(name, payload) {
     openApp(name, {
-      args: [],
-      query: { share: payload },
+      share: payload,
       sudo: false
     });
   }
@@ -407,7 +428,7 @@
       const { url } = options;
       if (!url) return;
 
-      showModule("WallpaperChanger", { url });
+      showModule("WallpaperChanger", { url, app: app.manifest });
     }
     // Share screen
     else if (name === "share") {
@@ -418,15 +439,26 @@
     }
     // Theme for app
     else if (name === "set-theme") {
-      const { theme } = options;
+      const { name } = options;
 
-      if (!hasAppTheme(theme)) {
-        throw new Error(`Invalid Theme: ${theme}`);
+      if (!hasAppTheme(name)) {
+        throw new Error(`Invalid Theme: ${name}`);
       }
 
-      getAppByID(invoker.id).manifest.theme = theme;
+      getAppByID(invoker.id).state.theme = name;
     }
   }
+
+  // Sending app lifecycle events
+  watch(activeApp, (newApp, oldApp) => {
+    if (oldApp?.id) {
+      postAppMessageEvent(oldApp.id, "app:blur");
+    }
+
+    if (newApp?.id) {
+      postAppMessageEvent(newApp.id, "app:focus");
+    }
+  });
 
   // On before mount
   onBeforeMount(async () => {
@@ -441,11 +473,27 @@
       });
     });
 
+    window.addEventListener("client:logout", () => {
+      // Logout
+      client.logout();
+    });
+
+    window.addEventListener("client:back", () => {
+      // Back
+      runHaptic();
+
+      if (canGoBack.value) {
+        navigateBack();
+      } else {
+        closeActiveApp();
+      }
+    });
+
     // Event bindings
     client.on("ws:onclose", e => {
       if (e.code === 1008) {
-        // unauthorized / closed by others then reload
-        location.reload();
+        // unauthorized / redirect to login
+        location.replace("/");
       }
       wsopen.value = false;
       connecting.value = true;
@@ -463,11 +511,13 @@
     // App installed or updated close it
     client.on("app:installed", payload => {
       closeAppByName(payload.name);
+      updateAppsList();
     });
 
     // App uninstalled
     client.on("app:uninstalled", payload => {
       closeAppByName(payload.name);
+      updateAppsList();
     });
 
     // App closing by itself
@@ -484,7 +534,10 @@
           query: payload.query,
           sudo: payload.sudo
         });
-      } else if (payload.action === "action") {
+      } else if (
+        payload.action === "action" &&
+        uiConfig.state.enableAppActions
+      ) {
         try {
           onAppAction(payload.invoker, payload.payload);
         } catch (err) {
@@ -498,6 +551,7 @@
 
     // run
     client.run(async () => {
+      await updateAppsList();
       // load config and watch
       await loadConfigAndWatch();
 
@@ -536,8 +590,9 @@
     <div class="flex-1 relative">
       <!-- Home -->
       <HomeScreen
-        v-if="currentScreen === 'home'"
+        v-show="currentScreen === 'home' && !currentModule"
         :openApp="openApp"
+        :appsList="appsList"
         :uninstallApp="uninstallApp"
         :runHaptic="runHaptic"
         :iconsStyle="uiConfig.state.iconsStyle"
@@ -545,7 +600,7 @@
       />
 
       <Transition name="fade">
-        <ControlCenter
+        <CCScreen
           v-if="currentScreen === 'control'"
           :showModule="showModule"
           :onAlertClick="onAlertClick"
@@ -576,97 +631,17 @@
 
         <!-- AppsControl -->
         <Transition name="app-control">
-          <div
+          <AppControl
             v-show="currentScreen === 'app-control' && !isKeyboardOpen"
-            class="w-full flex flex-col overflow-hidden"
-          >
-            <!-- Control Panel -->
-            <div
-              v-swipe="onAppControlSwipe"
-              @click="onAppControlClick"
-              class="h-10 flex items-center justify-center"
-            >
-              <!-- App title -->
-              <div
-                v-if="activeApp"
-                class="flex justify-center items-center gap-1 bg-black/5 border-t border-white/40 p-2 w-1/2 rounded-t-lg"
-              >
-                <svg
-                  v-if="isSudoApp"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="m16 7.58l-5.5-2.4L5 7.58v3.6c0 3.5 2.33 6.74 5.5 7.74c.25-.08.49-.2.73-.3c-.15-.51-.23-1.06-.23-1.62c0-2.97 2.16-5.43 5-5.91z"
-                    opacity="0.3"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M17 13c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4s-1.79-4-4-4m0 1.38c.62 0 1.12.51 1.12 1.12s-.51 1.12-1.12 1.12s-1.12-.51-1.12-1.12s.5-1.12 1.12-1.12m0 5.37c-.93 0-1.74-.46-2.24-1.17c.05-.72 1.51-1.08 2.24-1.08s2.19.36 2.24 1.08c-.5.71-1.31 1.17-2.24 1.17"
-                    opacity="0.3"
-                  />
-                  <circle cx="17" cy="15.5" r="1.12" fill="currentColor" />
-                  <path
-                    fill="currentColor"
-                    d="M18 11.09V6.27L10.5 3L3 6.27v4.91c0 4.54 3.2 8.79 7.5 9.82c.55-.13 1.08-.32 1.6-.55A5.97 5.97 0 0 0 17 23c3.31 0 6-2.69 6-6c0-2.97-2.16-5.43-5-5.91M11 17c0 .56.08 1.11.23 1.62c-.24.11-.48.22-.73.3c-3.17-1-5.5-4.24-5.5-7.74v-3.6l5.5-2.4l5.5 2.4v3.51c-2.84.48-5 2.94-5 5.91m6 4c-2.21 0-4-1.79-4-4s1.79-4 4-4s4 1.79 4 4s-1.79 4-4 4"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M17 17.5c-.73 0-2.19.36-2.24 1.08c.5.71 1.32 1.17 2.24 1.17s1.74-.46 2.24-1.17c-.05-.72-1.51-1.08-2.24-1.08"
-                  />
-                </svg>
-                <h1 class="opacity-80">
-                  {{ activeApp.manifest.title }}
-                </h1>
-              </div>
-            </div>
-            <!-- Apps Capsule -->
-            <div class="px-2 pb-2 w-full flex items-center">
-              <button
-                @click="onAppControlBtnClick(0)"
-                class="w-16 h-full rounded-l-2xl bg-info glass"
-              ></button>
-              <!-- Middle Panel -->
-              <div
-                class="flex-1 h-16 border-y border-black/10 bg-white/20 shadow-lg px-2 gap-1 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
-              >
-                <div
-                  v-if="activeAppIndex < 0"
-                  class="h-full w-full flex items-center justify-center text-white opacity-60"
-                >
-                  No active apps
-                </div>
-                <!-- Running apps list -->
-                <div
-                  v-for="(app, index) in runningApps"
-                  :key="app.id"
-                  :id="'app_tab_' + app.id"
-                  @click.stop
-                  @click="onAppControlIconClick(index)"
-                  class="animate__animated shadow-lg min-w-12 min-h-12 max-h-12 max-w-12 rounded-full border-2 overflow-hidden transition duration-300 scroll-smooth"
-                  :class="[
-  activeAppIndex === index
-    ? 'border-white'
-    : 'border-white/10',
-
-  activeAppIndex === index && runningApps.length > 1 && [
-    '-translate-y-1',
-    getAnimation(uiConfig.state.appIconFocusAnimation)
-  ]
-]"
-                >
-                  <img :src="getUrl(app.manifest.icon)" />
-                </div>
-              </div>
-              <button
-                @click="onAppControlBtnClick(1)"
-                class="w-16 h-full rounded-r-2xl bg-error glass flex items-center justify-center"
-              ></button>
-            </div>
-          </div>
+            :activeApp="activeApp"
+            :isSudoApp="isSudoApp"
+            :runningApps="runningApps"
+            :activeAppIndex="activeAppIndex"
+            @swipe="onAppControlSwipe"
+            @change="changeActiveApp"
+            @hide="onAppControlHide"
+            @action="onAppControlAction"
+          />
         </Transition>
       </div>
     </div>
@@ -676,11 +651,11 @@
       <Navbar
         v-if="canShowNavbar"
         :canGoBack="canGoBack"
-        :onNavbarClick="onNavbarClick"
+        :theme="activeAppTheme"
         :isKeyboardOpen="isKeyboardOpen"
         :closeKeyboard="closeKeyboard"
-        :theme="activeAppTheme"
         :navLayout="uiConfig.state.navLayout"
+        @action="onNavbarClick"
       />
     </Transition>
 
@@ -692,32 +667,36 @@
     ></div>
 
     <!-- Swipenav -->
-    <Transition name="slide-left">
-      <SwipeNav
-        v-if="uiConfig.state.swipeNav && !currentModule"
-        :onSwipeNav="onSwipeNav"
-      />
-    </Transition>
+    <SwipeNav
+      v-if="uiConfig.state.swipeNav && !currentModule"
+      @action="onSwipeNav"
+    />
+
+    <!-- Ghost panel -->
+    <GhostPanel v-if="showGhostPanel" @close="showGhostPanel = false" />
 
     <!-- Modules -->
     <div v-if="currentModule" class="fixed fscreen inset-0 z-[99]">
       <WallpaperChanger
-        v-if="currentModule === 'WallpaperChanger'"
-        :options="currentModuleOptions"
+        v-if="currentModule.name === 'WallpaperChanger'"
+        :options="currentModule.options"
         @close="closeModule"
       />
       <Share
-        v-else-if="currentModule === 'Share'"
-        :options="currentModuleOptions"
+        v-else-if="currentModule.name === 'Share'"
+        :options="currentModule.options"
         @shareUsingApp="shareUsingApp"
         @close="closeModule"
       />
       <Settings
-        v-else-if="currentModule === 'Settings'"
-        :options="currentModuleOptions"
+        v-else-if="currentModule.name === 'Settings'"
+        :options="currentModule.options"
         @close="closeModule"
       />
-      <Logout v-else-if="currentModule === 'Logout'" @close="closeModule" />
+      <Logout
+        v-else-if="currentModule.name === 'Logout'"
+        @close="closeModule"
+      />
     </div>
 
     <!-- Global Error Alerts -->
@@ -728,6 +707,13 @@
         @close="errors.closeError"
       />
     </Transition>
+
+    <!-- Touch Effects -->
+    <TouchSprinkle
+      v-if="uiConfig.state.touchSprinkle !== 'none'"
+      :colors="getParticleColors(uiConfig.state.touchSprinkle)"
+      :duration="2500"
+    />
   </div>
 </template>
 

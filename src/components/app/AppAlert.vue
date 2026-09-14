@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed, nextTick, onMounted, onBeforeUnmount } from "vue";
+  import { ref, computed, nextTick, onMounted } from "vue";
   import { getUrl } from "@/kikx/config";
   import { sanitizeAlert } from "@/kikx/utils";
 

@@ -24,11 +24,6 @@ class Client {
       this.reconnectAttempts = 0;
     });
 
-    window.addEventListener("client:logout", async () => {
-      // Logout
-      await this._logout();
-    });
-
     // Browser tab focus
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
@@ -174,25 +169,37 @@ class Client {
   }
 
   sendAppEvent(event, appID, payload = {}) {
-    return this.system.request("client-app-event", "POST", {
-      app_id: appID,
-      event,
-      payload
+    return this.system.request("client-app-event", {
+      method: "POST",
+      body: {
+        app_id: appID,
+        event,
+        payload
+      }
     });
   }
 
   uninstallApp = (name, keepData = false) => {
-    return this.system.request(
-      `app/uninstall?app_name=${name}&keep_data=${keepData}`,
-      "DELETE"
-    );
+    return this.system.request("kpm/uninstall", {
+      params: {
+        app_name: name,
+        keep_data: keepData
+      }
+    });
   };
 
   _logout() {
     this._loggedOut = true;
     if (this.ws) this.ws.close();
     // send logout request
-    return this.system.request("client-logout", "POST");
+    return this.system.request("client-logout", {
+      method: "POST"
+    });
+  }
+
+  async logout() {
+    await this._logout();
+    location.replace("/");
   }
 }
 

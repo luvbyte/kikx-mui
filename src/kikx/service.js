@@ -1,4 +1,5 @@
 import { getUrl } from "./config";
+import { request } from "./api";
 
 import { parseArgsAndKwargs } from "./utils";
 
@@ -9,70 +10,106 @@ class Service {
     // Api url
     this.baseURL = getUrl(`/service/${this.serviceName}`);
   }
-  async _request(endpoint, method, headers, body) {
+  request(
+    endpoint,
+    {
+      method = "GET",
+      body = undefined,
+      params = {},
+      headers = {},
+      ...options
+    } = {}
+  ) {
     Object.assign(headers, {
       "kikx-client-id": this.client.clientID
     });
-    return await fetch(`${this.baseURL}/${endpoint}`, {
+    return request(`${this.baseURL}/${endpoint}`, {
       method,
+      body,
+      params,
       headers,
-      body
+      ...options
     });
   }
-  async request(endpoint, method = "GET", body = null, isJson = true) {
-    let headers = {};
 
-    // Prepare headers and body if JSON is expected
-    if (body && isJson) {
-      headers["Content-Type"] = "application/json";
-      body = JSON.stringify(body);
+  async fetch(
+    endpoint,
+    {
+      method = "GET",
+      body = undefined,
+      params = {},
+      headers = {},
+      ...options
+    } = {}
+  ) {
+    const { data, error } = await this.request(endpoint, {
+      method,
+      body,
+      params,
+      headers,
+      ...options
+    });
+
+    if (error) {
+      throw new Error(error.detail || "Error fetching data");
     }
 
-    try {
-      // Call the internal request method
-      const response = await this._request(endpoint, method, headers, body);
-      let data = null;
-
-      // Check if Content-Type header is present
-      const contentType = response.headers.get("content-type");
-
-      // Parse response data based on content type
-      if (contentType) {
-        if (contentType.includes("application/json")) {
-          data = await response.json();
-        } else if (contentType.includes("text/")) {
-          data = await response.text();
-        } else if (contentType.includes("application/octet-stream")) {
-          data = await response.blob(); // or .arrayBuffer() depending on use case
-        }
-        // Add more types if needed
-      }
-
-      return {
-        ok: response.ok,
-        code: response.status,
-        contentType: contentType,
-        data: response.ok ? data : null,
-        error: response.ok ? null : data || `Error ${response.status}`
-      };
-    } catch (err) {
-      // Catch network or parsing errors
-      return {
-        code: 500,
-        ok: false,
-        data: null,
-        error: err.message || "Unknown error"
-      };
-    }
+    return data;
   }
-  async fetch(endpoint, method = "GET", body = null, isJson = true) {
-    const res = await this.request(endpoint, method, body, isJson);
+}
 
-    if (!res.ok) {
-      throw Error(res.error);
-    }
+export class SystemService extends Service {
+  constructor(client) {
+    super("system", client);
+  }
 
-    return res.data;
+  // Get client info
+  getClientInfo() {
+    return this.fetch("info/client");
+  }
+
+  // Fetch apps info
+  fetchAppsList(meta = false) {
+    return this.fetch("info/apps-list", {
+      params: { meta }
+    });
+  }
+
+  // Run client funcx
+  clientFunc = (name, config) =>
+    this.request("funcx/run", {
+      method: "POST",
+      body: {
+        name,
+        config
+      }
+    });
+
+  // Run funcx with args and options
+  func(name, ...args) {
+    const parsed = parseArgsAndKwargs(...args);
+
+    return this.clientFunc(name, {
+      args: parsed.args,
+      options: parsed.options
+    });
+  }
+
+  // Get Kikx Config
+  getKikxConfig(reset) {
+    return this.request("kikx-config", {
+      params: { reset }
+    });
+  }
+
+  // Update kikc config
+  updatekikxConfig(config) {
+    return this.request("kikx-config", {
+      method: "POST",
+      body: {
+        config
+      }
+    });
   }
 }
 
@@ -80,6 +117,7 @@ export class FileSystemService extends Service {
   constructor(client) {
     super("fs", client);
   }
+  // List files
   listFiles(
     directory,
     {
@@ -90,75 +128,93 @@ export class FileSystemService extends Service {
       thumbnails = false
     } = {}
   ) {
-    const params = new URLSearchParams({
-      directory,
-      offset: String(offset),
-      limit: String(limit),
-      sort,
-      asc: String(asc),
-      thumbnails: String(thumbnails)
+    return this.request("list", {
+      params: {
+        directory,
+        offset,
+        limit,
+        sort,
+        asc,
+        thumbnails
+      }
+    });
+  }
+
+  // Get thumbnail
+  thumbnail = filename =>
+    this.request("thumbnail", {
+      params: { filename }
     });
 
-    return this.request(`list?${params.toString()}`);
-  }
-  // thumbnail = filename =>
-  //   this.request(`thumbnail?filename=${encodeURIComponent(filename)}`);
+  // Read File
   readFile = filename =>
-    this.request(`read?filename=${encodeURIComponent(filename)}`);
-  writeFile = (filename, content) =>
-    this.request("write", "POST", { filename, content });
+    this.request("read", {
+      params: { filename }
+    });
+
+  // Write File
+  writeFile = (filename, content, ensure = false) =>
+    this.request("write", {
+      method: "POST",
+      body: { filename, content, ensure_dir: ensure }
+    });
+
+  // Delete File
+  deleteFile = filename =>
+    this.request("delete", {
+      method: "DELETE",
+      params: { filename }
+    });
+
+  // Upload file
   uploadFile = (file, dest) => {
     const formData = new FormData();
     formData.append("files", file);
 
-    return this.request(
-      `upload?dest=${encodeURIComponent(dest)}`,
-      "POST",
-      formData,
-      false
-    );
+    return this.request("upload", {
+      method: "POST",
+      body: formData,
+      params: {
+        dest
+      }
+    });
   };
-  deleteFile = filename =>
-    this.request(`delete?filename=${encodeURIComponent(filename)}`, "DELETE");
+
   createDirectory = dirname =>
-    this.request("create_directory", "POST", { dirname });
-  getFileInfo = path => this.request(`info?path=${encodeURIComponent(path)}`);
-  // deleteDirectory = dirname =>
-  //   this.request(
-  //     `delete_directory?dirname=${encodeURIComponent(dirname)}`,
-  //     "DELETE"
-  //   );
-  // copy = (source, destination) =>
-  //   this.request("copy", "POST", { source, destination });
-  // move = (source, destination) =>
-  //   this.request("move", "POST", { source, destination });
-  // serve = file => this.request(`serve?filename=${encodeURIComponent(file)}`);
-}
-
-export class SystemService extends Service {
-  constructor(client) {
-    super("system", client);
-  }
-
-  getClientInfo() {
-    return this.fetch("info/client");
-  }
-
-  fetchAppsList(extra = false) {
-    return this.fetch(`info/apps-list?extra=${extra}`);
-  }
-
-  clientFunc = (name, config) =>
-    this.request("client/func", "POST", {
-      name,
-      config
+    this.request("create_directory", {
+      method: "POST",
+      body: { dirname }
     });
 
-  func(name, ...args) {
-    const parsed = parseArgsAndKwargs(...args);
-    return this.clientFunc(name, {
-      args: parsed.args,
-      options: parsed.options
+  // Delete directory
+  deleteDirectory = dirname =>
+    this.request("delete_directory", {
+      method: "DELETE",
+      params: { dirname }
     });
-  }
+
+  // Get file info
+  getFileInfo = path =>
+    this.request("info", {
+      params: { path }
+    });
+
+  expose = async (path, expires = null) =>
+    this.request("expose", {
+      method: "POST",
+      body: { path, expires }
+    });
+
+  getServeUrl = (uid, path = "") => {
+    return `${this.baseURL}/serve/${uid}/${encodeURIComponent(path)}`;
+    // const url = `${this.baseURL}/serve/${uid}/${encodeURIComponent(path)}`;
+    // if (absolute) {
+    //   return getUrl(url);
+    // }
+
+    // return url;
+  };
+
+  // Get full file url
+  getServeAbsUrl = (uid, path = "") => this.getServeUrl(uid, path);
 }

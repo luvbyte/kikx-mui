@@ -1,14 +1,17 @@
 <script setup>
   import { ref, reactive, computed, onMounted } from "vue";
 
-  import { getImageUrl, defaultBackground } from "@/kikx/config";
-
   import { getFS, muiConfig } from "@/kikx";
-
+  import { getImageUrl, defaultBackground } from "@/kikx/config";
   import { useUIConfig } from "@/stores/kikx";
 
+  import Loading from "@/components/Loading.vue";
+
   const props = defineProps({
-    options: Object
+    options: {
+      type: Object,
+      require: false
+    }
   });
   const emit = defineEmits(["close"]);
 
@@ -16,21 +19,15 @@
 
   const uiConfig = useUIConfig();
 
-  const loaded = ref(false);
+  const showPanel = ref(false);
   const images = ref([]);
   const selectedImage = ref(null);
   const customUrl = ref("");
-  const error = ref("");
+  const errorText = ref("");
 
   const imageExtensions = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"];
 
   const imagePaths = reactive([
-    {
-      name: "SHARE",
-      virtual: "share://images/bg",
-      url: "/share/images/bg",
-      canUpdate: false
-    },
     {
       name: "LOCAL",
       virtual: "home://share/images/bg",
@@ -51,30 +48,67 @@
       : currentPath.value.url + "/"
   );
 
-  // Render Images
-  async function renderImages() {
-    error.value = "";
-    images.value = [];
+  const offset = ref(0);
+  const limit = ref(10);
 
+  const hasMore = ref(false);
+  const loadingMore = ref(false);
+
+  // Fetch images list
+  async function fetchImages() {
     const { virtual } = currentPath.value;
 
-    await fs.createDirectory(virtual);
-    const res = await fs.listFiles(virtual, {
+    const { data, error } = await fs.listFiles(virtual, {
+      offset: offset.value,
+      limit: limit.value,
       sort: "modified",
       asc: false
     });
 
-    if (res.error) {
-      error.value = res.message || "Failed to load images.";
-      return;
+    loadingMore.value = false;
+
+    if (error) {
+      errorText.value = error.detail || "Failed to load images.";
+      return [];
     }
 
-    images.value = res.data.files
+    hasMore.value = data.has_more;
+
+    return data.files
       .filter(
         file =>
           !file.directory && imageExtensions.includes(file.suffix.toLowerCase())
       )
       .map(file => basePath.value + file.name);
+  }
+
+  // Load more images
+  async function loadMore() {
+    if (loadingMore.value || !hasMore.value) return;
+
+    loadingMore.value = true;
+    offset.value += limit.value;
+
+    images.value.push(...(await fetchImages()));
+  }
+
+  // Render Images
+  async function renderImages() {
+    offset.value = 0;
+    images.value = [];
+
+    // await fs.createDirectory(virtual);
+
+    images.value = await fetchImages();
+  }
+
+  // On images scroll load more
+  function onScroll(e) {
+    const el = e.currentTarget;
+
+    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 1) {
+      loadMore();
+    }
   }
 
   // Select Image
@@ -85,20 +119,22 @@
 
   // Delete Image
   async function handleDeleteSelectedImage() {
-    error.value = "";
+    console.log(selectedImage.value);
+
+    errorText.value = "";
 
     if (!currentPath.value.canUpdate) return;
     if (!selectedImage.value) {
-      error.value = "No image selected.";
+      errorText.value = "No image selected.";
       return;
     }
 
     const fileName = selectedImage.value.replace(basePath.value, "");
     const fullPath = `${currentPath.value.virtual}/${fileName}`;
 
-    const res = await fs.deleteFile(fullPath);
-    if (res.error) {
-      error.value = res.message || "Delete failed.";
+    const { data, error } = await fs.deleteFile(fullPath);
+    if (error) {
+      errorText.value = error.detail || "Delete failed.";
       return;
     }
 
@@ -108,7 +144,7 @@
 
   // Upload Image
   async function handleImageUpload(event) {
-    error.value = "";
+    errorText.value = "";
 
     if (!currentPath.value.canUpdate) return;
 
@@ -116,7 +152,7 @@
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      error.value = "Only image files allowed.";
+      errorText.value = "Only image files allowed.";
       return;
     }
 
@@ -128,9 +164,12 @@
       type: file.type
     });
 
-    const res = await fs.uploadFile(renamedFile, currentPath.value.virtual);
-    if (res.error) {
-      error.value = res.message || "Upload failed.";
+    const { data, error } = await fs.uploadFile(
+      renamedFile,
+      currentPath.value.virtual
+    );
+    if (error) {
+      errorText.value = error.detail || "Upload failed.";
       return;
     }
 
@@ -141,7 +180,7 @@
 
   // Custum URL
   function setBackgroundCustomUrl() {
-    error.value = "";
+    errorText.value = "";
 
     if (customUrl.value.length <= 0) return;
 
@@ -152,40 +191,39 @@
       customUrl.value = "";
     };
     test.onerror = () => {
-      error.value = "Failed to load image.";
+      errorText.value = "Failed to load image.";
     };
 
     test.src = customUrl.value;
   }
 
-  // Utils
-  async function handlePathChange() {
-    await renderImages();
-  }
-
   function handleClose() {
-    emit("close");
+    showPanel.value = false
   }
 
   // Init with options
   async function init() {
+    if (!props.options) return false;
+
     const url = String(props.options.url);
+    const app = props.options.app;
 
     if (url.startsWith("http://") || url.startsWith("https://")) {
       customUrl.value = url;
       setBackgroundCustomUrl();
       return true;
-    }
-    if (url.startsWith("/share") || url.startsWith("/files")) {
+    } else if (url.startsWith("/files")) {
       selectImage(url);
       return true;
+    } else {
+      errorText.value = `[ ${app.name} ] Invalid url : ${url}`;
     }
 
     return false;
   }
 
   onMounted(async () => {
-    setTimeout(() => (loaded.value = true), 300);
+    setTimeout(() => (showPanel.value = true), 300);
     // Init
     (await init()) ? emit("close") : await renderImages();
   });
@@ -197,69 +235,116 @@
     class="fscreen flex flex-col justify-between text-white"
   >
     <!-- Top bar -->
-    <Transition name="slide-down" mode="out-in">
+    <Transition name="slide-down" mode="out-in" @after-leave="emit('close')">
       <div
-        v-if="loaded"
+        v-if="showPanel"
         :key="currentPathVirtual"
         class="flex flex-col gap-2 items-center bg-black/40 p-2 py-4 shadow-lg"
       >
         <div class="flex gap-2 items-center w-full">
-          <!-- Path selector -->
-          <select
-            v-model="currentPathVirtual"
-            @change="handlePathChange"
-            class="p-1 bg-transparent border rounded"
-          >
-            <option
-              v-for="path in imagePaths"
-              :key="path.virtual"
-              :value="path.virtual"
-            >
-              {{ path.name }}
-            </option>
-          </select>
-
           <!-- URL input -->
           <input
             v-model="customUrl"
             placeholder="Image url"
-            class="input input-sm bg-transparent border-white focus:outline-none"
+            class="input input-sm bg-transparent border-white focus:outline-none placeholder:opacity-60"
           />
-
-          <button @click="setBackgroundCustomUrl" class="btn btn-sm w-16">
-            SET
-          </button>
+          <div v-if="currentPath.canUpdate" class="flex items-center gap-2">
+            <label class="btn btn-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path d="M0 0h24v24H0z" fill="none" />
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="m3 16l4.47-4.47a1.81 1.81 0 0 1 2.56 0L14 15.5m1.5 1.5L14 15.5m7 .5l-2.47-2.47a1.81 1.81 0 0 0-2.56 0L14 15.5"
+                  />
+                  <path
+                    d="M12 2.5c-4.23 0-6.345 0-7.747 1.198q-.3.256-.555.555C2.5 5.655 2.5 7.77 2.5 12s0 6.345 1.198 7.747q.256.3.555.555C5.655 21.5 7.77 21.5 12 21.5s6.345 0 7.747-1.198q.3-.256.555-.555C21.5 18.345 21.5 16.23 21.5 12m-6-6.5c.59-.607 2.16-3 3-3s2.41 2.393 3 3m-3-2.5v6.5"
+                  />
+                </g>
+              </svg>
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                @change="handleImageUpload"
+              />
+            </label>
+            <button
+              v-if="customUrl"
+              class="btn btn-sm btn-success"
+              @click="setBackgroundCustomUrl"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 1200 1200"
+              >
+                <path d="M0 0h1200v1200H0z" fill="none" />
+                <path
+                  fill="currentColor"
+                  d="M600 0C268.63 0 0 268.63 0 600s268.63 600 600 600s600-268.63 600-600S931.369 0 600 0m0 130.371c259.369 0 469.556 210.325 469.556 469.629S859.369 1069.556 600 1069.556c-259.37 0-469.556-210.251-469.556-469.556C130.445 340.696 340.63 130.371 600 130.371m229.907 184.717L482.153 662.915L369.36 550.122L258.691 660.718l112.793 112.793l111.401 111.401l110.597-110.669l347.826-347.754z"
+                />
+              </svg>
+            </button>
+            <button
+              v-else
+              class="btn btn-sm btn-error"
+              @click="handleDeleteSelectedImage"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path d="M0 0h24v24H0z" fill="none" />
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="m3 16l4.47-4.47a1.81 1.81 0 0 1 2.56 0L14 15.5m1.5 1.5L14 15.5m7 .5l-2.47-2.47a1.81 1.81 0 0 0-2.56 0L14 15.5"
+                  />
+                  <path
+                    d="M12 2.5c-4.23 0-6.345 0-7.747 1.198q-.3.256-.555.555C2.5 5.655 2.5 7.77 2.5 12s0 6.345 1.198 7.747q.256.3.555.555C5.655 21.5 7.77 21.5 12 21.5s6.345 0 7.747-1.198q.3-.256.555-.555C21.5 18.345 21.5 16.23 21.5 12m0-3.5l-3-3m0 0l-3-3m3 3l3-3m-3 3l-3 3"
+                  />
+                </g>
+              </svg>
+            </button>
+          </div>
         </div>
-        <!-- Upload / Delete -->
-        <div
-          v-if="currentPath.canUpdate"
-          class="flex p-2 justify-center items-center gap-2"
-        >
-          <label class="w-24 btn btn-sm cursor-pointer rounded-lg">
-            UPLOAD
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              @change="handleImageUpload"
-            />
-          </label>
 
-          <button
-            @click="handleDeleteSelectedImage"
-            class="w-24 btn btn-sm btn-error rounded-lg"
-          >
-            DELETE
-          </button>
+        <div v-if="errorText" class="text-error italic text-sm font-bold">
+          {{ errorText }}
         </div>
-        <div v-if="error" class="badge badge-error text-sm">{{ error }}</div>
       </div>
     </Transition>
 
     <!-- Bottom image panel -->
     <Transition name="slide-up" mode="out-in">
-      <div v-if="loaded" :key="currentPathVirtual" class="bg-black/40 p-2 py-4">
-        <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <div
+        v-if="showPanel"
+        :key="currentPathVirtual"
+        class="bg-black/40 p-2 py-4"
+      >
+        <div
+          class="flex gap-2 overflow-x-auto scrollbar-hide"
+          @scroll="onScroll"
+        >
           <!-- Default Background Image -->
           <div class="flex-none w-32 aspect-[9/16]">
             <img
@@ -269,11 +354,10 @@
               :class="
                 selectedImage === defaultBackground
                   ? 'border-white/80'
-                  : 'border-white/20 hover:border-blue-400'
+                  : 'border-white/20'
               "
             />
           </div>
-
           <div
             v-for="img in images"
             :key="img"
@@ -284,11 +368,15 @@
               @click="selectImage(img)"
               class="w-full h-full object-cover rounded cursor-pointer border-2 transition"
               :class="
-                selectedImage === img
-                  ? 'border-white/80'
-                  : 'border-white/20 hover:border-blue-400'
+                selectedImage === img ? 'border-white/80' : 'border-white/20'
               "
             />
+          </div>
+          <div
+            v-if="loadingMore"
+            class="flex-none w-32 aspect-[9/16] flex items-center justify-center border-2 border-white/20"
+          >
+            <Loading class="opacity-60" />
           </div>
         </div>
       </div>

@@ -68,8 +68,7 @@
       timer = null;
     }
 
-    await client._logout();
-    location.reload();
+    client.logout();
   };
 
   const cancelLogout = () => {

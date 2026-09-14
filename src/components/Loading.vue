@@ -36,7 +36,7 @@
       </path>
     </svg>
 
-    <p>{{ label }}</p>
+    <p v-if="label">{{ label }}</p>
   </div>
 </template>
 
@@ -44,7 +44,7 @@
   defineProps({
     label: {
       type: String,
-      default: ""
+      required: false
     },
     dim: {
       type: Boolean,

@@ -101,17 +101,36 @@
   import { ref, onMounted, onBeforeUnmount } from "vue";
   import { getAppTheme } from "@/kikx/style";
 
-  defineProps([
-    "canGoBack",
-    "onNavbarClick",
-    "theme",
-    "isKeyboardOpen",
-    "closeKeyboard",
-    "navLayout"
-  ]);
+  defineProps({
+    navLayout: {
+      type: String,
+      required: true
+    },
+    closeKeyboard: {
+      type: Function,
+      required: true
+    },
+    theme: {
+      type: String,
+      required: true
+    },
+    canGoBack: {
+      type: Boolean,
+      required: true
+    },
+    isKeyboardOpen: {
+      type: Boolean,
+      required: true
+    }
+  });
+  const emit = defineEmits(["action"]);
 
   const show = ref(false);
   let timer = null;
+
+  function onNavbarClick(btnIndex) {
+    emit("action", btnIndex);
+  }
 
   onMounted(() => {
     timer = setTimeout(() => {

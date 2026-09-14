@@ -68,13 +68,19 @@ export function useRunningApps(client, changeScreen, alerts) {
   }
 
   // ---------------- OPEN APP
-  async function openApp(name, { sudo = false, args = [], query = {} } = {}) {
-    const options = { sudo, query, args };
+  async function openApp(
+    name,
+    { sudo = false, args = [], query = {}, share = null } = {}
+  ) {
+    const options = { sudo, query, args, share };
 
     try {
       const data = await requestOpenApp(name, options, client.clientID);
 
-      runningApps.value.push(data);
+      runningApps.value.push({
+        ...data,
+        state: { theme: data.manifest.theme }
+      });
       setActiveApp(runningApps.value.length - 1);
     } catch (err) {
       errors.raiseError(err, "error", `Error opening app: ${name}`);

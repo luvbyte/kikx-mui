@@ -1,11 +1,19 @@
 <script setup>
-  import { computed, ref, watch } from "vue";
+  import { computed } from "vue";
 
   import { getUrl } from "@/kikx/config";
+  import { sleep } from "@/kikx/utils";
   import { useAlertsStore } from "@/stores/alert";
 
   // Props
-  const props = defineProps(["close"]);
+  const props = defineProps({
+    prefix: {
+      type: String,
+      required: true
+    }
+  });
+
+  const emit = defineEmits(["close"]);
 
   // Alerts Store
   const alerts = useAlertsStore();
@@ -31,7 +39,7 @@
   function getTickerStyle(alert) {
     if (!alert) return { animationDuration: "8s" };
 
-    const text = (alert.title || "") + " " + (alert.message || "");
+    const text = props.prefix + "" + (alert.label || alert.message);
     const length = text.length;
 
     const baseSpeed = 0.09;
@@ -51,16 +59,15 @@
     const alert = currentAlert.value;
     if (!alert) return;
 
+    // After removal, the next alert shifts into same index.
     alerts.alertComplete(alert.uid);
 
-    // After removal, the next alert shifts into same index.
-
     if (alerts.pendingAlerts.length === 0) {
-      props.close();
+      emit("close");
     }
   }
 
-  function handleAnimationEnd() {
+  async function handleAnimationEnd() {
     goNext();
   }
 
@@ -75,7 +82,7 @@
     class="select-none fscreen flex items-center font-semibold overflow-hidden whitespace-nowrap transition-colors duration-600"
     :class="getClass(currentAlert)"
     @click="skipAlert"
-    v-longpress="close"
+    v-longpress="() => emit('close')"
   >
     <div
       class="ticker flex items-center gap-1"
@@ -83,14 +90,12 @@
       :key="currentAlert.uid"
       @animationend="handleAnimationEnd"
     >
+      <pre class="text-lg">{{ prefix }}</pre>
       <img
         :src="getUrl(currentAlert.icon)"
         class="h-4 w-4 rounded aspect-square"
       />
-      <h1 v-if="false" class="font-bold">{{ currentAlert.title }}</h1>
-      <p>
-        {{ currentAlert.label || currentAlert.message }}
-      </p>
+      <p>{{ currentAlert.label || currentAlert.message }}</p>
     </div>
   </div>
 </template>

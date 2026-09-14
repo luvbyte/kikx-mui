@@ -59,7 +59,7 @@
   const props = defineProps({
     batteryIcon: {
       type: String,
-      default: "circle" // circle | box
+      required: true 
     }
   });
 

@@ -44,3 +44,30 @@ export const hasAppTheme = theme => Boolean(theme) && theme in appThemes;
 export function getAppTheme(theme) {
   return appThemes[theme] || appThemes.default;
 }
+
+export function getParticleColors(color) {
+  return (
+    {
+      white: "#ffffff",
+      rainbow: [
+        "#ff1744",
+        "#ff9100",
+        "#ffeb3b",
+        "#00e676",
+        "#00e5ff",
+        "#2979ff",
+        "#7c4dff",
+        "#ff4081"
+      ],
+      fire: ["#ff1744", "#ff5722", "#ff9100", "#ffc107", "#ffeb3b"],
+      ocean: ["#00e5ff", "#00b8d4", "#2979ff", "#3d5afe"],
+      candy: ["#ff4081", "#e040fb", "#7c4dff", "#40c4ff", "#69f0ae"],
+      neon: ["#ff00ff", "#9d00ff", "#00ffff", "#39ff14", "#ffff00"],
+      gold: ["#fff8dc", "#ffd700", "#ffb300", "#ff9800"],
+      ice: ["#ffffff", "#b3e5fc", "#40c4ff", "#00e5ff"],
+      sunset: ["#ff1744", "#ff4081", "#ff9100", "#ffc107"],
+      purple: ["#e040fb", "#9c27b0", "#7c4dff", "#651fff"],
+      emerald: ["#b9f6ca", "#69f0ae", "#00e676", "#00c853"]
+    }[color] || "#ffffff"
+  );
+}

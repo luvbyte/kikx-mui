@@ -11,7 +11,7 @@
         :src="getImageUrl(app.icon)"
       />
     </div>
-    <!-- Icon -->
+    <!-- Info -->
     <div
       class="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide"
     >
@@ -64,7 +64,7 @@
     <Transition name="fade">
       <Alert
         v-if="showAlert"
-        :message="`Do you want to uninstall '${app.title}' app?`"
+        :message="`Do you want to uninstall ${app.title}?`"
         @onResponse="onResponse"
       >
         <label class="label cursor-pointer p-2">
@@ -86,11 +86,24 @@
 
   import Alert from "@/components/ui/Alert.vue";
 
+  const props = defineProps({
+    app: {
+      type: Object,
+      required: true
+    },
+    openApp: {
+      type: Function,
+      required: true
+    },
+    uninstallApp: {
+      type: Function,
+      required: true
+    }
+  });
+  const emit = defineEmits(["close"]);
+
   const showAlert = ref(false);
   const keepData = ref(false);
-
-  const props = defineProps(["app", "openApp", "uninstallApp"]);
-  const emit = defineEmits(["close"]);
 
   function onResponse(success) {
     showAlert.value = false;

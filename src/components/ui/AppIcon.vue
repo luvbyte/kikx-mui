@@ -3,11 +3,17 @@
   import { getImageUrl } from "@/kikx/config";
 
   const props = defineProps({
-    title: String,
-    icon: String,
+    title: {
+      type: String,
+      required: true
+    },
+    icon: {
+      type: String,
+      required: true
+    },
     iconStyle: {
       type: String,
-      default: "solid" // solid | wrap | icon 
+      required: true
     }
   });
 

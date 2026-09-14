@@ -11,6 +11,7 @@
     <Transition name="fade">
       <AppsMenu
         v-if="showMenu"
+        :appsList="appsList"
         :openApp="openApp"
         :uninstallApp="uninstallApp"
         :runHaptic="runHaptic"
@@ -22,35 +23,49 @@
 </template>
 
 <script setup>
-  import { ref, onUnmounted } from "vue";
-  import AppsMenu from "@/components/AppsMenu.vue";
+  import { ref } from "vue";
+  import AppsMenu from "@/components/app/AppsMenu.vue";
 
-  import AppLaunchInfo from "@/components/AppLaunchInfo.vue";
-
-  const props = defineProps([
-    "openApp",
-    "uninstallApp",
-    "runHaptic",
-    "iconsStyle"
-  ]);
+  const props = defineProps({
+    iconsStyle: {
+      type: String,
+      required: true
+    },
+    runHaptic: {
+      type: Function,
+      required: true
+    },
+    appsList: {
+      type: Array,
+      required: true
+    },
+    openApp: {
+      type: Function,
+      required: true
+    },
+    uninstallApp: {
+      type: Function,
+      required: true
+    }
+  });
   const emit = defineEmits(["changeScreen"]);
 
   const showMenu = ref(false);
   const opening = ref(false);
 
-  function openApp(name, options = {}) {
+  async function openApp(name, options = {}) {
     opening.value = true;
-    props.openApp(name, options);
+    await props.openApp(name, options);
+    opening.value = false;
   }
 
   function onSwipe(direction) {
+    if (showMenu.value) return;
+
     if (direction === "up") {
       showMenu.value = true;
     } else if (direction === "left") {
       emit("changeScreen", "control");
-    } else if (direction === "down") {
-      // Problem when many apps
-      // props.changeScreen("control");
     } else if (direction === "right") {
       emit("changeScreen", "app-control");
     }

@@ -1,13 +1,13 @@
 <template>
-  <Transition name="fade-scale">
+  <Transition name="fade-scale" @after-leave="emit('close')">
     <div
-      v-if="loaded"
+      v-if="showPanel"
       class="fscreen flex flex-col bg-black/80 text-white overflow-hidden relative"
     >
       <!-- Heading -->
       <div class="p-2 py-3 flex justify-between bg-orange-400/80">
-        <h1 class="text-lg font-semibold">MUI Settings</h1>
-        <button @click="close">
+        <h1 class="text-lg font-semibold">Settings</h1>
+        <button @click="handleClose">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -23,145 +23,56 @@
         </button>
       </div>
 
-      <!-- Sections -->
-      <div class="flex-1 flex flex-col overflow-y-auto">
-        <!-- App Section -->
-        <Section label="App">
-          <!-- Icons Style  -->
-          <SegmentedSelect
-            v-model="uiConfig.state.iconsStyle"
-            label="App Icon Style"
-            description="Choose the style for app icons."
-            :options="[
-              { value: 'solid', label: 'Solid' },
-              { value: 'wrap', label: 'Wrap' },
-              { value: 'icon', label: 'Icon' }
-            ]"
-          />
-          <!-- Splash  -->
-          <SegmentedSelect
-            v-model="uiConfig.state.splash"
-            label="Launch Animation"
-            description="Choose the animation shown when the app starts."
-            :options="[
-              { value: 'static', label: 'Static' },
-              { value: 'pulse', label: 'Pulse' },
-              { value: 'hide', label: 'Hide' }
-            ]"
-          />
-          <!-- Active animation -->
-          <Selection
-            v-model="uiConfig.state.appIconFocusAnimation"
-            label="App Icon Animation"
-            description="Choose app icon animation on focus"
-            :options="animationOptions"
-          />
-        </Section>
+      <div class="bg-orange-400/40 flex items-center">
+        <button
+          v-for="(tab, index) in tabs"
+          class="p-2 flex-1 uppercase transition-colors"
+          :class="{ 'bg-orange-400/40': activeTab === index }"
+          @click="activeTab = index"
+        >
+          {{ tab }}
+        </button>
+      </div>
 
-        <!-- Statusbar -->
-        <Section label="Statusbar & Navigation">
-          <!-- Block Alerts -->
-          <ToggleSwitch
-            v-model="uiConfig.state.blockAlerts"
-            label="Block Alerts"
-          />
-          <!-- Network Icon -->
-          <ToggleSwitch
-            v-model="uiConfig.state.networkIcon"
-            label="Network Icon"
-          />
-          <!-- Network Icon -->
-          <ToggleSwitch
-            v-model="uiConfig.state.navbar"
-            label="Navigation Bar"
-          />
-          <!-- Battery Style -->
-          <SegmentedSelect
-            v-model="uiConfig.state.batteryIcon"
-            label="Battery Icon Style"
-            description="Choose the battery icon style."
-            :options="[
-              { value: 'box', label: 'Box' },
-              { value: 'circle', label: 'Circle' },
-              { value: 'hide', label: 'Hide' }
-            ]"
-          />
-          <!-- Battery Style -->
-          <SegmentedSelect
-            v-model="uiConfig.state.navLayout"
-            label="Navigation Layout"
-            description="Choose the navigation button layout."
-            :options="[
-              { value: 'normal', label: 'Normal' },
-              { value: 'reverse', label: 'Reverse' }
-            ]"
-          />
-        </Section>
-
-        <!-- Sound & Vibration -->
-        <Section label="Sound & Vibration">
-          <!-- Alert Sound -->
-          <ToggleSwitch v-model="isSoundOn" label="Alerts Sound" />
-          <!-- Haptic Feedback -->
-          <SegmentedSelect
-            v-model="uiConfig.state.haptic"
-            @update:modelValue="haptic"
-            label="Haptic Feedback"
-            description="Feel a subtle vibration when interacting with controls."
-            :options="[
-              { value: 'soft', label: 'Soft' },
-              { value: 'crisp', label: 'Crisp' },
-              { value: 'off', label: 'Off' }
-            ]"
-          />
-        </Section>
+      <div
+        v-swipe="onSwipe"
+        class="flex-1 bg-white/10 flex flex-col overflow-y-auto"
+      >
+        <MuiSettings v-show="activeTab === 0" />
+        <KikxSettings v-show="activeTab === 1" />
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup>
-  import { ref, onMounted, computed } from "vue";
-  import { useUIConfig } from "@/stores/kikx";
+  import { ref, onMounted } from "vue";
 
-  import Section from "@/components/ui/Section.vue";
-  import SegmentedSelect from "@/components/ui/SegmentedSelect.vue";
-  import ToggleSwitch from "@/components/ui/ToggleSwitch.vue";
-  import Selection from "@/components/ui/Selection.vue";
-
-  import { haptic } from "@/kikx/vibrate";
-  import { playSound } from "@/kikx/sound";
+  import MuiSettings from "@/components/modules/MuiSettings.vue";
+  import KikxSettings from "@/components/modules/KikxSettings.vue";
 
   const emit = defineEmits(["close"]);
 
-  const uiConfig = useUIConfig();
-  const loaded = ref(false);
+  const tabs = ["mui", "kikx"];
 
-  const isSoundOn = computed({
-    get: () => !uiConfig.state.isSilent,
-    set: value => {
-      uiConfig.state.isSilent = !value;
+  const showPanel = ref(false);
+  const activeTab = ref(0);
+
+  function onSwipe(direction) {
+    if (direction === "right") {
+      activeTab.value = Math.max(0, activeTab.value - 1);
+    } else if (direction === "left") {
+      activeTab.value = Math.min(tabs.length - 1, activeTab.value + 1);
     }
-  });
-
-  function close() {
-    emit("close");
   }
 
-  const animationOptions = [
-    { label: "Jello", value: "jello" },
-    { label: "Fade In", value: "fadeIn" },
-    { label: "Pulse", value: "pulse" },
-    { label: "Zoom In", value: "zoomIn" },
-    { label: "Rubber Band", value: "rubberBand" },
-    { label: "Flip", value: "flip" },
-    { label: "Tada", value: "tada" },
-    { label: "Wobble", value: "wobble" }
-  ];
+  function handleClose() {
+    showPanel.value = false;
+  }
 
   onMounted(() => {
     setTimeout(() => {
-      loaded.value = true;
+      showPanel.value = true;
     }, 200);
   });
 </script>

@@ -4,7 +4,7 @@
     @click="close"
     class="absolute fscreen inset-0 z-20 flex flex-col p-2 bg-black/60 gap-2"
   >
-    <!-- Top Panle -->
+    <!-- Top Panel -->
     <div
       class="p-4 w-full flex items-center justify-center border-2 border-white/60 bg-white/20 rounded-2xl"
     >
@@ -214,13 +214,12 @@
     <Transition name="slide-left">
       <AlertsPanel
         v-if="showAlerts"
-        :onAlertClick
-        :close
-        :closePanel="() => onSwipe('right')"
+        :onAlertClick="onAlertClick"
+        @close="() => onSwipe('right')"
       />
     </Transition>
     <Transition name="slide-right">
-      <WidgetsPanel v-if="showWidgets" :closePanel="() => onSwipe('left')" />
+      <InfoPanel v-if="showInfo" @close="() => onSwipe('left')" />
     </Transition>
   </div>
 </template>
@@ -233,16 +232,28 @@
 
   import { toggleFullscreen } from "@/kikx/utils";
 
-  import AlertsPanel from "@/components/AlertsPanel.vue";
-  import WidgetsPanel from "@/components/widgets/WidgetsPanel.vue";
+  import AlertsPanel from "@/components/cc/AlertsPanel.vue";
+  import InfoPanel from "@/components/cc/InfoPanel.vue";
+  import CCButton from "@/components/cc/CCButton.vue";
 
-  import CCButton from "@/components/ui/CCButton.vue";
-
-  const props = defineProps(["showModule", "onAlertClick", "runHaptic"]);
+  const props = defineProps({
+    showModule: {
+      type: Function,
+      required: true
+    },
+    onAlertClick: {
+      type: Function,
+      required: true
+    },
+    runHaptic: {
+      type: Function,
+      required: true
+    }
+  });
   const emit = defineEmits(["close"]);
 
   const showAlerts = ref(false);
-  const showWidgets = ref(false);
+  const showInfo = ref(false);
 
   const uiConfig = useUIConfig();
 
@@ -265,19 +276,19 @@
       }
     }
     // if settings panel open
-    else if (showWidgets.value) {
+    else if (showInfo.value) {
       if (direction === "left") {
-        showWidgets.value = false;
+        showInfo.value = false;
       }
     }
     // if no panels opened
     else {
       if (direction === "up") {
-        emit('close')
+        emit("close");
       } else if (direction === "left") {
         showAlerts.value = true;
       } else if (direction === "right") {
-        showWidgets.value = true;
+        showInfo.value = true;
       }
     }
   }

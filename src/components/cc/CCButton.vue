@@ -1,5 +1,5 @@
 <script setup>
-  import { useSlots, ref, computed, watch } from "vue";
+  import { useSlots, ref, computed } from "vue";
 
   const props = defineProps({
     modelValue: {

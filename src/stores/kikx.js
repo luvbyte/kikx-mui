@@ -13,6 +13,10 @@ export const useUIConfig = defineStore("uiConfig", () => {
     navbar: true, // navbar
     swipeNav: false, // Swipe Navigation
 
+    alertSliderPrefix: "",
+    touchSprinkle: "gold", // touch sprinkle effects
+    snowParticles: "none", // bg snow particles
+
     appIconFocusAnimation: "jello",
 
     swipeNavPosition: {
@@ -33,7 +37,11 @@ export const useUIConfig = defineStore("uiConfig", () => {
     iconsStyle: "wrap",
     splash: "pulse",
     batteryIcon: "circle",
-    haptic: "crisp"
+    haptic: "crisp",
+
+    autoHideAppCSwitch: true,
+    useModuleReplace: false,
+    enableAppActions: true
   });
 
   return { state };
