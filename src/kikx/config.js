@@ -4,7 +4,7 @@ const { protocol, hostname, port } = window.location;
 export const muiPath = "storage://root/.config/mui";
 export const defaultBackground = "images/bg.jpg";
 
-export const VERSION = "0.4.0";
+export const VERSION = "0.4.2";
 // ----------------
 
 export const DEV = process.env.NODE_ENV !== "production";

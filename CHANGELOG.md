@@ -39,3 +39,10 @@
 ### Fixes
 - Fixed share image bug
 - Slider bugs
+
+## [0.4.2]
+### Fixes
+- Fixed app focus, blur events for app
+
+### Updates
+- Fixed info ui

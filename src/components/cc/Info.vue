@@ -3,7 +3,7 @@
 
   <div
     v-else
-    class="flex-1 flex flex-col overflow-hidden bg-gradient-to-b from-slate-900/20 to-black/10 text-white"
+    class="flex-1 flex flex-col overflow-y-auto  bg-gradient-to-b from-slate-900/20 to-black/10 text-white"
   >
     <!-- Header -->
     <div class="px-3 py-3 bg-white/10 border-b border-white/10">
@@ -58,12 +58,6 @@
           class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10"
         >
           <div class="flex items-center gap-2.5 min-w-0">
-            <div
-              class="w-8 h-8 shrink-0 rounded-lg bg-violet-400/10 flex items-center justify-center"
-            >
-              <span class="text-sm">#</span>
-            </div>
-
             <div class="min-w-0">
               <h3 class="text-sm font-medium">Session ID</h3>
 
@@ -86,12 +80,6 @@
           class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10"
         >
           <div class="flex items-center gap-2.5 min-w-0">
-            <div
-              class="w-8 h-8 shrink-0 rounded-lg bg-amber-400/10 flex items-center justify-center"
-            >
-              <span class="text-sm">●</span>
-            </div>
-
             <div class="min-w-0">
               <h3 class="text-sm font-medium">Access Token</h3>
 
@@ -129,7 +117,7 @@
         </div>
       </div>
 
-      <div class="p-2 flex-1 overflow-y-auto space-y-2 scrollbar-hide">
+      <div class="p-2 flex-1 space-y-2 scrollbar-hide">
         <!-- Empty state -->
         <div
           v-if="!info.apps?.length"

@@ -116,6 +116,17 @@
       }, 1000);
     }
 
+    if (activeApp.value) {
+      const wasAppScreen = appScreens.includes(currentScreen.value);
+      const isAppScreen = appScreens.includes(name);
+
+      if (wasAppScreen && !isAppScreen) {
+        postAppMessageEvent(activeApp.value.id, "app:blur");
+      } else if (!wasAppScreen && isAppScreen) {
+        postAppMessageEvent(activeApp.value.id, "app:focus");
+      }
+    }
+
     lastScreen.value = currentScreen.value;
     currentScreen.value = name;
   }
