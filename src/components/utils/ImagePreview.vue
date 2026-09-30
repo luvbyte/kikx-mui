@@ -1,12 +1,11 @@
 <template>
   <div>
-    <Transition name="fade">
-      <img
-        v-if="imageUrl"
-        class="aspect-square object-contain rounded"
-        :src="imageUrl"
-      />
-    </Transition>
+    <img
+      v-if="imageUrl"
+      class="aspect-square object-contain rounded fade-in"
+      :src="imageUrl"
+      alt=""
+    />
   </div>
 </template>
 
@@ -33,7 +32,30 @@
       return;
     }
 
-    imageUrl.value = URL.createObjectURL(data);
+    const url = URL.createObjectURL(data);
+
+    // Wait until the browser completely decodes the image
+    const image = new Image();
+
+    image.onload = async () => {
+      try {
+        if (image.decode) {
+          await image.decode();
+        }
+
+        imageUrl.value = url;
+      } catch (error) {
+        console.error("Image decode failed:", error);
+        URL.revokeObjectURL(url);
+      }
+    };
+
+    image.onerror = () => {
+      console.error("Failed to load image");
+      URL.revokeObjectURL(url);
+    };
+
+    image.src = url;
   });
 
   onUnmounted(() => {
@@ -44,11 +66,17 @@
 </script>
 
 <style scoped>
-  .fade-enter-active {
-    transition: opacity 0.3s ease;
+  .fade-in {
+    animation: fade-in 0.3s ease;
   }
 
-  .fade-enter-from {
-    opacity: 0;
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 </style>

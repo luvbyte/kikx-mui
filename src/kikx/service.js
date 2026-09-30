@@ -75,24 +75,8 @@ export class SystemService extends Service {
     });
   }
 
-  // Run client funcx
-  clientFunc = (name, config) =>
-    this.request("funcx/run", {
-      method: "POST",
-      body: {
-        name,
-        config
-      }
-    });
-
-  // Run funcx with args and options
-  func(name, ...args) {
-    const parsed = parseArgsAndKwargs(...args);
-
-    return this.clientFunc(name, {
-      args: parsed.args,
-      options: parsed.options
-    });
+  fetchAppsConfigList() {
+    return this.fetch("kpm/installed-apps");
   }
 
   // Get Kikx Config
@@ -217,4 +201,20 @@ export class FileSystemService extends Service {
 
   // Get full file url
   getServeAbsUrl = (uid, path = "") => this.getServeUrl(uid, path);
+}
+
+export class MicroService extends Service {
+  constructor(client) {
+    super("micro", client);
+  }
+
+  listServices() {
+    return this.request("manager/list");
+  }
+
+  removeAppServices(appName, serviceName = null) {
+    return this.request("manager/remove-app-services", {
+      params: { app_name: appName, service_name: serviceName }
+    });
+  }
 }

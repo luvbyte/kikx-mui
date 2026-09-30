@@ -189,6 +189,9 @@
     postAppMessageEvent(activeApp.value.id, "app:navigation", "back");
   }
 
+  const isAppScreen = computed(() => appScreens.includes(currentScreen.value));
+  const isHomeScreen = computed(() => currentScreen.value === "home");
+
   const canShowNavbar = computed(
     () =>
       uiConfig.state.navbar &&
@@ -538,6 +541,11 @@
 
     // Invoke actions from app
     client.on("app:invoke", payload => {
+      // Reject if invoker is not active app or not in appScreen
+      if (!isAppScreen.value || payload.invoker.id !== activeApp.value?.id) {
+        return;
+      }
+
       // Open app from an app
       if (payload.action === "openApp") {
         openApp(payload.name, {
@@ -585,7 +593,7 @@
     </Transition>
 
     <!-- Background layer -->
-    <Bg v-if="connected" />
+    <Bg v-if="connected" :isHomeScreen="isHomeScreen" />
 
     <!-- Top statusbar -->
     <Transition name="statusbar-slide">

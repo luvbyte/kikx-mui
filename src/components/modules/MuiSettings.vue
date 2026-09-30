@@ -13,8 +13,8 @@
           label="App Icon Style"
           description="Choose the style for app icons."
           :options="[
-            { value: 'solid', label: 'Solid' },
             { value: 'wrap', label: 'Wrap' },
+            { value: 'solid', label: 'Solid' },
             { value: 'icon', label: 'Icon' }
           ]"
         />
@@ -91,6 +91,15 @@
         label="Display & Effects"
         description="Customize visual effects and screen appearance"
       >
+        <!-- Background blur -->
+        <Slider
+          v-model="uiConfig.state.bgBlur"
+          label="Background Blur"
+          description="Adjust the blur intensity of the background"
+          :min="0"
+          :max="10"
+          unit="px"
+        />
         <!-- Sprinkle Style -->
         <Selection
           v-model="uiConfig.state.touchSprinkle"
@@ -162,6 +171,7 @@
   import ToggleSwitch from "@/components/ui/ToggleSwitch.vue";
   import Selection from "@/components/ui/Selection.vue";
   import Input from "@/components/ui/Input.vue";
+  import Slider from "@/components/ui/Slider.vue";
 
   import { haptic } from "@/kikx/vibrate";
   import { playSound } from "@/kikx/sound";

@@ -1,5 +1,5 @@
 <script setup>
-  import { computed } from "vue";
+  import { computed, ref } from "vue";
   import { getImageUrl } from "@/kikx/config";
 
   const props = defineProps({
@@ -19,11 +19,12 @@
 
   const icon = computed(() => getImageUrl(props.icon));
 
-  // Removed the rigid fixed 12 (w-12 h-12) to allow better fluid scaling
+  const loaded = ref(false);
+
   const containerClass = computed(() => {
     switch (props.iconStyle) {
       case "wrap":
-        return "w-12 h-12 min-w-[3rem]"; // Flexible/min-size constraint
+        return "w-12 h-12 min-w-[3rem]";
       default:
         return "w-16 h-16 min-w-[4rem]";
     }
@@ -54,7 +55,16 @@
         'flex items-center justify-center flex-shrink-0'
       ]"
     >
-      <img :src="icon" :class="imageClass" draggable="false" />
+      <img
+        :src="icon"
+        :class="[
+          imageClass,
+          'transition-opacity duration-300 ease-out',
+          loaded ? 'opacity-100' : 'opacity-0'
+        ]"
+        @load="loaded = true"
+        draggable="false"
+      />
     </div>
 
     <!-- Title -->

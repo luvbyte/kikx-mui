@@ -51,7 +51,7 @@
           'transition-all duration-200 ease-out',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/70 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent',
           modelValue === option.value
-            ? 'bg-green-400/80 text-black shadow-sm shadow-green-400/20'
+            ? 'bg-green-400/40 shadow-sm shadow-green-400/20'
             : 'text-white/60 hover:bg-white/[0.07] hover:text-white'
         ]"
       >

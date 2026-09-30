@@ -1,10 +1,11 @@
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, computed, onMounted } from "vue";
   import { getSystem, getFS } from "@/kikx";
-  import { getImageUrl } from "@/kikx/config";
+  import { getAppPublicUrl, getUrl } from "@/kikx/config";
 
   import ImagePreview from "@/components/utils/ImagePreview.vue";
   import ScrollingText from "@/components/ui/ScrollingText.vue";
+  import FadeImage from "@/components/ui/FadeImage.vue";
 
   const props = defineProps({
     options: {
@@ -23,6 +24,8 @@
   const fileInfo = ref(null);
   const fileAbsPath = ref(false);
 
+  const showAllApps = ref(false);
+
   const item = String(props.options.item);
 
   // Share item type
@@ -37,6 +40,46 @@
 
     return "text";
   })();
+
+  // Filter apps by share options
+  const filteredApps = computed(() => {
+    return apps.value.filter(app => {
+      const types = app.share?.types;
+
+      if (!types || types.length === 0) {
+        return false;
+      }
+
+      // Check share type
+      if (!types.includes("*") && !types.includes(itemType)) {
+        return false;
+      }
+
+      // Non-file shares don't need extension matching
+      if (itemType !== "file") {
+        return true;
+      }
+
+      const accept = app.share?.accept;
+
+      if (!accept || accept.length === 0) {
+        return false;
+      }
+
+      const suffix = fileInfo.value?.suffix?.toLowerCase();
+
+      if (!suffix) {
+        return false;
+      }
+
+      // Check accepted file extension
+      return accept.some(type => {
+        type = type.toLowerCase();
+
+        return type === "*" || type === suffix;
+      });
+    });
+  });
 
   async function copyText() {
     try {
@@ -102,7 +145,12 @@
     }
 
     // Load all installed apps
-    apps.value = await system.fetchAppsList(true);
+    try {
+      apps.value = await system.fetchAppsConfigList();
+    } catch (err) {
+      console.error("Error fetching apps", err);
+    }
+
     // Show apps screen
     showPanel.value = true;
   });
@@ -114,23 +162,24 @@
     class="fixed inset-0 z-50 flex flex-col justify-end text-white bg-black/60 backdrop-blur-[2px]"
   >
     <!-- Image Preview -->
-    <Transition name="fade-scale">
-      <div
-        v-if="showPanel && fileInfo?.image_type"
-        class="flex items-center justify-center p-4"
-      >
-        <ImagePreview
-          :path="item"
-          class="fscreen overflow-hidden rounded-2xl object-contain shadow-2xl"
-        />
-      </div>
-    </Transition>
+    <div
+      v-if="!showAllApps && showPanel && fileInfo?.image_type"
+      class="flex items-center justify-center p-4"
+    >
+      <ImagePreview
+        :path="item"
+        class="w-full h-full overflow-hidden rounded-2xl object-contain shadow-2xl"
+      />
+    </div>
 
     <!-- Bottom Share Sheet -->
     <Transition name="slide-up" @after-leave="emit('close')">
       <div
         v-if="showPanel"
-        class="relative w-full min-h-[50%] nax-h-[50%] overflow-hidden rounded-t-[28px] bg-[#202124]/95 shadow-[0_-8px_40px_rgba(0,0,0,0.35)] backdrop-blur-2xl flex flex-col"
+        class="relative w-full overflow-hidden rounded-t-[28px] bg-[#202124] shadow-[0_-8px_40px_rgba(0,0,0,0.35)] flex flex-col"
+        :class="
+          showAllApps ? 'min-h-[80%] max-h-[80%]' : 'min-h-[50%] max-h-[50%]'
+        "
       >
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-3">
@@ -167,9 +216,9 @@
             class="flex items-center gap-3 rounded-2xl bg-white/[0.07] px-3 py-3 ring-1 ring-white/[0.06]"
           >
             <!-- App Icon -->
-            <img
+            <FadeImage
               class="h-12 w-12 shrink-0 rounded-xl object-cover"
-              :src="getImageUrl(options.app.icon)"
+              :src="getUrl(options.app.icon)"
             />
 
             <!-- Text -->
@@ -254,13 +303,18 @@
         </div>
 
         <!-- Apps -->
-        <div class="mt-4 px-4">
+        <div class="mt-4 px-4 overflow-y-auto">
           <div
-            class="flex gap-5 overflow-x-auto pb-5 scrollbar-hide snap-x"
+            class="pb-5 snap-x scrollbar-hide"
+            :class="
+              showAllApps
+                ? 'grid grid-cols-4 gap-x-4 gap-y-6 justify-items-center'
+                : 'flex gap-5 overflow-x-auto'
+            "
             @click="handleClose"
           >
             <div
-              v-for="app in apps"
+              v-for="app in showAllApps ? apps : filteredApps"
               :key="app.name"
               @click="openUsingApp(app.name)"
               class="flex w-[72px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1.5 transition active:scale-90"
@@ -269,9 +323,9 @@
               <div
                 class="h-16 w-16 overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10"
               >
-                <img
-                  class="h-full w-full object-cover"
-                  :src="getImageUrl(app.icon)"
+                <FadeImage
+                  class="w-full h-full object-cover"
+                  :src="getAppPublicUrl(app.name, app.icon)"
                 />
               </div>
 
@@ -280,6 +334,74 @@
                 class="w-full truncate text-center text-[12px] font-normal text-white/80"
               >
                 {{ app.title }}
+              </h1>
+
+              <!-- App Name -->
+              <p
+                v-if="!showAllApps && app.share?.message"
+                class="w-full break-words text-center text-[11px] font-normal text-white/40"
+              >
+                {{ app.share.message }}
+              </p>
+            </div>
+            <!-- Show All Apps -->
+            <div
+              v-if="filteredApps.length < apps.length"
+              @click.stop="showAllApps = !showAllApps"
+              class="flex w-[72px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1.5 transition active:scale-90"
+            >
+              <!-- Icon -->
+              <div
+                class="h-16 w-16 overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10 flex items-center justify-center"
+              >
+                <svg
+                  v-if="!showAllApps"
+                  class="w-12 h-12"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M0 0h16v16H0z" fill="none" />
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                  >
+                    <rect width="4.5" height="4.5" x="1.75" y="1.75" />
+                    <rect width="4.5" height="4.5" x="1.75" y="9.75" />
+                    <rect width="4.5" height="4.5" x="9.75" y="9.75" />
+                    <path d="m14.8 3.75h-5m2.5-2.5v5" />
+                  </g>
+                </svg>
+
+                <svg
+                  v-else
+                  class="w-12 h-12"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M0 0h16v16H0z" fill="none" />
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                  >
+                    <rect width="4.5" height="4.5" x="1.75" y="1.75" />
+                    <rect width="4.5" height="4.5" x="1.75" y="9.75" />
+                    <rect width="4.5" height="4.5" x="9.75" y="9.75" />
+                    <path d="m14.8 3.75h-5" />
+                  </g>
+                </svg>
+              </div>
+
+              <!-- App Name -->
+              <h1
+                class="w-full truncate text-center text-[12px] font-normal text-white/80"
+              >
+                {{ showAllApps ? "Less" : "All" }}
               </h1>
             </div>
           </div>

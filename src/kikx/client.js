@@ -1,5 +1,5 @@
 import { wsUrl } from "./config";
-import { FileSystemService, SystemService } from "./service";
+import { FileSystemService, SystemService, MicroService } from "./service";
 
 // Client ID - variables
 
@@ -11,6 +11,7 @@ class Client {
 
     this.fs = new FileSystemService(this);
     this.system = new SystemService(this);
+    this.micro = new MicroService(this);
 
     // Auto-reconnect
     this.reconnectAttempts = 0;

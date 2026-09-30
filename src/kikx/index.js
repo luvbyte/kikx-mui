@@ -69,6 +69,8 @@ const muiConfigSchema = z.object({
     "none"
   ]),
 
+  bgBlur: z.number(),
+
   // Navigation bar layouts
   navLayout: z.enum(["normal", "reverse"]),
   // App icons style
@@ -226,4 +228,8 @@ export function getFS() {
 // Get System
 export function getSystem() {
   return useClient().system;
+}
+
+export function getMicro() {
+  return useClient().micro;
 }

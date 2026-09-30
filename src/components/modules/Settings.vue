@@ -35,7 +35,6 @@
       </div>
 
       <div
-        v-swipe="onSwipe"
         class="flex-1 bg-white/10 flex flex-col overflow-y-auto"
       >
         <MuiSettings v-show="activeTab === 0" />
@@ -57,14 +56,6 @@
 
   const showPanel = ref(false);
   const activeTab = ref(0);
-
-  function onSwipe(direction) {
-    if (direction === "right") {
-      activeTab.value = Math.max(0, activeTab.value - 1);
-    } else if (direction === "left") {
-      activeTab.value = Math.min(tabs.length - 1, activeTab.value + 1);
-    }
-  }
 
   function handleClose() {
     showPanel.value = false;

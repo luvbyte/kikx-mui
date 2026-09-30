@@ -46,3 +46,15 @@
 
 ### Updates
 - Fixed info ui
+
+### [0.4.3]
+## Addded
+- Added Blur for background
+- Added micro manager for info panel
+- Added slider ui component
+
+### Updates
+- App info added icons
+- Updated settings ui component styles
+- Reject invoke if app is unfocus or not in app screen
+- Share module, ui updates and added fade effects for app icons

@@ -16,6 +16,7 @@ export const useUIConfig = defineStore("uiConfig", () => {
     alertSliderPrefix: "",
     touchSprinkle: "gold", // touch sprinkle effects
     snowParticles: "none", // bg snow particles
+    bgBlur: 1,
 
     appIconFocusAnimation: "jello",
 
@@ -34,7 +35,7 @@ export const useUIConfig = defineStore("uiConfig", () => {
     navLayout: "normal",
 
     // Apps menu icons style
-    iconsStyle: "wrap",
+    iconsStyle: "solid",
     splash: "pulse",
     batteryIcon: "circle",
     haptic: "crisp",

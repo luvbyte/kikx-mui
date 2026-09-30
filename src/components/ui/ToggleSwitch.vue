@@ -47,7 +47,7 @@
           'border transition-all duration-200 ease-out',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/70',
           modelValue
-            ? 'border-green-300/40 bg-green-400/80'
+            ? 'border-green-400/40 bg-green-400/40'
             : 'border-white/10 bg-white/10'
         ]"
       >

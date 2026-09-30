@@ -1,7 +1,8 @@
 <template>
   <div
     id="bg-frame"
-    class="fixed inset-0 -z-10 w-full h-dvh bg-black overflow-hidden"
+    class="fixed inset-0 scale-105 -z-10 w-full h-dvh bg-black overflow-hidden"
+    :style="{ filter: getBlur() }"
   >
     <SnowParticles
       v-if="uiConfig.state.snowParticles !== 'none'"
@@ -52,6 +53,13 @@
 
   import SnowParticles from "@/components/ui/SnowParticles.vue";
 
+  const props = defineProps({
+    isHomeScreen: {
+      type: Boolean,
+      required: true
+    }
+  })
+
   const uiConfig = useUIConfig();
 
   const currentSrc = ref(null);
@@ -61,6 +69,11 @@
   const isVideo = computed(() =>
     /\.(mp4|webm|ogg)$/i.test(currentSrc.value || "")
   );
+
+  function getBlur() {
+    const blur = Number(uiConfig.state.bgBlur) || 0;
+    return blur === 0 || props.isHomeScreen ? "blur(0px)" : `blur(${blur}px)`;
+  }
 
   async function onLoadedData() {
     videoReady.value = true;

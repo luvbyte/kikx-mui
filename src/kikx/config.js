@@ -4,7 +4,7 @@ const { protocol, hostname, port } = window.location;
 export const muiPath = "storage://root/.config/mui";
 export const defaultBackground = "images/bg.jpg";
 
-export const VERSION = "0.4.2";
+export const VERSION = "0.4.3";
 // ----------------
 
 export const DEV = process.env.NODE_ENV !== "production";
@@ -24,6 +24,10 @@ export const getUrl = end => {
   let endUrl = end.startsWith("/") ? end : "/" + end;
 
   return apiUrl + endUrl;
+};
+
+export const getAppPublicUrl = (appName, name) => {
+  return getUrl(`/public/app/${appName}/${name}`);
 };
 
 export const getAssetUrl = url => {

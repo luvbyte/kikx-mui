@@ -17,7 +17,7 @@
     >
       <h1 class="badge badge-secondary">{{ app.title }}</h1>
       <h1 class="badge">{{ app.name }}</h1>
-      <h1 class="badge">{{ app.theme }}</h1>
+      <h1 class="badge badge-secondary">{{ app.version }}</h1>
     </div>
     <!-- Buttons -->
     <div
