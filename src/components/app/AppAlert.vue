@@ -256,7 +256,7 @@
         </div>
 
         <div class="flex items-center gap-1">
-          <div class="badge badge-xs bg-white/40 border-white/10 text-white">
+          <div class="badge badge-xs bg-white/10 border-white/10 text-white">
             <TimeStampRelative :timestamp="appAlert.createdAt" />
           </div>
 

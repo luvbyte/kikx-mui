@@ -58,3 +58,15 @@
 - Updated settings ui component styles
 - Reject invoke if app is unfocus or not in app screen
 - Share module, ui updates and added fade effects for app icons
+
+## [0.4.4]
+### Updates
+- Changed splash animations
+
+### Fixed
+- Fullscreen cc button
+
+### Addded
+- Added FilePicker
+- Added sessions manager
+- WallpaperChanger invoke supports kikxpath

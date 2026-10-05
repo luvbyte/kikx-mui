@@ -68,7 +68,8 @@ export function useRunningApps(client, changeScreen, alerts) {
   }
 
   // ---------------- OPEN APP
-  async function openApp(
+  // Remove this
+  async function __openApp(
     name,
     { sudo = false, args = [], query = {}, share = null } = {}
   ) {
@@ -87,6 +88,47 @@ export function useRunningApps(client, changeScreen, alerts) {
     } finally {
       changeScreen("app");
 
+      await nextTick();
+
+      if (!hasRunningApps.value) {
+        changeScreen("home");
+      }
+    }
+  }
+
+  async function openApp(
+    name,
+    { sudo = false, args = [], query = {}, share = null } = {}
+  ) {
+    const options = { sudo, query, args, share };
+
+    try {
+      const data = await requestOpenApp(name, options, client.clientID);
+
+      runningApps.value.push({
+        ...data,
+        state: {
+          theme: data.manifest.theme
+        }
+      });
+
+      setActiveApp(runningApps.value.length - 1);
+      changeScreen("app");
+
+      return {
+        success: true,
+        error: null
+      };
+    } catch (err) {
+      const error = err?.message || String(err);
+
+      errors.raiseError(err, "error", `Error opening app: ${name}`);
+
+      return {
+        success: false,
+        error
+      };
+    } finally {
       await nextTick();
 
       if (!hasRunningApps.value) {

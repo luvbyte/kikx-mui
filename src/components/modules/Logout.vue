@@ -87,7 +87,7 @@
       } else {
         logoutNow();
       }
-    }, 1000);
+    }, 900);
   };
 
   onMounted(() => {

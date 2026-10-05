@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <div class="p-2 flex-1 space-y-2 scrollbar-hide">
+    <div class="p-2 flex-1 space-y-2 overflow-y-auto scrollbar-hide">
       <!-- Empty state -->
       <div
         v-if="!apps?.length"

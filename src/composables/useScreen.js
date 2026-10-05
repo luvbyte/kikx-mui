@@ -32,7 +32,7 @@ export function useScreen() {
 
   async function lockOrientation(orient) {
     await enterFullscreen();
-    screen.orientation.lock(orient); // or "portrait"
+    await screen.orientation.lock(orient);
   }
 
   async function rotateFullScreen() {

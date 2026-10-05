@@ -6,7 +6,7 @@
     class="flex-1 flex flex-col overflow-y-auto bg-gradient-to-b from-slate-900/20 to-black/10 text-white"
   >
     <!-- Header -->
-    <div class="px-3 py-3 bg-white/10 border-b border-white/10">
+    <div class="px-3 py-2 bg-white/10 border-b border-white/10">
       <div class="flex items-center gap-3 min-w-0">
         <div
           class="w-10 h-10 shrink-0 rounded-xl bg-white/15 border border-white/10 flex items-center justify-center"
@@ -20,8 +20,6 @@
           <h1 class="text-base font-semibold text-white truncate">
             {{ info.user.name }}
           </h1>
-
-          <p class="text-xs text-white/50">Active Session</p>
         </div>
 
         <div
@@ -35,78 +33,53 @@
     </div>
 
     <!-- Session -->
-    <section class="text-white">
-      <div
-        class="px-3 py-2.5 flex items-center justify-between bg-white/5 border-b border-white/10"
-      >
-        <div>
-          <h2 class="text-sm font-semibold">Session</h2>
-
-          <p class="text-xs text-white/40">Session information</p>
-        </div>
-
-        <div
-          class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-white/50"
-        >
-          SESSION
-        </div>
-      </div>
-
-      <div class="p-2 space-y-1.5">
+    <div class="p-2">
+      <div class="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
         <!-- Session ID -->
-        <div
-          class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10"
-        >
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="min-w-0">
-              <h3 class="text-sm font-medium">Session ID</h3>
-
-              <p class="text-xs text-white/40 truncate">
-                {{ revealID ? info.id : "Hidden" }}
-              </p>
-            </div>
+        <div class="flex items-center justify-between gap-2 px-3 py-2">
+          <div class="min-w-0">
+            <h3 class="text-xs font-medium text-white/80">Session ID</h3>
+            <p class="text-[11px] text-white/40 truncate">
+              {{ revealID ? info.id : "Hidden" }}
+            </p>
           </div>
 
           <button
             @click="revealID = !revealID"
-            class="shrink-0 px-3 py-1.5 rounded-lg bg-white/10 active:bg-white/20 border border-white/10 text-xs transition"
+            class="shrink-0 px-2 py-1 rounded-md bg-white/10 border border-white/10 text-[11px]"
           >
             {{ revealID ? "Hide" : "Reveal" }}
           </button>
         </div>
 
-        <!-- Access Token -->
-        <div
-          class="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10"
-        >
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="min-w-0">
-              <h3 class="text-sm font-medium">Access Token</h3>
+        <div class="border-t border-white/10"></div>
 
-              <p class="text-xs text-white/40 truncate">
-                {{ revealAccessToken ? info.access_token : "••••••••••••••••" }}
-              </p>
-            </div>
+        <!-- Access Token -->
+        <div class="flex items-center justify-between gap-2 px-3 py-2">
+          <div class="min-w-0">
+            <h3 class="text-xs font-medium text-white/80">Access Token</h3>
+            <p class="text-[11px] text-white/40 truncate">
+              {{ revealAccessToken ? info.access_token : "••••••••••••••••" }}
+            </p>
           </div>
 
           <button
             @click="revealAccessToken = !revealAccessToken"
-            class="shrink-0 px-3 py-1.5 rounded-lg bg-white/10 active:bg-white/20 border border-white/10 text-xs transition"
+            class="shrink-0 px-2 py-1 rounded-md bg-white/10 border border-white/10 text-[11px]"
           >
             {{ revealAccessToken ? "Hide" : "Reveal" }}
           </button>
         </div>
       </div>
-    </section>
-
+    </div>
     <!-- Info Panels -->
     <div class="p-2 flex bg-white/10">
       <button
         v-for="tab in tabs"
-        class="flex-1 p-1 capitalize rounded"
-        :class="{ 'bg-white/10 border border-white/10': tab === activeTab }"
-        @click="activeTab = tab"
         :key="tab"
+        class="flex-1 p-1 capitalize rounded border border-transparent box-border"
+        :class="{ 'bg-white/10 border-white/10': tab === activeTab }"
+        @click="activeTab = tab"
       >
         {{ tab }}
       </button>
@@ -114,6 +87,7 @@
 
     <AppsInfo v-if="activeTab === 'apps'" :apps="info?.apps" />
     <MicroInfo v-else-if="activeTab === 'micro'" />
+    <SessionsInfo v-else-if="activeTab === 'sessions'" />
   </div>
 </template>
 
@@ -128,6 +102,7 @@
 
   import AppsInfo from "./AppsInfo.vue";
   import MicroInfo from "./MicroInfo.vue";
+  import SessionsInfo from "./SessionsInfo.vue";
 
   const system = getSystem();
 
@@ -135,7 +110,7 @@
   const loading = ref(true);
   let intervalId = null;
 
-  const tabs = ["apps", "micro"];
+  const tabs = ["apps", "micro", "sessions"];
   const activeTab = ref("apps");
 
   const revealID = ref(false);

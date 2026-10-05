@@ -102,27 +102,32 @@ export class FileSystemService extends Service {
     super("fs", client);
   }
   // List files
-  listFiles(
+  listFiles = (
     directory,
     {
       offset = 0,
       limit = -1,
       sort = "name",
       asc = true,
+      filter = "all",
+      extensions = "",
+      search = "",
       thumbnails = false
     } = {}
-  ) {
-    return this.request("list", {
+  ) =>
+    this.request("list", {
       params: {
         directory,
         offset,
         limit,
         sort,
         asc,
+        filter,
+        extensions,
+        search,
         thumbnails
       }
     });
-  }
 
   // Get thumbnail
   thumbnail = filename =>
@@ -177,6 +182,13 @@ export class FileSystemService extends Service {
       params: { dirname }
     });
 
+  // Copy File
+  copyFile = (source, dest, { override = false } = {}) =>
+    this.request("copy-file", {
+      method: "POST",
+      body: { source, dest, override }
+    });
+
   // Get file info
   getFileInfo = path =>
     this.request("info", {
@@ -187,6 +199,12 @@ export class FileSystemService extends Service {
     this.request("expose", {
       method: "POST",
       body: { path, expires }
+    });
+
+  batchExpose = (paths, expires = null) =>
+    this.request("expose-batch", {
+      method: "POST",
+      body: { paths, expires }
     });
 
   getServeUrl = (uid, path = "") => {

@@ -131,8 +131,9 @@
               />
             </svg>
           </CCButton>
+
           <!-- Fullscreen Button -->
-          <CCButton @click="toggleFullscreen">
+          <CCButton v-model="fullScreen">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="26"
@@ -230,7 +231,7 @@
 
   import { haptic } from "@/kikx/vibrate";
 
-  import { toggleFullscreen } from "@/kikx/utils";
+  import { useScreen } from "@/composables/useScreen";
 
   import AlertsPanel from "@/components/cc/AlertsPanel.vue";
   import InfoPanel from "@/components/cc/InfoPanel.vue";
@@ -256,6 +257,17 @@
   const showInfo = ref(false);
 
   const uiConfig = useUIConfig();
+
+  const screen = useScreen();
+
+  const fullScreen = computed({
+    get: () => screen.isFullscreen.value,
+    set: value => {
+      if (value !== screen.isFullscreen.value) {
+        screen.toggleFullscreen();
+      }
+    }
+  });
 
   const isHideAlert = computed({
     get: () => !uiConfig.state.hideAlert,

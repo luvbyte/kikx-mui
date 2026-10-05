@@ -12,12 +12,14 @@
       <div
         class="min-w-7 h-7 px-2 rounded-full bg-white/10 flex items-center justify-center text-xs font-semibold text-white/70"
       >
-        <!-- I want all apps combined list length -->
         {{ totalServices }}
       </div>
     </div>
 
-    <div v-if="!processing" class="p-2 flex-1 space-y-2 scrollbar-hide">
+    <div
+      v-if="!processing"
+      class="p-2 flex-1 space-y-2 overflow-y-auto scrollbar-hide"
+    >
       <!-- Empty state -->
       <div
         v-if="!activeServices || !Object.keys(activeServices).length"
@@ -263,43 +265,56 @@
   const micro = getMicro();
 
   const activeServices = ref({});
-
-  const processing = ref(true);
+  const processing = ref(false);
 
   const totalServices = computed(() => {
     return Object.values(activeServices.value).reduce(
-      (total, services) => total + services.length,
+      (total, services) =>
+        total + (Array.isArray(services) ? services.length : 0),
       0
     );
   });
 
   function getAppIconUrl(appName, services) {
-    return getAppPublicUrl(appName, services[0].app.icon);
+    const icon = services?.[0]?.app?.icon;
+
+    if (!icon) return null;
+
+    return getAppPublicUrl(appName, icon);
   }
 
   async function fetchMicroServices() {
     processing.value = true;
 
-    const { data, error } = await micro.listServices();
+    try {
+      const { data, error } = await micro.listServices();
 
-    processing.value = false;
+      if (error) {
+        console.error("Failed to fetch micro services:", error.detail);
+        return;
+      }
 
-    if (error) {
-      console.error(error.detail);
-      return;
+      activeServices.value = data && typeof data === "object" ? data : {};
+    } catch (error) {
+      console.error("Failed to fetch micro services:", error);
+    } finally {
+      processing.value = false;
     }
-
-    activeServices.value = data || {};
   }
 
   async function removeAppServices(appName, serviceName) {
-    processing.value = true;
+    try {
+      const { error } = await micro.removeAppServices(appName, serviceName);
 
-    // Ignore errors and re-fetch
-    await micro.removeAppServices(appName, serviceName);
-    await fetchMicroServices();
+      if (error) {
+        console.error("Failed to remove app services:", error.detail);
+        return;
+      }
 
-    processing.value = false;
+      await fetchMicroServices();
+    } catch (error) {
+      console.error("Failed to remove app services:", error);
+    }
   }
 
   onMounted(fetchMicroServices);

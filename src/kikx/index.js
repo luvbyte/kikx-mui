@@ -76,7 +76,7 @@ const muiConfigSchema = z.object({
   // App icons style
   iconsStyle: z.enum(["solid", "wrap", "icon"]),
   // App opening animation
-  splash: z.enum(["static", "pulse", "hide"]),
+  splash: z.enum(["hide", "static", "ripple", "orbit"]),
   // Battery icon style
   batteryIcon: z.enum(["box", "circle", "hide"]),
   // Haptics
@@ -93,9 +93,12 @@ const muiConfigSchema = z.object({
     left: z.boolean()
   }),
 
+  filePicker: z.object({
+    view: z.enum(["list", "grid"])
+  }),
+
   // Advance options
   autoHideAppCSwitch: z.boolean(),
-  useModuleReplace: z.boolean(),
   enableAppActions: z.boolean()
 });
 

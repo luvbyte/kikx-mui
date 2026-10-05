@@ -27,6 +27,7 @@
   import Share from "@/components/modules/Share.vue";
   import WallpaperChanger from "@/components/modules/WallpaperChanger.vue";
   import Settings from "@/components/modules/Settings.vue";
+  import FilePicker from "@/components/modules/FilePicker.vue";
 
   import AlertError from "@/components/ui/AlertError.vue";
 
@@ -74,6 +75,9 @@
 
   // Active Module { name, options }
   const currentModule = ref(null);
+
+  let pendingModuleResolve = null;
+  let pendingModuleReject = null;
 
   // hidden screens for navbar
   const appScreens = ["app-control", "app"];
@@ -138,11 +142,6 @@
 
   // Show Module
   async function showModule(name, options = null) {
-    if (uiConfig.state.useModuleReplace) {
-      currentModule.value = null;
-      await nextTick();
-    }
-
     // if screen is control / app-control switch to home screen
     if (["control", "app-control"].includes(currentScreen.value)) {
       // Skip on Share module
@@ -159,8 +158,29 @@
   }
 
   // Close module and reset module options
-  function closeModule() {
+  function closeModule(result = true) {
+    const module = currentModule.value;
+
+    if (!module) {
+      return;
+    }
+
+    // Resolve the original invoke
+    if (pendingModuleResolve) {
+      pendingModuleResolve(result);
+
+      pendingModuleResolve = null;
+      pendingModuleReject = null;
+    }
+
     currentModule.value = null;
+  }
+
+  function waitForModule() {
+    return new Promise((resolve, reject) => {
+      pendingModuleResolve = resolve;
+      pendingModuleReject = reject;
+    });
   }
 
   // Scroll Tab To App
@@ -405,6 +425,150 @@
     }
   }
 
+  // Share action using app
+  function shareUsingApp(name, payload) {
+    openApp(name, {
+      share: payload,
+      sudo: false
+    });
+  }
+
+  // Create an app error with a serializable error code
+  function appInvokeError(code, message) {
+    const error = new Error(message);
+    error.code = code;
+    return error;
+  }
+
+  // Get app invoke error
+  function getErrorData(error) {
+    if (error && typeof error === "object" && error.code) {
+      return {
+        code: error.code,
+        message: error.message || String(error)
+      };
+    }
+
+    return {
+      code: "UNKNOWN_ERROR",
+      message: error instanceof Error ? error.message : String(error)
+    };
+  }
+
+  // App actions
+  async function onAppAction(invoker, payload) {
+    if (currentModule.value) {
+      throw appInvokeError("ACTION_STACKED", "Actionscan't stack");
+    }
+
+    const { name, options = {} } = payload;
+
+    const app = toRaw(getAppByID(invoker.id));
+
+    // Set Wallpaper
+    if (name === "set-wallpaper") {
+      const { url } = options;
+
+      if (!url) {
+        throw appInvokeError(
+          "WALLPAPER_URL_REQUIRED",
+          "Wallpaper URL is required"
+        );
+      }
+
+      showModule("WallpaperChanger", {
+        url,
+        invoker,
+        app: app.manifest
+      });
+
+      return await waitForModule();
+    }
+
+    // Share
+    if (name === "share") {
+      const { item } = options;
+
+      if (!item) {
+        throw appInvokeError("SHARE_ITEM_REQUIRED", "Share item is required");
+      }
+
+      showModule("Share", {
+        item,
+        invoker,
+        app: app.manifest
+      });
+
+      return await waitForModule();
+    }
+
+    // Theme
+    if (name === "set-theme") {
+      const { name: themeName } = options;
+
+      if (!hasAppTheme(themeName)) {
+        throw appInvokeError("INVALID_THEME", `Invalid Theme: ${themeName}`);
+      }
+
+      getAppByID(invoker.id).state.theme = themeName;
+
+      return {
+        theme: themeName
+      };
+    }
+
+    // File Picker
+    if (name === "file-picker") {
+      const { type, path, title, accept } = options;
+
+      showModule("FilePicker", {
+        type,
+        path,
+        title,
+        accept,
+        invoker,
+        app
+      });
+
+      return await waitForModule();
+    }
+
+    throw appInvokeError("UNKNOWN_ACTION", `Unknown action: ${name}`);
+  }
+
+  async function onAppInvoke(payload) {
+    // Reject if invoker isn't active app
+    if (!isAppScreen.value || payload.invoker.id !== activeApp.value?.id) {
+      throw appInvokeError(
+        "APP_UNFOCUSED",
+        "App is unfocused, can't invoke right now"
+      );
+    }
+
+    // Open app
+    if (payload.action === "openApp") {
+      return await openApp(payload.name, {
+        args: payload.args,
+        query: payload.query,
+        sudo: payload.sudo
+      });
+    }
+
+    // Actions disabled
+    if (payload.action === "action" && !uiConfig.state.enableAppActions) {
+      throw appInvokeError("ACTIONS_DISABLED", "App actions disabled");
+    }
+
+    if (payload.action === "action") {
+      return await onAppAction(payload.invoker, payload.payload);
+    }
+
+    throw appInvokeError(
+      "UNKNOWN_INVOKE_ACTION",
+      `Unknown invoke action: ${payload.action}`
+    );
+  }
+
   // Load config state and watch for changes
   async function loadConfigAndWatch() {
     await muiConfig.load();
@@ -420,47 +584,6 @@
         maxWait: 2000 // optional: force run after 2s max
       }
     );
-  }
-
-  // Share action using app
-  function shareUsingApp(name, payload) {
-    openApp(name, {
-      share: payload,
-      sudo: false
-    });
-  }
-
-  // App actions
-  function onAppAction(invoker, payload) {
-    const { name, options } = payload;
-
-    // Get app info
-    const app = toRaw(getAppByID(invoker.id));
-
-    // Set Wallpaper
-    if (name === "set-wallpaper") {
-      const { url } = options;
-      if (!url) return;
-
-      showModule("WallpaperChanger", { url, app: app.manifest });
-    }
-    // Share screen
-    else if (name === "share") {
-      const { item } = options;
-      if (!item) return;
-
-      showModule("Share", { item, app: app.manifest });
-    }
-    // Theme for app
-    else if (name === "set-theme") {
-      const { name } = options;
-
-      if (!hasAppTheme(name)) {
-        throw new Error(`Invalid Theme: ${name}`);
-      }
-
-      getAppByID(invoker.id).state.theme = name;
-    }
   }
 
   // Sending app lifecycle events
@@ -493,7 +616,10 @@
     });
 
     window.addEventListener("client:back", () => {
-      // Back
+      if (!isAppScreen.value || currentModule.value) {
+        return;
+      }
+
       runHaptic();
 
       if (canGoBack.value) {
@@ -540,28 +666,19 @@
     });
 
     // Invoke actions from app
-    client.on("app:invoke", payload => {
-      // Reject if invoker is not active app or not in appScreen
-      if (!isAppScreen.value || payload.invoker.id !== activeApp.value?.id) {
-        return;
-      }
+    client.on("app:invoke", async payload => {
+      try {
+        const data = await onAppInvoke(payload);
 
-      // Open app from an app
-      if (payload.action === "openApp") {
-        openApp(payload.name, {
-          args: payload.args,
-          query: payload.query,
-          sudo: payload.sudo
+        postAppMessageEvent(payload.invoker.id, payload.invoker.res_id, {
+          data,
+          error: null
         });
-      } else if (
-        payload.action === "action" &&
-        uiConfig.state.enableAppActions
-      ) {
-        try {
-          onAppAction(payload.invoker, payload.payload);
-        } catch (err) {
-          console.log("Error on app:invoke:action:", payload, err);
-        }
+      } catch (err) {
+        postAppMessageEvent(payload.invoker.id, payload.invoker.res_id, {
+          data: null,
+          error: getErrorData(err)
+        });
       }
     });
 
@@ -709,6 +826,11 @@
       />
       <Settings
         v-else-if="currentModule.name === 'Settings'"
+        :options="currentModule.options"
+        @close="closeModule"
+      />
+      <FilePicker
+        v-else-if="currentModule.name === 'FilePicker'"
         :options="currentModule.options"
         @close="closeModule"
       />

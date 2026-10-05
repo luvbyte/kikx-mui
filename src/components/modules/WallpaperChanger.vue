@@ -119,9 +119,12 @@
 
   // Delete Image
   async function handleDeleteSelectedImage() {
-    console.log(selectedImage.value);
-
     errorText.value = "";
+
+    if (selectedImage.value === defaultBackground) {
+      errorText.value = "Can't delete default background";
+      return;
+    }
 
     if (!currentPath.value.canUpdate) return;
     if (!selectedImage.value) {
@@ -198,34 +201,104 @@
   }
 
   function handleClose() {
-    showPanel.value = false
+    showPanel.value = false;
+  }
+
+  // Copy Wallpaper to /files
+  async function fetchWallpaperUrl(url) {
+    const info = await fs.getFileInfo(url);
+
+    if (info.error) {
+      throw new Error("Error fetching file");
+    }
+
+    const { name, image_type, suffix, size_bytes, kikxpath } = info.data;
+
+    const isImage = Boolean(image_type);
+    const isVideo = suffix === ".mp4";
+
+    // Must be an image or video
+    if (!isImage && !isVideo) {
+      throw new Error("Require image or video type");
+    }
+
+    // Images must be less than 25 MB
+    if (isImage && size_bytes >= 25 * 1024 * 1024) {
+      throw new Error("Image size must be less than 25 MB");
+    }
+
+    // Videos must be less than 50 MB
+    if (isVideo && size_bytes >= 50 * 1024 * 1024) {
+      throw new Error("Video size must be less than 50 MB");
+    }
+
+    const tempDir = "images/bg/.active_bg";
+    const tempFile = `${tempDir}/${name}`;
+
+    // Clear previous active wallpaper
+    await fs.deleteDirectory(`home://share/${tempDir}`).catch(() => {});
+
+    const { error } = await fs.copyFile(
+      kikxpath,
+      `home://share/${tempFile}`,
+      true
+    );
+
+    if (error) {
+      throw new Error("Error setting wallpaper");
+    }
+
+    return `/files/${tempFile}`;
   }
 
   // Init with options
   async function init() {
     if (!props.options) return false;
 
-    const url = String(props.options.url);
+    const url = String(props.options.url || "");
     const app = props.options.app;
 
     if (url.startsWith("http://") || url.startsWith("https://")) {
       customUrl.value = url;
       setBackgroundCustomUrl();
       return true;
-    } else if (url.startsWith("/files")) {
-      selectImage(url);
-      return true;
-    } else {
-      errorText.value = `[ ${app.name} ] Invalid url : ${url}`;
     }
 
-    return false;
+    if (url.startsWith("/files")) {
+      selectImage(url);
+      return true;
+    }
+
+    try {
+      const wallpaperUrl = await fetchWallpaperUrl(url);
+
+      selectImage(wallpaperUrl);
+
+      return true;
+    } catch (err) {
+      errorText.value = err.message || "Error loading wallpaper";
+      return false;
+    }
   }
+
+  const success = () => {
+    emit("close", {
+      success: true,
+      error: null
+    });
+  };
+
+  const error = error => {
+    emit("close", {
+      success: false,
+      error
+    });
+  };
 
   onMounted(async () => {
     setTimeout(() => (showPanel.value = true), 300);
     // Init
-    (await init()) ? emit("close") : await renderImages();
+    (await init()) ? success() : await renderImages();
   });
 </script>
 
@@ -235,7 +308,7 @@
     class="fscreen flex flex-col justify-between text-white"
   >
     <!-- Top bar -->
-    <Transition name="slide-down" mode="out-in" @after-leave="emit('close')">
+    <Transition name="slide-down" mode="out-in" @after-leave="error(errorText)">
       <div
         v-if="showPanel"
         :key="currentPathVirtual"
@@ -329,6 +402,7 @@
         </div>
 
         <div v-if="errorText" class="text-error italic text-sm font-bold">
+          <span class="text-white"> {{ options?.app?.name }} </span>
           {{ errorText }}
         </div>
       </div>

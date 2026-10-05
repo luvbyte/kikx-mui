@@ -19,15 +19,12 @@
           ]"
         />
         <!-- Splash  -->
-        <SegmentedSelect
+        <!-- Snow particles Style -->
+        <Selection
           v-model="uiConfig.state.splash"
           label="Launch Animation"
           description="Choose the animation shown when the app starts."
-          :options="[
-            { value: 'static', label: 'Static' },
-            { value: 'pulse', label: 'Pulse' },
-            { value: 'hide', label: 'Hide' }
-          ]"
+          :options="splashAnimations"
         />
         <!-- Active animation -->
         <Selection
@@ -145,12 +142,6 @@
           label="Auto hide App-Control"
           description="Hide app control on home to apps switching"
         />
-        <!-- App module replace -->
-        <ToggleSwitch
-          v-model="uiConfig.state.useModuleReplace"
-          label="Allow module replace"
-          description="Allow same app module replacing instead of rejecting"
-        />
         <!-- App Actions -->
         <ToggleSwitch
           v-model="uiConfig.state.enableAppActions"
@@ -188,6 +179,13 @@
   function close() {
     emit("close");
   }
+
+  const splashAnimations = [
+    { label: "Orbit", value: "orbit" },
+    { label: "Ripple", value: "ripple" },
+    { label: "Static", value: "static" },
+    { label: "Hide", value: "hide" }
+  ];
 
   const animationOptions = [
     { label: "Jello", value: "jello" },

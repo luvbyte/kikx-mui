@@ -26,6 +26,10 @@ export const useUIConfig = defineStore("uiConfig", () => {
       left: false
     },
 
+    filePicker: {
+      view: "list"
+    },
+
     // Settings
     networkIcon: true,
     // Block Alerts
@@ -36,12 +40,11 @@ export const useUIConfig = defineStore("uiConfig", () => {
 
     // Apps menu icons style
     iconsStyle: "solid",
-    splash: "pulse",
+    splash: "orbit",  // orbit, hide, ripple, static
     batteryIcon: "circle",
     haptic: "crisp",
 
     autoHideAppCSwitch: true,
-    useModuleReplace: false,
     enableAppActions: true
   });
 
