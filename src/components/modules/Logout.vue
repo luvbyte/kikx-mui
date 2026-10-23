@@ -2,19 +2,17 @@
   <div
     class="fscreen flex flex-col items-center justify-center transition-colors duration-1000"
     :style="{
-      backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`
+      backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`,
     }"
   >
-    <div
-      class="flex flex-col items-center bg-white/20 p-8 rounded-xl shadow-lg text-center w-80"
-    >
+    <div class="flex w-80 flex-col items-center rounded-xl bg-white/20 p-8 text-center shadow-lg">
       <!-- Gif -->
       <img
         :src="gifSrc"
         alt="Loading"
-        class="w-42 object-contain rounded-lg transition-transform duration-1000 select-none pointer-events-none"
+        class="pointer-events-none w-42 rounded-lg object-contain transition-transform duration-1000 select-none"
         :style="{
-          transform: `scale(${1 + (8 - countdown) * 0.03})`
+          transform: `scale(${1 + (8 - countdown) * 0.03})`,
         }"
         draggable="false"
       />
@@ -24,7 +22,7 @@
       <!-- Timer -->
       <p class="mt-4 text-lg font-medium text-white/80">
         Logging out in
-        <span class="text-red-400 font-bold">{{ countdown }}</span>
+        <span class="font-bold text-red-400">{{ countdown }}</span>
         seconds
       </p>
 
@@ -32,9 +30,7 @@
       <div class="mt-6 flex justify-center gap-4">
         <button @click="cancelLogout" class="btn w-32">Cancel</button>
 
-        <button @click="logoutNow" class="btn w-32 btn-secondary">
-          Logout Now
-        </button>
+        <button @click="logoutNow" class="btn btn-secondary w-32">Logout Now</button>
       </div>
     </div>
   </div>

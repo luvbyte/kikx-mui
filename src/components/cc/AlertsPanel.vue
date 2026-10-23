@@ -8,8 +8,8 @@
   const props = defineProps({
     onAlertClick: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   });
   const emit = defineEmits(["close"]);
 
@@ -19,7 +19,7 @@
     const priorityOrder = {
       high: 0,
       normal: 1,
-      less: 2
+      less: 2,
     };
 
     return [...alerts.alerts].sort((a, b) => {
@@ -28,8 +28,7 @@
       if (!a.sticky && b.sticky) return 1;
 
       // 2. Then priority within sticky/non-sticky
-      const priorityDiff =
-        priorityOrder[a.priority] - priorityOrder[b.priority];
+      const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
 
       if (priorityDiff !== 0) return priorityDiff;
 
@@ -54,29 +53,24 @@
 <template>
   <div
     @click.stop
-    class="flex-1 flex flex-col rounded-2xl border-2 border-white/60 overflow-hidden"
+    class="flex flex-1 flex-col overflow-hidden rounded-2xl border-2 border-white/60"
   >
     <!-- Header -->
     <div
-      class="px-2 py-1 border-b border-white/20 bg-pink-400/60 flex justify-between items-center shadow-lg"
+      class="flex items-center justify-between border-b border-white/20 bg-pink-400/60 px-2 py-1 shadow-lg"
     >
-      <div class="flex gap-2 items-center justify-center p-2">
-        <h1 class="text-white font-semibold tracking-wide">Alerts</h1>
+      <div class="flex items-center justify-center gap-2 p-2">
+        <h1 class="font-semibold tracking-wide text-white">Alerts</h1>
         <h1
           v-if="alerts.alerts.length > 0"
-          class="badge badge-sm opacity-80 shadow-lg font-semibold"
+          class="badge badge-sm font-semibold opacity-80 shadow-lg"
         >
           {{ alerts.alerts.length }}
         </h1>
       </div>
       <div class="flex items-center gap-2">
         <button @click="closeAllAlerts" class="btn btn-xs opacity-80">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M4 17q-.425 0-.712-.288T3 16t.288-.712T4 15h12q.425 0 .713.288T17 16t-.288.713T16 17zm2-4q-.425 0-.712-.288T5 12t.288-.712T6 11h12q.425 0 .713.288T19 12t-.288.713T18 13zm2-4q-.425 0-.712-.288T7 8t.288-.712T8 7h12q.425 0 .713.288T21 8t-.288.713T20 9z"
@@ -84,12 +78,7 @@
           </svg>
         </button>
         <button @click="emit('close')" class="btn btn-xs opacity-80">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="m12 13.4l-4.9 4.9q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7l4.9-4.9l-4.9-4.9q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.9 4.9l4.9-4.9q.275-.275.7-.275t.7.275t.275.7t-.275.7L13.4 12l4.9 4.9q.275.275.275.7t-.275.7t-.7.275t-.7-.275z"
@@ -103,7 +92,7 @@
     <TransitionGroup
       name="alert"
       tag="div"
-      class="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-hide scroll-smooth"
+      class="scrollbar-hide flex-1 space-y-2 overflow-y-auto scroll-smooth p-2"
     >
       <AppAlert
         v-for="appAlert in sortedAlerts"
@@ -115,7 +104,7 @@
     </TransitionGroup>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-white/20 bg-pink-400/60"></div>
+    <div class="border-t border-white/20 bg-pink-400/60 p-4"></div>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <script setup>
   import { ref, reactive, computed, onMounted } from "vue";
 
-  import { getFS, muiConfig } from "@/kikx";
+  import { getFS } from "@/kikx";
   import { getImageUrl, defaultBackground } from "@/kikx/config";
   import { useUIConfig } from "@/stores/kikx";
 
@@ -10,8 +10,8 @@
   const props = defineProps({
     options: {
       type: Object,
-      require: false
-    }
+      require: false,
+    },
   });
   const emit = defineEmits(["close"]);
 
@@ -32,20 +32,18 @@
       name: "LOCAL",
       virtual: "home://share/images/bg",
       url: "/files/images/bg",
-      canUpdate: true
-    }
+      canUpdate: true,
+    },
   ]);
 
   const currentPathVirtual = ref(imagePaths[0].virtual);
 
   const currentPath = computed(() =>
-    imagePaths.find(p => p.virtual === currentPathVirtual.value)
+    imagePaths.find((p) => p.virtual === currentPathVirtual.value)
   );
 
   const basePath = computed(() =>
-    currentPath.value.url.endsWith("/")
-      ? currentPath.value.url
-      : currentPath.value.url + "/"
+    currentPath.value.url.endsWith("/") ? currentPath.value.url : currentPath.value.url + "/"
   );
 
   const offset = ref(0);
@@ -62,7 +60,7 @@
       offset: offset.value,
       limit: limit.value,
       sort: "modified",
-      asc: false
+      asc: false,
     });
 
     loadingMore.value = false;
@@ -75,11 +73,8 @@
     hasMore.value = data.has_more;
 
     return data.files
-      .filter(
-        file =>
-          !file.directory && imageExtensions.includes(file.suffix.toLowerCase())
-      )
-      .map(file => basePath.value + file.name);
+      .filter((file) => !file.directory && imageExtensions.includes(file.suffix.toLowerCase()))
+      .map((file) => basePath.value + file.name);
   }
 
   // Load more images
@@ -141,7 +136,7 @@
       return;
     }
 
-    images.value = images.value.filter(i => i !== selectedImage.value);
+    images.value = images.value.filter((i) => i !== selectedImage.value);
     selectImage(defaultBackground);
   }
 
@@ -164,13 +159,10 @@
     const newFileName = `${randomId}${ext}`;
 
     const renamedFile = new File([file], newFileName, {
-      type: file.type
+      type: file.type,
     });
 
-    const { data, error } = await fs.uploadFile(
-      renamedFile,
-      currentPath.value.virtual
-    );
+    const { data, error } = await fs.uploadFile(renamedFile, currentPath.value.virtual);
     if (error) {
       errorText.value = error.detail || "Upload failed.";
       return;
@@ -238,11 +230,7 @@
     // Clear previous active wallpaper
     await fs.deleteDirectory(`home://share/${tempDir}`).catch(() => {});
 
-    const { error } = await fs.copyFile(
-      kikxpath,
-      `home://share/${tempFile}`,
-      true
-    );
+    const { error } = await fs.copyFile(kikxpath, `home://share/${tempFile}`, true);
 
     if (error) {
       throw new Error("Error setting wallpaper");
@@ -284,14 +272,14 @@
   const success = () => {
     emit("close", {
       success: true,
-      error: null
+      error: null,
     });
   };
 
-  const error = error => {
+  const error = (error) => {
     emit("close", {
       success: false,
-      error
+      error,
     });
   };
 
@@ -303,32 +291,24 @@
 </script>
 
 <template>
-  <div
-    @click.self="handleClose"
-    class="fscreen flex flex-col justify-between text-white"
-  >
+  <div @click.self="handleClose" class="fscreen flex flex-col justify-between text-white">
     <!-- Top bar -->
     <Transition name="slide-down" mode="out-in" @after-leave="error(errorText)">
       <div
         v-if="showPanel"
         :key="currentPathVirtual"
-        class="flex flex-col gap-2 items-center bg-black/40 p-2 py-4 shadow-lg"
+        class="flex flex-col items-center gap-2 bg-black/40 p-2 py-4 shadow-lg"
       >
-        <div class="flex gap-2 items-center w-full">
+        <div class="flex w-full items-center gap-2">
           <!-- URL input -->
           <input
             v-model="customUrl"
             placeholder="Image url"
-            class="input input-sm bg-transparent border-white focus:outline-none placeholder:opacity-60"
+            class="input input-sm border-white bg-transparent placeholder:opacity-60 focus:outline-none"
           />
           <div v-if="currentPath.canUpdate" class="flex items-center gap-2">
             <label class="btn btn-sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M0 0h24v24H0z" fill="none" />
                 <g
                   fill="none"
@@ -345,18 +325,9 @@
                   />
                 </g>
               </svg>
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                @change="handleImageUpload"
-              />
+              <input type="file" hidden accept="image/*" @change="handleImageUpload" />
             </label>
-            <button
-              v-if="customUrl"
-              class="btn btn-sm btn-success"
-              @click="setBackgroundCustomUrl"
-            >
+            <button v-if="customUrl" class="btn btn-sm btn-success" @click="setBackgroundCustomUrl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -370,17 +341,8 @@
                 />
               </svg>
             </button>
-            <button
-              v-else
-              class="btn btn-sm btn-error"
-              @click="handleDeleteSelectedImage"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
+            <button v-else class="btn btn-sm btn-error" @click="handleDeleteSelectedImage">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M0 0h24v24H0z" fill="none" />
                 <g
                   fill="none"
@@ -401,7 +363,7 @@
           </div>
         </div>
 
-        <div v-if="errorText" class="text-error italic text-sm font-bold">
+        <div v-if="errorText" class="text-error text-sm font-bold italic">
           <span class="text-white"> {{ options?.app?.name }} </span>
           {{ errorText }}
         </div>
@@ -410,45 +372,28 @@
 
     <!-- Bottom image panel -->
     <Transition name="slide-up" mode="out-in">
-      <div
-        v-if="showPanel"
-        :key="currentPathVirtual"
-        class="bg-black/40 p-2 py-4"
-      >
-        <div
-          class="flex gap-2 overflow-x-auto scrollbar-hide"
-          @scroll="onScroll"
-        >
+      <div v-if="showPanel" :key="currentPathVirtual" class="bg-black/40 p-2 py-4">
+        <div class="scrollbar-hide flex gap-2 overflow-x-auto" @scroll="onScroll">
           <!-- Default Background Image -->
-          <div class="flex-none w-32 aspect-[9/16]">
+          <div class="aspect-9/16 w-32 flex-none">
             <img
               :src="getImageUrl(defaultBackground)"
               @click="selectImage(defaultBackground)"
-              class="w-full h-full object-cover rounded cursor-pointer border-2 transition"
-              :class="
-                selectedImage === defaultBackground
-                  ? 'border-white/80'
-                  : 'border-white/20'
-              "
+              class="h-full w-full cursor-pointer rounded border-2 object-cover transition"
+              :class="selectedImage === defaultBackground ? 'border-white/80' : 'border-white/20'"
             />
           </div>
-          <div
-            v-for="img in images"
-            :key="img"
-            class="flex-none w-32 aspect-[9/16]"
-          >
+          <div v-for="img in images" :key="img" class="aspect-9/16 w-32 flex-none">
             <img
               :src="getImageUrl(img)"
               @click="selectImage(img)"
-              class="w-full h-full object-cover rounded cursor-pointer border-2 transition"
-              :class="
-                selectedImage === img ? 'border-white/80' : 'border-white/20'
-              "
+              class="h-full w-full cursor-pointer rounded border-2 object-cover transition"
+              :class="selectedImage === img ? 'border-white/80' : 'border-white/20'"
             />
           </div>
           <div
             v-if="loadingMore"
-            class="flex-none w-32 aspect-[9/16] flex items-center justify-center border-2 border-white/20"
+            class="flex aspect-9/16 w-32 flex-none items-center justify-center border-2 border-white/20"
           >
             <Loading class="opacity-60" />
           </div>

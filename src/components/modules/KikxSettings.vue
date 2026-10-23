@@ -5,11 +5,7 @@
     <!---->
     <DynamicForm v-else :data="configData" @submit="onSave" @reset="reset" />
 
-    <Alert
-      v-if="showResetConfirm"
-      message="Reset settings to defaults?"
-      @onResponse="onResponse"
-    />
+    <Alert v-if="showResetConfirm" message="Reset settings to defaults?" @onResponse="onResponse" />
   </div>
 </template>
 

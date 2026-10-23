@@ -1,28 +1,27 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-
 @font-face {
-  font-family: 'Cause';
-  src: url('@/assets/fonts/Cause-Regular.ttf') format('truetype');
+  font-family: "Cause";
+  src: url("@/assets/fonts/Cause-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Jost';
-  src: url('@/assets/fonts/Jost-Regular.ttf') format('truetype');
+  font-family: "Jost";
+  src: url("@/assets/fonts/Jost-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 body {
-  font-family: 'Cause', sans-serif;
+  font-family: "Cause", sans-serif;
 }
 
 h1 {
-  font-family: 'Jost', sans-serif;
+  font-family: "Jost", sans-serif;
 }
 
 img {
@@ -32,7 +31,7 @@ img {
 }
 
 .font-heading {
-  font-family: 'Jost', sans-serif;
+  font-family: "Jost", sans-serif;
 }
 
 .rstyle {
@@ -42,9 +41,8 @@ img {
 }
 
 .fscreen {
-  @apply w-full h-full
+  @apply h-full w-full;
 }
-
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
@@ -56,7 +54,6 @@ img {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
-
 
 /* Transitions */
 /* Fade */
@@ -204,4 +201,3 @@ img {
   opacity: 0;
   transform: translateY(-40px);
 }
-

@@ -7,10 +7,10 @@ import draggable from "@/directives/draggable.js";
 
 import vLongpress from "@/directives/longpress";
 
-import 'animate.css';
+import "animate.css";
 import "./style.css";
 
-document.addEventListener("contextmenu", e => {
+document.addEventListener("contextmenu", (e) => {
   if (e.target.tagName === "IMG") {
     e.preventDefault();
   }

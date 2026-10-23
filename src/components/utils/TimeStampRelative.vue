@@ -9,8 +9,8 @@
   const props = defineProps({
     timestamp: {
       type: [String, Number, Date],
-      required: true
-    }
+      required: true,
+    },
   });
 
   const now = ref(Date.now());

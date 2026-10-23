@@ -1,23 +1,23 @@
 <template>
-  <div class="font-semibold font-heading">{{ time }}</div>
+  <div class="font-heading font-semibold">{{ time }}</div>
 </template>
 
 <script setup>
   import { ref, onMounted, onUnmounted } from "vue";
 
   const props = defineProps({
-    format: { type: String, default: "HH:mm" }, 
-    interval: { type: Number, default: 1000 }
+    format: { type: String, default: "HH:mm" },
+    interval: { type: Number, default: 1000 },
   });
 
   const time = ref("");
   let timer = null;
 
   // YYYY, MM, DD, HH, mm, ss
-  const formatTime = format => {
+  const formatTime = (format) => {
     const d = new Date();
 
-    const pad = n => n.toString().padStart(2, "0");
+    const pad = (n) => n.toString().padStart(2, "0");
 
     return format
       .replace("YYYY", d.getFullYear())

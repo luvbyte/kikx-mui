@@ -2,16 +2,16 @@
   defineProps({
     label: {
       type: String,
-      required: true
+      required: true,
     },
     modelValue: {
       type: Boolean,
-      default: false
+      default: false,
     },
     description: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -20,17 +20,14 @@
 <template>
   <div class="flex flex-col gap-2.5">
     <label
-      class="group flex cursor-pointer select-none items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.06]"
+      class="group flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/4 px-3 py-2.5 transition-all duration-200 select-none hover:border-white/15 hover:bg-white/6"
     >
       <div class="min-w-0">
         <span class="block text-sm font-medium text-white">
           {{ label }}
         </span>
 
-        <p
-          v-if="description"
-          class="mt-0.5 text-xs leading-relaxed text-white/50"
-        >
+        <p v-if="description" class="mt-0.5 text-xs leading-relaxed text-white/50">
           {{ description }}
         </p>
       </div>
@@ -46,16 +43,14 @@
           'relative h-6 w-11 shrink-0 rounded-full p-0.5',
           'border transition-all duration-200 ease-out',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/70',
-          modelValue
-            ? 'border-green-400/40 bg-green-400/40'
-            : 'border-white/10 bg-white/10'
+          modelValue ? 'border-green-400/40 bg-green-400/40' : 'border-white/10 bg-white/10',
         ]"
       >
         <span
           :class="[
             'block h-5 w-5 rounded-full shadow-sm',
             'transition-transform duration-200 ease-out',
-            modelValue ? 'translate-x-5 bg-white' : 'translate-x-0 bg-white/50'
+            modelValue ? 'translate-x-5 bg-white' : 'translate-x-0 bg-white/50',
           ]"
         />
       </button>

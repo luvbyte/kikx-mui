@@ -2,20 +2,20 @@
   defineProps({
     label: {
       type: String,
-      required: true
+      required: true,
     },
     placeholder: {
       type: String,
-      default: ""
+      default: "",
     },
     description: {
       type: String,
-      required: false
+      required: false,
     },
     modelValue: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -25,7 +25,7 @@
   <div class="flex flex-col gap-2">
     <!-- Title -->
     <div>
-      <label class="block text-sm text-white font-heading">
+      <label class="font-heading block text-sm text-white">
         {{ label }}
       </label>
 
@@ -37,7 +37,7 @@
     <input
       type="text"
       :value="modelValue"
-      class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+      class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:cursor-not-allowed disabled:opacity-50"
       :placeholder="placeholder"
       @change="emit('update:modelValue', $event.target.value)"
     />

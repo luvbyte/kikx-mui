@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Section heading -->
-    <div v-if="label || description" class="p-2 bg-orange-400/40">
-      <h3 v-if="label" class="text-base font-heading text-white">
+    <div v-if="label || description" class="bg-orange-400/40 p-2">
+      <h3 v-if="label" class="font-heading text-base text-white">
         {{ label }}
       </h3>
 
@@ -22,11 +22,11 @@
   defineProps({
     label: {
       type: String,
-      required: false
+      required: false,
     },
     description: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   });
 </script>

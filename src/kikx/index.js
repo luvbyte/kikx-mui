@@ -2,7 +2,7 @@ import { Client } from "./client";
 import { fetchData } from "./api";
 import { blobToText } from "./utils";
 
-import { getUrl, muiPath, defaultBackground, DEV } from "./config";
+import { getUrl, muiPath, DEV } from "./config";
 
 import { useUIConfig } from "@/stores/kikx";
 
@@ -34,7 +34,7 @@ const muiConfigSchema = z.object({
     "tada",
     "wobble",
     "swing",
-    "flipInX"
+    "flipInX",
   ]),
 
   // Touch sprinkle effects
@@ -50,7 +50,7 @@ const muiConfigSchema = z.object({
     "sunset",
     "purple",
     "emerald",
-    "none"
+    "none",
   ]),
 
   // Bg Snow particle
@@ -66,7 +66,7 @@ const muiConfigSchema = z.object({
     "sunset",
     "purple",
     "emerald",
-    "none"
+    "none",
   ]),
 
   bgBlur: z.number(),
@@ -90,16 +90,16 @@ const muiConfigSchema = z.object({
   swipeNavPosition: z.object({
     x: z.number(),
     y: z.number(),
-    left: z.boolean()
+    left: z.boolean(),
   }),
 
   filePicker: z.object({
-    view: z.enum(["list", "grid"])
+    view: z.enum(["list", "grid"]),
   }),
 
   // Advance options
   autoHideAppCSwitch: z.boolean(),
-  enableAppActions: z.boolean()
+  enableAppActions: z.boolean(),
 });
 
 // Client Instance
@@ -111,8 +111,8 @@ export function fetchAppsList() {
   return fetchData(url, {
     method: "POST",
     body: {
-      client_id: client.clientID
-    }
+      client_id: client.clientID,
+    },
   });
 }
 
@@ -124,8 +124,8 @@ export function requestOpenApp(name, options, clientID) {
     body: {
       name,
       options,
-      client_id: clientID
-    }
+      client_id: clientID,
+    },
   });
 }
 
@@ -136,8 +136,8 @@ export function requestCloseApp(appID, clientID) {
     method: "POST",
     body: {
       app_id: appID,
-      client_id: clientID
-    }
+      client_id: clientID,
+    },
   });
 }
 
@@ -153,7 +153,7 @@ export function postAppMessage(appID, payload = null) {
 export function postAppMessageEvent(appID, event, payload = {}) {
   return postAppMessage(appID, {
     event,
-    payload
+    payload,
   });
 }
 
@@ -171,7 +171,7 @@ export const muiConfig = {
   parseConfig(data) {
     const uiConfigStore = useUIConfig();
     const validated = muiConfigSchema.parse(data);
-    uiConfigStore.$patch(store => {
+    uiConfigStore.$patch((store) => {
       Object.assign(store.state, validated);
     });
   },
@@ -194,12 +194,8 @@ export const muiConfig = {
   // Save config
   async save() {
     const config = await this.getConfig();
-    await client.fs.writeFile(
-      this.configFilePath,
-      JSON.stringify(config),
-      true
-    );
-  }
+    await client.fs.writeFile(this.configFilePath, JSON.stringify(config), true);
+  },
 };
 
 // Auto login for development
@@ -211,8 +207,8 @@ export async function devLogin(key) {
   const { access_token } = await fetchData(url, {
     params: {
       key,
-      ui: "mui"
-    }
+      ui: "mui",
+    },
   });
 
   document.cookie = `access_token=${access_token}`;

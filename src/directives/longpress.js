@@ -7,17 +7,17 @@ export default {
       if (typeof binding.value === "function") {
         return {
           handler: binding.value,
-          duration: 600
+          duration: 600,
         };
       }
 
       return {
         handler: binding.value.handler,
-        duration: binding.value.duration || 600
+        duration: binding.value.duration || 600,
       };
     };
 
-    const start = e => {
+    const start = (e) => {
       const { handler, duration } = getOptions();
       longPressTriggered = false;
 
@@ -34,7 +34,7 @@ export default {
       }
     };
 
-    const preventClick = e => {
+    const preventClick = (e) => {
       if (longPressTriggered) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -42,7 +42,7 @@ export default {
       }
     };
 
-    const preventContextMenu = e => {
+    const preventContextMenu = (e) => {
       e.preventDefault();
     };
 
@@ -61,5 +61,5 @@ export default {
 
     // Prevent browser context menu
     el.addEventListener("contextmenu", preventContextMenu);
-  }
+  },
 };

@@ -10,7 +10,7 @@ export const useErrorStore = defineStore("errorStore", () => {
     errorStack.value.push({
       message: message?.message ?? String(message),
       title,
-      type
+      type,
     });
   }
 
@@ -34,6 +34,6 @@ export const useErrorStore = defineStore("errorStore", () => {
     raiseError,
     getErrorMessage,
     closeError,
-    clearErrors
+    clearErrors,
   };
 });

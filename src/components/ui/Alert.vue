@@ -6,22 +6,17 @@
     <div
       @click.stop
       :class="{ shake: isShaking }"
-      class="bg-white/20 text-white border border-white/60 rounded-lg shadow-lg min-w-[80%] max-w-md"
+      class="max-w-md min-w-[80%] rounded-lg border border-white/60 bg-white/20 text-white shadow-lg"
     >
-      <h1 class="p-2 text-lg font-semibold bg-white/30">Alert</h1>
+      <h1 class="bg-white/30 p-2 text-lg font-semibold">Alert</h1>
       <p class="p-2">{{ message }}</p>
 
       <slot />
 
-      <div class="p-4 flex justify-end gap-2">
-        <button class="btn btn-sm" @click="emit('onResponse', false)">
-          Cancel
-        </button>
+      <div class="flex justify-end gap-2 p-4">
+        <button class="btn btn-sm" @click="emit('onResponse', false)">Cancel</button>
 
-        <button
-          class="btn btn-sm btn-success min-w-18"
-          @click="emit('onResponse', true)"
-        >
+        <button class="btn btn-sm btn-success min-w-18" @click="emit('onResponse', true)">
           Yes
         </button>
       </div>
@@ -34,7 +29,7 @@
 
   defineProps({
     message: String,
-    required: true
+    required: true,
   });
   const emit = defineEmits(["onResponse"]);
 

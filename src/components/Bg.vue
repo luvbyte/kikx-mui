@@ -1,7 +1,7 @@
 <template>
   <div
     id="bg-frame"
-    class="fixed inset-0 scale-105 -z-10 w-full h-dvh bg-black overflow-hidden"
+    class="fixed inset-0 -z-10 h-dvh w-full scale-105 overflow-hidden bg-black"
     :style="{ filter: getBlur() }"
   >
     <SnowParticles
@@ -24,7 +24,7 @@
 
       <video
         v-else-if="currentSrc"
-        :key="currentSrc"
+        :key="currentSrc + '_video'"
         ref="videoRef"
         :src="currentSrc"
         class="fscreen object-cover transition-opacity duration-300"
@@ -56,9 +56,9 @@
   const props = defineProps({
     isHomeScreen: {
       type: Boolean,
-      required: true
-    }
-  })
+      required: true,
+    },
+  });
 
   const uiConfig = useUIConfig();
 
@@ -66,9 +66,7 @@
   const videoReady = ref(false);
   const videoRef = ref(null);
 
-  const isVideo = computed(() =>
-    /\.(mp4|webm|ogg)$/i.test(currentSrc.value || "")
-  );
+  const isVideo = computed(() => /\.(mp4|webm|ogg)$/i.test(currentSrc.value || ""));
 
   function getBlur() {
     const blur = Number(uiConfig.state.bgBlur) || 0;
@@ -91,7 +89,7 @@
 
   watch(
     () => uiConfig.state.bg,
-    async newBg => {
+    async (newBg) => {
       videoReady.value = false;
 
       if (!newBg) {

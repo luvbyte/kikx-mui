@@ -4,16 +4,16 @@
   const props = defineProps({
     text: {
       type: String,
-      required: true
+      required: true,
     },
     tag: {
       type: String,
-      default: "h1"
+      default: "h1",
     },
     speed: {
       type: Number,
-      default: 60 // px/sec
-    }
+      default: 60, // px/sec
+    },
   });
 
   const container = ref(null);
@@ -21,13 +21,13 @@
 
   const style = ref({
     transform: "translateX(0)",
-    transition: "none"
+    transition: "none",
   });
 
   let timer;
   let observer;
 
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   async function loop() {
     clearTimeout(timer);
@@ -40,7 +40,7 @@
     // Reset
     style.value = {
       transform: "translateX(0)",
-      transition: "none"
+      transition: "none",
     };
 
     await new Promise(requestAnimationFrame);
@@ -57,7 +57,7 @@
     // Scroll to end
     style.value = {
       transform: `translateX(-${distance}px)`,
-      transition: `transform ${duration}s linear`
+      transition: `transform ${duration}s linear`,
     };
 
     // Wait until animation completes
@@ -68,7 +68,7 @@
       // Jump back instantly
       style.value = {
         transform: "translateX(0)",
-        transition: "none"
+        transition: "none",
       };
 
       await new Promise(requestAnimationFrame);

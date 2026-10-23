@@ -5,16 +5,16 @@
   const props = defineProps({
     title: {
       type: String,
-      required: true
+      required: true,
     },
     icon: {
       type: String,
-      required: true
+      required: true,
     },
     iconStyle: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const icon = computed(() => getImageUrl(props.icon));
@@ -43,24 +43,18 @@
 <template>
   <div
     :class="[
-      'min-w-[5.5rem] flex-shrink-0 flex flex-col items-center justify-between p-1.5 py-2 rounded-lg transition-colors duration-100',
-      iconStyle === 'wrap' &&
-        'bg-white/30 border-2 border-white/30 active:bg-white/60'
+      'flex min-w-22 shrink-0 flex-col items-center justify-between rounded-lg p-1.5 py-2 transition-colors duration-100',
+      iconStyle === 'wrap' && 'border-2 border-white/30 bg-white/30 active:bg-white/60',
     ]"
   >
     <!-- Icon Container -->
-    <div
-      :class="[
-        containerClass,
-        'flex items-center justify-center flex-shrink-0'
-      ]"
-    >
+    <div :class="[containerClass, 'flex shrink-0 items-center justify-center']">
       <img
         :src="icon"
         :class="[
           imageClass,
           'transition-opacity duration-300 ease-out',
-          loaded ? 'opacity-100' : 'opacity-0'
+          loaded ? 'opacity-100' : 'opacity-0',
         ]"
         @load="loaded = true"
         draggable="false"
@@ -70,7 +64,7 @@
     <!-- Title -->
     <div
       v-if="iconStyle !== 'icon'"
-      class="w-full truncate pt-1 text-center text-sm text-white font-heading"
+      class="font-heading w-full truncate pt-1 text-center text-sm text-white"
     >
       {{ title }}
     </div>

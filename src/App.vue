@@ -1,13 +1,5 @@
 <script setup>
-  import {
-    ref,
-    toRaw,
-    watch,
-    computed,
-    nextTick,
-    onMounted,
-    onBeforeMount
-  } from "vue";
+  import { ref, toRaw, watch, computed, nextTick, onBeforeMount } from "vue";
   import { watchDebounced } from "@vueuse/core";
 
   import Bg from "@/components/Bg.vue";
@@ -34,13 +26,7 @@
   import TouchSprinkle from "@/components/ui/TouchSprinkle.vue";
 
   // import { getUrl, getAnimation } from "@/kikx/config";
-  import {
-    fetchAppsList,
-    useClient,
-    devLogin,
-    muiConfig,
-    postAppMessageEvent
-  } from "@/kikx";
+  import { fetchAppsList, useClient, devLogin, muiConfig, postAppMessageEvent } from "@/kikx";
 
   import { playSound } from "@/kikx/sound";
   import { haptic, vibrate } from "@/kikx/vibrate";
@@ -100,7 +86,7 @@
     openApp,
     closeApp,
     closeAppById,
-    closeAppByName
+    closeAppByName,
   } = useRunningApps(client, changeScreen, alerts);
   const { isKeyboardOpen, closeKeyboard } = useKeyboard();
 
@@ -189,15 +175,13 @@
     if (currentScreen.value !== "app-control") return;
     if (!runningApps.value[index]) return;
 
-    const el = document.getElementById(
-      "app_tab_" + runningApps.value[index].id
-    );
+    const el = document.getElementById("app_tab_" + runningApps.value[index].id);
 
     if (el) {
       el.scrollIntoView({
         behavior: "smooth",
         inline: "center",
-        block: "nearest"
+        block: "nearest",
       });
     }
   }
@@ -216,8 +200,7 @@
     () =>
       uiConfig.state.navbar &&
       !currentModule.value &&
-      (isKeyboardOpen.value ||
-        !navbarHiddenScreens.includes(currentScreen.value))
+      (isKeyboardOpen.value || !navbarHiddenScreens.includes(currentScreen.value))
   );
 
   // Bottom right transparent button
@@ -231,20 +214,17 @@
 
   // Back navigation
   const canGoBack = computed(
-    () =>
-      !!activeApp.value &&
-      activeApp.value.iframe.canGoBack &&
-      currentScreen.value !== "home"
+    () => !!activeApp.value && activeApp.value.iframe.canGoBack && currentScreen.value !== "home"
   );
 
   // ------------------ Watchers (app, screen)
   // Auto switch app if activeAppIndex change
-  watch(activeAppIndex, async indexNew => {
+  watch(activeAppIndex, async (indexNew) => {
     await nextTick();
     scrollTabToApp(indexNew);
   });
 
-  watch(currentScreen, async newValue => {
+  watch(currentScreen, async (newValue) => {
     await nextTick();
     if (newValue === "app-control") {
       scrollTabToApp(activeAppIndex.value);
@@ -398,7 +378,7 @@
     }
 
     // Only toast alert if app is running (backend checks already)
-    const index = runningApps.value.findIndex(app => app.id === payload.id);
+    const index = runningApps.value.findIndex((app) => app.id === payload.id);
     if (index !== -1) {
       alerts.addAlert(payload, uiConfig.state.hideAlert || payload.silent);
     }
@@ -411,14 +391,14 @@
       alerts.removeAlert(alt.uid);
     }
 
-    const index = runningApps.value.findIndex(app => app.id === alt.id);
+    const index = runningApps.value.findIndex((app) => app.id === alt.id);
 
     if (index !== -1) {
       setActiveApp(index);
       changeScreen("app");
       // Sending signal to app
       postAppMessageEvent(alt.id, "alert:click", {
-        uid: alt.uid
+        uid: alt.uid,
       });
     } else {
       changeScreen("home");
@@ -429,7 +409,7 @@
   function shareUsingApp(name, payload) {
     openApp(name, {
       share: payload,
-      sudo: false
+      sudo: false,
     });
   }
 
@@ -445,13 +425,13 @@
     if (error && typeof error === "object" && error.code) {
       return {
         code: error.code,
-        message: error.message || String(error)
+        message: error.message || String(error),
       };
     }
 
     return {
       code: "UNKNOWN_ERROR",
-      message: error instanceof Error ? error.message : String(error)
+      message: error instanceof Error ? error.message : String(error),
     };
   }
 
@@ -470,16 +450,13 @@
       const { url } = options;
 
       if (!url) {
-        throw appInvokeError(
-          "WALLPAPER_URL_REQUIRED",
-          "Wallpaper URL is required"
-        );
+        throw appInvokeError("WALLPAPER_URL_REQUIRED", "Wallpaper URL is required");
       }
 
       showModule("WallpaperChanger", {
         url,
         invoker,
-        app: app.manifest
+        app: app.manifest,
       });
 
       return await waitForModule();
@@ -496,7 +473,7 @@
       showModule("Share", {
         item,
         invoker,
-        app: app.manifest
+        app: app.manifest,
       });
 
       return await waitForModule();
@@ -513,7 +490,7 @@
       getAppByID(invoker.id).state.theme = themeName;
 
       return {
-        theme: themeName
+        theme: themeName,
       };
     }
 
@@ -527,7 +504,7 @@
         title,
         accept,
         invoker,
-        app
+        app,
       });
 
       return await waitForModule();
@@ -539,10 +516,7 @@
   async function onAppInvoke(payload) {
     // Reject if invoker isn't active app
     if (!isAppScreen.value || payload.invoker.id !== activeApp.value?.id) {
-      throw appInvokeError(
-        "APP_UNFOCUSED",
-        "App is unfocused, can't invoke right now"
-      );
+      throw appInvokeError("APP_UNFOCUSED", "App is unfocused, can't invoke right now");
     }
 
     // Open app
@@ -550,7 +524,7 @@
       return await openApp(payload.name, {
         args: payload.args,
         query: payload.query,
-        sudo: payload.sudo
+        sudo: payload.sudo,
       });
     }
 
@@ -563,10 +537,7 @@
       return await onAppAction(payload.invoker, payload.payload);
     }
 
-    throw appInvokeError(
-      "UNKNOWN_INVOKE_ACTION",
-      `Unknown invoke action: ${payload.action}`
-    );
+    throw appInvokeError("UNKNOWN_INVOKE_ACTION", `Unknown invoke action: ${payload.action}`);
   }
 
   // Load config state and watch for changes
@@ -581,7 +552,7 @@
       {
         deep: true,
         debounce: 500, // wait 500ms after last change
-        maxWait: 2000 // optional: force run after 2s max
+        maxWait: 2000, // optional: force run after 2s max
       }
     );
   }
@@ -605,7 +576,7 @@
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState !== "visible") return;
 
-      runningApps.value.forEach(app => {
+      runningApps.value.forEach((app) => {
         postAppMessageEvent(app.id, "CHECK_WS");
       });
     });
@@ -630,7 +601,7 @@
     });
 
     // Event bindings
-    client.on("ws:onclose", e => {
+    client.on("ws:onclose", (e) => {
       if (e.code === 1008) {
         // unauthorized / redirect to login
         location.replace("/");
@@ -639,7 +610,7 @@
       connecting.value = true;
     });
 
-    client.on("ws:onopen", e => {
+    client.on("ws:onopen", (e) => {
       wsopen.value = true;
     });
 
@@ -649,41 +620,41 @@
     });
 
     // App installed or updated close it
-    client.on("app:installed", payload => {
+    client.on("app:installed", (payload) => {
       closeAppByName(payload.name);
       updateAppsList();
     });
 
     // App uninstalled
-    client.on("app:uninstalled", payload => {
+    client.on("app:uninstalled", (payload) => {
       closeAppByName(payload.name);
       updateAppsList();
     });
 
     // App closing by itself
-    client.on("app:close", app => {
+    client.on("app:close", (app) => {
       closeAppById(app.id);
     });
 
     // Invoke actions from app
-    client.on("app:invoke", async payload => {
+    client.on("app:invoke", async (payload) => {
       try {
         const data = await onAppInvoke(payload);
 
         postAppMessageEvent(payload.invoker.id, payload.invoker.res_id, {
           data,
-          error: null
+          error: null,
         });
       } catch (err) {
         postAppMessageEvent(payload.invoker.id, payload.invoker.res_id, {
           data: null,
-          error: getErrorData(err)
+          error: getErrorData(err),
         });
       }
     });
 
     // app alert event
-    client.on("app:alert", payload => addAlert(payload));
+    client.on("app:alert", (payload) => addAlert(payload));
 
     // run
     client.run(async () => {
@@ -698,13 +669,10 @@
 </script>
 
 <template>
-  <div
-    data-theme="light"
-    class="h-dvh w-full flex flex-col overflow-hidden bg-transparent"
-  >
+  <div data-theme="light" class="flex h-dvh w-full flex-col overflow-hidden bg-transparent">
     <!-- Loading -->
     <Transition name="fade">
-      <div v-if="connecting" class="fixed z-[999] inset-0 fscreen bg-black/60">
+      <div v-if="connecting" class="fscreen fixed inset-0 z-999 bg-black/60">
         <Loading class="text-white" label="Connecting" />
       </div>
     </Transition>
@@ -723,7 +691,7 @@
     </Transition>
 
     <!-- Screens -->
-    <div class="flex-1 relative">
+    <div class="relative flex-1">
       <!-- Home -->
       <HomeScreen
         v-show="currentScreen === 'home' && !currentModule"
@@ -748,13 +716,10 @@
       <!-- Running Apps Stack -->
       <div
         v-show="currentScreen === 'app' || currentScreen === 'app-control'"
-        class="absolute fscreen inset-0 z-20 flex flex-col gap-1 items-center"
+        class="fscreen absolute inset-0 z-20 flex flex-col items-center gap-1"
         :class="getAppTheme(activeAppTheme)"
       >
-        <div
-          @click.self="onAppScreenClick"
-          class="w-full flex-1 overflow-hidden"
-        >
+        <div @click.self="onAppScreenClick" class="w-full flex-1 overflow-hidden">
           <App
             v-for="(app, index) in runningApps"
             :key="app.id"
@@ -798,21 +763,18 @@
     <!-- Bottom bubble Triggers (fallback) -->
     <div
       v-if="canShowFallbackTrigger"
-      class="absolute bottom-0 right-0 z-[150] bg-white/5 w-12 h-12 rounded-tl-full"
+      class="absolute right-0 bottom-0 z-150 h-12 w-12 rounded-tl-full bg-white/5"
       @click="onFallbackBubbleClick"
     ></div>
 
     <!-- Swipenav -->
-    <SwipeNav
-      v-if="uiConfig.state.swipeNav && !currentModule"
-      @action="onSwipeNav"
-    />
+    <SwipeNav v-if="uiConfig.state.swipeNav && !currentModule" @action="onSwipeNav" />
 
     <!-- Ghost panel -->
     <GhostPanel v-if="showGhostPanel" @close="showGhostPanel = false" />
 
     <!-- Modules -->
-    <div v-if="currentModule" class="fixed fscreen inset-0 z-[99]">
+    <div v-if="currentModule" class="fscreen fixed inset-0 z-99">
       <WallpaperChanger
         v-if="currentModule.name === 'WallpaperChanger'"
         :options="currentModule.options"
@@ -834,10 +796,7 @@
         :options="currentModule.options"
         @close="closeModule"
       />
-      <Logout
-        v-else-if="currentModule.name === 'Logout'"
-        @close="closeModule"
-      />
+      <Logout v-else-if="currentModule.name === 'Logout'" @close="closeModule" />
     </div>
 
     <!-- Global Error Alerts -->

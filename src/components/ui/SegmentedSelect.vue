@@ -2,20 +2,20 @@
   defineProps({
     label: {
       type: String,
-      required: true
+      required: true,
     },
     description: {
       type: String,
-      required: false
+      required: false,
     },
     modelValue: {
       type: [String, Number],
-      required: true
+      required: true,
     },
     options: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -36,7 +36,7 @@
 
     <!-- Segmented Control -->
     <div
-      class="flex gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1 shadow-inner shadow-black/10"
+      class="flex gap-1 rounded-lg border border-white/10 bg-white/4 p-1 shadow-inner shadow-black/10"
       role="group"
       :aria-label="label"
     >
@@ -52,7 +52,7 @@
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/70 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent',
           modelValue === option.value
             ? 'bg-green-400/40 shadow-sm shadow-green-400/20'
-            : 'text-white/60 hover:bg-white/[0.07] hover:text-white'
+            : 'text-white/60 hover:bg-white/[0.07] hover:text-white',
         ]"
       >
         {{ option.label }}

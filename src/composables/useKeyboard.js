@@ -42,6 +42,6 @@ export function useKeyboard() {
 
   return {
     isKeyboardOpen,
-    closeKeyboard
+    closeKeyboard,
   };
 }

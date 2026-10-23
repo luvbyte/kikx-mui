@@ -4,8 +4,8 @@
   defineProps({
     src: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const loaded = ref(false);

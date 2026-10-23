@@ -2,7 +2,7 @@
   <div>
     <img
       v-if="imageUrl"
-      class="aspect-square object-contain rounded fade-in"
+      class="fade-in aspect-square rounded object-contain"
       :src="imageUrl"
       alt=""
     />
@@ -18,8 +18,8 @@
   const props = defineProps({
     path: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const imageUrl = ref("");

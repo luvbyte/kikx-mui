@@ -3,16 +3,9 @@
     <!-- Circle Style -->
     <template v-if="batteryIcon === 'circle'">
       <div class="relative flex items-center justify-center">
-        <svg class="w-3.5 h-3.5 -rotate-90" viewBox="0 0 120 120">
+        <svg class="h-3.5 w-3.5 -rotate-90" viewBox="0 0 120 120">
           <!-- Background -->
-          <circle
-            cx="60"
-            cy="60"
-            r="54"
-            stroke-width="14"
-            fill="none"
-            class="stroke-gray-200"
-          />
+          <circle cx="60" cy="60" r="54" stroke-width="14" fill="none" class="stroke-gray-200" />
 
           <!-- Progress -->
           <circle
@@ -30,14 +23,14 @@
         </svg>
       </div>
 
-      <div class="font-semibold font-heading">{{ batteryLevel }}%</div>
+      <div class="font-heading font-semibold">{{ batteryLevel }}%</div>
     </template>
     <!-- Box Style -->
     <template v-else-if="batteryIcon === 'box'">
-      <div class="relative w-4 h-2.5 border border-gray-300 rounded-[2px]">
+      <div class="relative h-2.5 w-4 rounded-xs border border-gray-300">
         <!-- Battery Tip -->
         <div
-          class="absolute -right-[2px] top-1/2 -translate-y-1/2 w-[2px] h-1 bg-gray-300 rounded-r-sm"
+          class="absolute top-1/2 -right-0.5 h-1 w-0.5 -translate-y-1/2 rounded-r-sm bg-gray-300"
         ></div>
 
         <!-- Fill -->
@@ -48,7 +41,7 @@
         ></div>
       </div>
 
-      <div class="font-semibold font-heading">{{ batteryLevel }}%</div>
+      <div class="font-heading font-semibold">{{ batteryLevel }}%</div>
     </template>
   </div>
 </template>
@@ -59,8 +52,8 @@
   const props = defineProps({
     batteryIcon: {
       type: String,
-      required: true 
-    }
+      required: true,
+    },
   });
 
   const batteryLevel = ref(0);
@@ -69,9 +62,7 @@
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
 
-  const dashOffset = computed(
-    () => circumference - (batteryLevel.value / 100) * circumference
-  );
+  const dashOffset = computed(() => circumference - (batteryLevel.value / 100) * circumference);
 
   const batteryColor = computed(() => {
     if (batteryLevel.value <= 20) return "stroke-red-500 bg-red-500";

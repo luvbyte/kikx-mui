@@ -1,7 +1,7 @@
 <template>
-  <section class="flex-1 flex flex-col min-h-0 text-white">
+  <section class="flex min-h-0 flex-1 flex-col text-white">
     <div
-      class="px-3 py-2.5 flex justify-between items-center gap-2 bg-white/5 border-y border-white/10"
+      class="flex items-center justify-between gap-2 border-y border-white/10 bg-white/5 px-3 py-2.5"
     >
       <div>
         <h2 class="text-sm font-semibold">Micro</h2>
@@ -10,48 +10,36 @@
       </div>
 
       <div
-        class="min-w-7 h-7 px-2 rounded-full bg-white/10 flex items-center justify-center text-xs font-semibold text-white/70"
+        class="flex h-7 min-w-7 items-center justify-center rounded-full bg-white/10 px-2 text-xs font-semibold text-white/70"
       >
         {{ totalServices }}
       </div>
     </div>
 
-    <div
-      v-if="!processing"
-      class="p-2 flex-1 space-y-2 overflow-y-auto scrollbar-hide"
-    >
+    <div v-if="!processing" class="scrollbar-hide flex-1 space-y-2 overflow-y-auto p-2">
       <!-- Empty state -->
       <div
         v-if="!activeServices || !Object.keys(activeServices).length"
-        class="h-full flex flex-col items-center justify-center text-center px-6"
+        class="flex h-full flex-col items-center justify-center px-6 text-center"
       >
         <h3 class="text-sm font-medium text-white/70">No active services</h3>
 
-        <p class="mt-1 text-xs text-white/35">
-          Running micro services will appear here.
-        </p>
+        <p class="mt-1 text-xs text-white/35">Running micro services will appear here.</p>
       </div>
 
       <!-- App Groups -->
-      <div
-        v-for="(services, appName) in activeServices"
-        :key="appName"
-        class="space-y-2"
-      >
+      <div v-for="(services, appName) in activeServices" :key="appName" class="space-y-2">
         <!-- App Group Header -->
         <div class="flex items-center justify-between gap-2 px-1">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-white/15 border border-white/10 flex items-center justify-center"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/15"
           >
             <!-- App Icon -->
-            <img
-              class="shrink-0 rounded-xl object-cover"
-              :src="getAppIconUrl(appName, services)"
-            />
+            <img class="shrink-0 rounded-xl object-cover" :src="getAppIconUrl(appName, services)" />
           </div>
 
           <div class="min-w-0 flex-1">
-            <h3 class="text-xs font-semibold truncate">
+            <h3 class="truncate text-xs font-semibold">
               {{ appName }}
             </h3>
 
@@ -62,7 +50,7 @@
           </div>
 
           <button
-            class="p-1 border border-white/10 active:bg-white/20 disabled:bg-gray-400/10 text-red-400 rounded"
+            class="rounded border border-white/10 p-1 text-red-400 active:bg-white/20 disabled:bg-gray-400/10"
             @click="() => removeAppServices(appName)"
             :disabled="processing"
           >
@@ -85,46 +73,44 @@
         <div
           v-for="service in services"
           :key="`${appName}-${service.name}`"
-          class="p-3 rounded-2xl bg-white/5 border border-white/10"
+          class="rounded-2xl border border-white/10 bg-white/5 p-3"
         >
           <!-- Service Header -->
           <div class="flex items-center justify-between gap-3">
-            <h3 class="text-sm font-semibold truncate">
+            <h3 class="truncate text-sm font-semibold">
               {{ service.name }}
             </h3>
 
             <!-- Running Status -->
             <span
               v-if="service.status?.running"
-              class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-400/10 text-emerald-300 border border-emerald-400/20"
+              class="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-xs font-medium text-emerald-300"
             >
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
               Running
             </span>
 
             <span
               v-else-if="service.status?.completed"
-              class="shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-white/40 border border-white/10"
+              class="shrink-0 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/40"
             >
               Completed
             </span>
 
             <span
               v-else
-              class="shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-400/10 text-amber-300 border border-amber-400/20"
+              class="shrink-0 rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-xs font-medium text-amber-300"
             >
               Stopped
             </span>
           </div>
 
           <!-- App Info -->
-          <div
-            class="mt-3 space-y-1 p-2.5 rounded-xl bg-black/10 border border-white/5"
-          >
+          <div class="mt-3 space-y-1 rounded-xl border border-white/5 bg-black/10 p-2.5">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs text-white/40"> App Title </span>
 
-              <span class="text-xs text-white/60 truncate">
+              <span class="truncate text-xs text-white/60">
                 {{ service.app?.title }}
               </span>
             </div>
@@ -132,7 +118,7 @@
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs text-white/40"> App Name </span>
 
-              <span class="text-xs text-white/60 truncate">
+              <span class="truncate text-xs text-white/60">
                 {{ service.app?.name }}
               </span>
             </div>
@@ -140,19 +126,16 @@
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs text-white/40"> App ID </span>
 
-              <span class="text-xs text-white/50 truncate max-w-[65%]">
+              <span class="max-w-[65%] truncate text-xs text-white/50">
                 {{ service.app?.id }}
               </span>
             </div>
 
-            <div
-              v-if="service.app?.sudo"
-              class="mt-2 flex items-center justify-between"
-            >
+            <div v-if="service.app?.sudo" class="mt-2 flex items-center justify-between">
               <span class="text-xs text-white/40"> Permission </span>
 
               <span
-                class="px-2 py-0.5 rounded-md bg-secondary/20 border border-secondary/30 text-xs font-semibold"
+                class="bg-secondary/20 border-secondary/30 rounded-md border px-2 py-0.5 text-xs font-semibold"
               >
                 Sudo
               </span>
@@ -160,16 +143,11 @@
           </div>
 
           <!-- Process -->
-          <div
-            class="mt-2.5 p-2.5 rounded-xl bg-black/10 border border-white/5"
-          >
+          <div class="mt-2.5 rounded-xl border border-white/5 bg-black/10 p-2.5">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-medium text-white/60"> Process </span>
 
-              <span
-                v-if="service.process?.returncode !== null"
-                class="text-xs text-white/35"
-              >
+              <span v-if="service.process?.returncode !== null" class="text-xs text-white/35">
                 Exit {{ service.process.returncode }}
               </span>
 
@@ -178,7 +156,7 @@
 
             <p
               v-if="service.process?.cmd?.length"
-              class="mt-2 text-[11px] leading-relaxed text-white/35 break-all"
+              class="mt-2 text-[11px] leading-relaxed break-all text-white/35"
             >
               {{ service.process.cmd.join(" ") }}
             </p>
@@ -186,15 +164,15 @@
 
           <!-- Config -->
           <div v-if="service.config" class="mt-2.5 grid grid-cols-3 gap-1.5">
-            <div class="px-2 py-2 rounded-xl bg-black/10 border border-white/5">
+            <div class="rounded-xl border border-white/5 bg-black/10 px-2 py-2">
               <p class="text-[10px] text-white/30">Main</p>
 
-              <p class="mt-0.5 text-xs text-white/55 truncate">
+              <p class="mt-0.5 truncate text-xs text-white/55">
                 {{ service.config.main || "—" }}
               </p>
             </div>
 
-            <div class="px-2 py-2 rounded-xl bg-black/10 border border-white/5">
+            <div class="rounded-xl border border-white/5 bg-black/10 px-2 py-2">
               <p class="text-[10px] text-white/30">Stdout</p>
 
               <p class="mt-0.5 text-xs text-white/55">
@@ -202,7 +180,7 @@
               </p>
             </div>
 
-            <div class="px-2 py-2 rounded-xl bg-black/10 border border-white/5">
+            <div class="rounded-xl border border-white/5 bg-black/10 px-2 py-2">
               <p class="text-[10px] text-white/30">Persistent</p>
 
               <p class="mt-0.5 text-xs text-white/55">
@@ -214,24 +192,22 @@
           <!-- Error -->
           <div
             v-if="service.process?.error"
-            class="mt-2.5 px-3 py-2.5 rounded-xl bg-red-400/10 border border-red-400/20"
+            class="mt-2.5 rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5"
           >
-            <p class="text-xs text-red-300/80 break-words">
+            <p class="text-xs wrap-break-word text-red-300/80">
               {{ service.process.error }}
             </p>
           </div>
 
           <!-- Footer -->
-          <div
-            class="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2"
-          >
+          <div class="mt-3 flex items-center justify-between gap-2 border-t border-white/5 pt-2.5">
             <div class="flex items-center gap-1.5 text-xs text-white/40">
               <span>Started</span>
               <TimeStampRelative :timestamp="service.created_at" />
             </div>
 
             <button
-              class="p-1 border border-white/10 active:bg-white/20 disabled:bg-gray-400/10 text-red-400 rounded"
+              class="rounded border border-white/10 p-1 text-red-400 active:bg-white/20 disabled:bg-gray-400/10"
               @click="() => removeAppServices(appName, service.name)"
               :disabled="processing"
             >
@@ -269,8 +245,7 @@
 
   const totalServices = computed(() => {
     return Object.values(activeServices.value).reduce(
-      (total, services) =>
-        total + (Array.isArray(services) ? services.length : 0),
+      (total, services) => total + (Array.isArray(services) ? services.length : 0),
       0
     );
   });

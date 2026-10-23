@@ -5,12 +5,12 @@
   const props = defineProps({
     app: {
       type: Object,
-      required: true
+      required: true,
     },
     splash: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const loading = ref(true);
@@ -67,11 +67,7 @@
           class="relative h-full w-full"
           :class="{ 'splash-image-closing': closing }"
         >
-          <img
-            :src="getImageUrl(app.manifest.splash)"
-            alt=""
-            class="splash-image"
-          />
+          <img :src="getImageUrl(app.manifest.splash)" alt="" class="splash-image" />
           <div class="image-overlay"></div>
         </div>
 
@@ -86,11 +82,7 @@
               <div class="ripple ripple-2"></div>
               <div class="ripple ripple-3"></div>
 
-              <img
-                :src="icon"
-                :alt="app.name"
-                class="splash-icon ripple-icon"
-              />
+              <img :src="icon" :alt="app.name" class="splash-icon ripple-icon" />
             </template>
 
             <template v-else-if="splash === 'orbit'">
@@ -110,11 +102,7 @@
             </template>
 
             <template v-else>
-              <img
-                :src="icon"
-                :alt="app.name"
-                class="splash-icon static-icon"
-              />
+              <img :src="icon" :alt="app.name" class="splash-icon static-icon" />
             </template>
           </div>
         </div>
@@ -149,11 +137,7 @@
   .splash-background {
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      circle at center,
-      rgb(255 255 255 / 0.03),
-      transparent 60%
-    );
+    background: radial-gradient(circle at center, rgb(255 255 255 / 0.03), transparent 60%);
   }
 
   .splash-glow {
@@ -165,11 +149,7 @@
     min-width: 180px;
     min-height: 180px;
     border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      rgb(99 102 241 / 0.18),
-      transparent 70%
-    );
+    background: radial-gradient(circle, rgb(99 102 241 / 0.18), transparent 70%);
     filter: blur(30px);
     animation: backgroundGlow 5s ease-in-out infinite;
   }
@@ -394,11 +374,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(
-      circle at center,
-      transparent 20%,
-      rgb(0 0 0 / 0.1) 100%
-    );
+    background: radial-gradient(circle at center, transparent 20%, rgb(0 0 0 / 0.1) 100%);
   }
 
   .splash-content-closing {

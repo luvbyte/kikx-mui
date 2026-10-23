@@ -13,7 +13,7 @@
      */
     timestamp: {
       type: [String, Number, Date],
-      required: true
+      required: true,
     },
 
     /**
@@ -21,7 +21,7 @@
      */
     showYear: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     /**
@@ -29,8 +29,8 @@
      */
     showDate: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   });
 
   const date = computed(() => new Date(props.timestamp));
@@ -50,7 +50,7 @@
       "Sep",
       "Oct",
       "Nov",
-      "Dec"
+      "Dec",
     ];
 
     const month = months[d.getMonth()];

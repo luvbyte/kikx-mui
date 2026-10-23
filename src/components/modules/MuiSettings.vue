@@ -1,12 +1,9 @@
 <template>
-  <div class="fscreen flex flex-col text-white overflow-hidden relative">
+  <div class="fscreen relative flex flex-col overflow-hidden text-white">
     <!-- Sections -->
-    <div class="flex-1 flex flex-col overflow-y-auto">
+    <div class="flex flex-1 flex-col overflow-y-auto">
       <!-- App Section -->
-      <Section
-        label="App"
-        description="Customize the app's appearance and launch behavior."
-      >
+      <Section label="App" description="Customize the app's appearance and launch behavior.">
         <!-- Icons Style  -->
         <SegmentedSelect
           v-model="uiConfig.state.iconsStyle"
@@ -15,7 +12,7 @@
           :options="[
             { value: 'wrap', label: 'Wrap' },
             { value: 'solid', label: 'Solid' },
-            { value: 'icon', label: 'Icon' }
+            { value: 'icon', label: 'Icon' },
           ]"
         />
         <!-- Splash  -->
@@ -41,15 +38,9 @@
         description="Configure status bar indicators and navigation behavior."
       >
         <!-- Block Alerts -->
-        <ToggleSwitch
-          v-model="uiConfig.state.blockAlerts"
-          label="Block Alerts"
-        />
+        <ToggleSwitch v-model="uiConfig.state.blockAlerts" label="Block Alerts" />
         <!-- Network Icon -->
-        <ToggleSwitch
-          v-model="uiConfig.state.networkIcon"
-          label="Network Icon"
-        />
+        <ToggleSwitch v-model="uiConfig.state.networkIcon" label="Network Icon" />
         <!-- Network Icon -->
         <ToggleSwitch v-model="uiConfig.state.navbar" label="Navigation Bar" />
         <!-- Battery Style -->
@@ -60,7 +51,7 @@
           :options="[
             { value: 'box', label: 'Box' },
             { value: 'circle', label: 'Circle' },
-            { value: 'hide', label: 'Hide' }
+            { value: 'hide', label: 'Hide' },
           ]"
         />
         <!-- Battery Style -->
@@ -70,7 +61,7 @@
           description="Choose the navigation button layout."
           :options="[
             { value: 'normal', label: 'Normal' },
-            { value: 'reverse', label: 'Reverse' }
+            { value: 'reverse', label: 'Reverse' },
           ]"
         />
 
@@ -114,10 +105,7 @@
       </Section>
 
       <!-- Sound & Vibration -->
-      <Section
-        label="Sound & Vibration"
-        description="Control audio alerts and haptic feedback."
-      >
+      <Section label="Sound & Vibration" description="Control audio alerts and haptic feedback.">
         <!-- Alert Sound -->
         <ToggleSwitch v-model="isSoundOn" label="Alerts Sound" />
         <!-- Haptic Feedback -->
@@ -129,7 +117,7 @@
           :options="[
             { value: 'soft', label: 'Soft' },
             { value: 'crisp', label: 'Crisp' },
-            { value: 'off', label: 'Off' }
+            { value: 'off', label: 'Off' },
           ]"
         />
       </Section>
@@ -165,15 +153,14 @@
   import Slider from "@/components/ui/Slider.vue";
 
   import { haptic } from "@/kikx/vibrate";
-  import { playSound } from "@/kikx/sound";
 
   const uiConfig = useUIConfig();
 
   const isSoundOn = computed({
     get: () => !uiConfig.state.isSilent,
-    set: value => {
+    set: (value) => {
       uiConfig.state.isSilent = !value;
-    }
+    },
   });
 
   function close() {
@@ -184,7 +171,7 @@
     { label: "Orbit", value: "orbit" },
     { label: "Ripple", value: "ripple" },
     { label: "Static", value: "static" },
-    { label: "Hide", value: "hide" }
+    { label: "Hide", value: "hide" },
   ];
 
   const animationOptions = [
@@ -197,7 +184,7 @@
     { label: "Tada", value: "tada" },
     { label: "Wobble", value: "wobble" },
     { label: "FlipInX", value: "flipInX" },
-    { label: "Swing", value: "swing" }
+    { label: "Swing", value: "swing" },
   ];
   const particleColors = [
     { value: "white", label: "White" },
@@ -211,6 +198,6 @@
     { value: "sunset", label: "Sunset" },
     { value: "purple", label: "Purple" },
     { value: "emerald", label: "Emerald" },
-    { value: "none", label: "Off" }
+    { value: "none", label: "Off" },
   ];
 </script>

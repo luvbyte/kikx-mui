@@ -1,15 +1,15 @@
 <template>
-  <div class="w-full flex flex-col overflow-hidden">
+  <div class="flex w-full flex-col overflow-hidden">
     <!-- Control Panel -->
     <div
-      v-swipe="d => emit('swipe', d)"
+      v-swipe="(d) => emit('swipe', d)"
       @click="emit('hide')"
-      class="h-10 flex items-center justify-center"
+      class="flex h-10 items-center justify-center"
     >
       <!-- App title -->
       <div
         v-if="activeApp"
-        class="flex justify-center items-center gap-1 bg-black/5 border-t border-white/40 p-2 w-1/2 rounded-t-lg"
+        class="flex w-1/2 items-center justify-center gap-1 rounded-t-lg border-t border-white/40 bg-black/5 p-2"
       >
         <svg
           v-if="isSudoApp"
@@ -44,18 +44,15 @@
       </div>
     </div>
     <!-- Apps Capsule -->
-    <div class="px-2 pb-2 w-full flex items-center">
-      <button
-        @click="emit('action', 0)"
-        class="w-16 h-full rounded-l-2xl bg-info glass"
-      ></button>
+    <div class="flex w-full items-center px-2 pb-2">
+      <button @click="emit('action', 0)" class="bg-info glass h-full w-16 rounded-l-2xl"></button>
       <!-- Middle Panel -->
       <div
-        class="flex-1 h-16 border-y border-black/10 bg-white/20 shadow-lg px-2 gap-1 flex items-center whitespace-nowrap overflow-x-auto scrollbar-hide"
+        class="scrollbar-hide flex h-16 flex-1 items-center gap-1 overflow-x-auto border-y border-black/10 bg-white/20 px-2 whitespace-nowrap shadow-lg"
       >
         <div
           v-if="activeAppIndex < 0"
-          class="h-full w-full flex items-center justify-center text-white opacity-60"
+          class="flex h-full w-full items-center justify-center text-white opacity-60"
         >
           No active apps
         </div>
@@ -66,14 +63,14 @@
           :id="'app_tab_' + app.id"
           @click.stop
           @click="emit('change', index)"
-          class="animate__animated shadow-lg min-w-12 min-h-12 max-h-12 max-w-12 rounded-full border-2 overflow-hidden transition duration-300 scroll-smooth"
+          class="animate__animated max-h-12 min-h-12 max-w-12 min-w-12 overflow-hidden scroll-smooth rounded-full border-2 shadow-lg transition duration-300"
           :class="[
             activeAppIndex === index ? 'border-white' : 'border-white/10',
             activeAppIndex === index &&
               runningApps.length > 1 && [
                 '-translate-y-1',
-                getAnimation(uiConfig.state.appIconFocusAnimation)
-              ]
+                getAnimation(uiConfig.state.appIconFocusAnimation),
+              ],
           ]"
         >
           <img :src="getUrl(app.manifest.icon)" />
@@ -81,7 +78,7 @@
       </div>
       <button
         @click="emit('action', 1)"
-        class="w-16 h-full rounded-r-2xl bg-error glass flex items-center justify-center"
+        class="bg-error glass flex h-full w-16 items-center justify-center rounded-r-2xl"
       ></button>
     </div>
   </div>

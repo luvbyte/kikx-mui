@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref } from "vue";
 
   import AppIcon from "@/components/ui/AppIcon.vue";
   import AppLaunchInfo from "@/components/app/AppLaunchInfo.vue";
@@ -7,24 +7,24 @@
   const props = defineProps({
     iconsStyle: {
       type: String,
-      required: true
+      required: true,
     },
     appsList: {
       type: Array,
-      required: true
+      required: true,
     },
     runHaptic: {
       type: Function,
-      required: true
+      required: true,
     },
     openApp: {
       type: Function,
-      required: true
+      required: true,
     },
     uninstallApp: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const selected = ref(null);
@@ -41,7 +41,7 @@
 </script>
 
 <template>
-  <div class="absolute inset-0 select-none overflow-y-auto">
+  <div class="absolute inset-0 overflow-y-auto select-none">
     <Transition name="fade">
       <AppLaunchInfo
         v-if="selected"
@@ -53,7 +53,7 @@
     </Transition>
 
     <div class="flex justify-center">
-      <div class="py-6 px-3 grid grid-cols-4 gap-2">
+      <div class="grid grid-cols-4 gap-2 px-3 py-6">
         <AppIcon
           v-for="app in appsList"
           :key="app.name"
@@ -62,7 +62,7 @@
           :title="app.title"
           :icon="app.icon"
           :iconStyle="iconsStyle"
-          class="w-full aspect-square max-w-20 justify-self-center"
+          class="aspect-square w-full max-w-20 justify-self-center"
         />
       </div>
     </div>

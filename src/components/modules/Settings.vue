@@ -2,18 +2,13 @@
   <Transition name="fade-scale" @after-leave="emit('close')">
     <div
       v-if="showPanel"
-      class="fscreen flex flex-col bg-black/80 text-white overflow-hidden relative"
+      class="fscreen relative flex flex-col overflow-hidden bg-black/80 text-white"
     >
       <!-- Heading -->
-      <div class="p-2 py-3 flex justify-between bg-orange-400/80">
+      <div class="flex justify-between bg-orange-400/80 p-2 py-3">
         <h1 class="text-lg font-semibold">Settings</h1>
         <button @click="handleClose">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path d="M0 0h24v24H0z" fill="none" />
             <path
               fill="currentColor"
@@ -23,10 +18,10 @@
         </button>
       </div>
 
-      <div class="bg-orange-400/40 flex items-center">
+      <div class="flex items-center bg-orange-400/40">
         <button
           v-for="(tab, index) in tabs"
-          class="p-2 flex-1 uppercase transition-colors"
+          class="flex-1 p-2 uppercase transition-colors"
           :class="{ 'bg-orange-400/40': activeTab === index }"
           @click="activeTab = index"
         >
@@ -34,9 +29,7 @@
         </button>
       </div>
 
-      <div
-        class="flex-1 bg-white/10 flex flex-col overflow-y-auto"
-      >
+      <div class="flex flex-1 flex-col overflow-y-auto bg-white/10">
         <MuiSettings v-show="activeTab === 0" />
         <KikxSettings v-show="activeTab === 1" />
       </div>

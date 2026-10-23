@@ -4,8 +4,8 @@
   const props = defineProps({
     modelValue: {
       type: Boolean,
-      default: undefined // makes v-model optional
-    }
+      default: undefined, // makes v-model optional
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -26,7 +26,7 @@
       } else {
         internalValue.value = val;
       }
-    }
+    },
   });
 
   function toggle() {
@@ -36,8 +36,8 @@
 
 <template>
   <button
-    class="btn btn-lg btn-square transition-all duration-300 flex items-center justify-center"
-    :class="value ? 'bg-white text-secondary' : 'bg-white/40 text-black/80'"
+    class="btn btn-lg btn-square flex items-center justify-center transition-all duration-300"
+    :class="value ? 'text-secondary bg-white' : 'bg-white/40 text-black/80'"
     @click="toggle"
   >
     <!-- If before or after slots -->

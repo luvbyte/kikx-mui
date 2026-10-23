@@ -4,8 +4,8 @@
   const props = defineProps({
     data: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const fields = props.data.schema;
@@ -20,8 +20,8 @@
       ...section,
       fields: Object.entries(section.fields || {}).map(([fieldKey, field]) => ({
         ...field,
-        key: fieldKey // Automatically injects or enforces the key from the object property name
-      }))
+        key: fieldKey, // Automatically injects or enforces the key from the object property name
+      })),
     }))
   );
 
@@ -62,9 +62,7 @@
 
   const toggleOption = (sectionKey, field, option) => {
     const section = config?.[sectionKey] || {};
-    const current = Array.isArray(section[field.key])
-      ? [...section[field.key]]
-      : [];
+    const current = Array.isArray(section[field.key]) ? [...section[field.key]] : [];
 
     const index = current.indexOf(option.value);
     if (index > -1) {
@@ -87,21 +85,14 @@
 </script>
 
 <template>
-  <form
-    class="fscreen flex flex-col overflow-y-auto gap-2"
-    @submit.prevent="submit"
-  >
-    <div class="flex-1 flex flex-col overflow-y-auto">
+  <form class="fscreen flex flex-col gap-2 overflow-y-auto" @submit.prevent="submit">
+    <div class="flex flex-1 flex-col overflow-y-auto">
       <!-- Sections -->
 
-      <section
-        v-for="section in normalizedSections"
-        :key="section.key"
-        class="flex flex-col pb-2"
-      >
+      <section v-for="section in normalizedSections" :key="section.key" class="flex flex-col pb-2">
         <!-- Section heading -->
         <div class="bg-orange-400/40 p-2">
-          <h3 class="text-base font-heading text-white">
+          <h3 class="font-heading text-base text-white">
             {{ section.label }}
           </h3>
 
@@ -114,10 +105,7 @@
         <div v-for="field in section.fields" :key="field.key" class="px-2 py-1">
           <!-- Text -->
           <div v-if="field.type === 'text'" class="flex flex-col gap-1">
-            <label
-              v-if="field.label"
-              class="block text-sm text-white font-heading"
-            >
+            <label v-if="field.label" class="font-heading block text-sm text-white">
               {{ field.label }}
 
               <span v-if="field.required" class="text-red-400"> * </span>
@@ -132,14 +120,14 @@
               :value="getFieldValue(section.key, field)"
               :disabled="field.disabled"
               :required="field.required"
-              class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:cursor-not-allowed disabled:opacity-50"
+              class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white transition outline-none placeholder:text-white/30 focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:cursor-not-allowed disabled:opacity-50"
               @input="updateValue(section.key, field, $event)"
             />
           </div>
 
           <!-- Number -->
           <div v-else-if="field.type === 'number'" class="flex flex-col gap-1">
-            <label class="block text-sm text-white font-heading">
+            <label class="font-heading block text-sm text-white">
               {{ field.label }}
 
               <span v-if="field.required" class="text-red-400"> * </span>
@@ -157,14 +145,14 @@
               :step="field.step"
               :disabled="field.disabled"
               :required="field.required"
-              class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white outline-none transition focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:opacity-50"
+              class="w-full rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white transition outline-none focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30 disabled:opacity-50"
               @input="updateValue(section.key, field, $event)"
             />
           </div>
 
           <!-- Select -->
           <div v-else-if="field.type === 'select'" class="flex flex-col gap-1">
-            <label class="block text-sm text-white font-heading">
+            <label class="font-heading block text-sm text-white">
               {{ field.label }}
             </label>
 
@@ -176,7 +164,7 @@
               :value="getFieldValue(section.key, field)"
               :disabled="field.disabled"
               :required="field.required"
-              class="w-full rounded-md border border-white/20 bg-transparent p-2 text-sm text-white outline-none transition focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30"
+              class="w-full rounded-md border border-white/20 bg-transparent p-2 text-sm text-white transition outline-none focus:border-green-400/60 focus:ring-1 focus:ring-green-400/30"
               @change="updateValue(section.key, field, $event)"
             >
               <option
@@ -195,7 +183,7 @@
             v-else-if="field.type === 'checkbox'"
             class="flex cursor-pointer items-center gap-2 text-sm text-white"
             :class="{
-              'cursor-not-allowed opacity-50': field.disabled
+              'cursor-not-allowed opacity-50': field.disabled,
             }"
           >
             <input
@@ -209,10 +197,7 @@
             <span>
               {{ field.label }}
 
-              <span
-                v-if="field.description"
-                class="block text-xs text-white/50"
-              >
+              <span v-if="field.description" class="block text-xs text-white/50">
                 {{ field.description }}
               </span>
             </span>
@@ -221,7 +206,7 @@
           <!-- Toggle -->
           <div v-else-if="field.type === 'toggle'" class="flex flex-col gap-1">
             <div>
-              <label class="block text-sm text-white font-heading">
+              <label class="font-heading block text-sm text-white">
                 {{ field.label }}
               </label>
 
@@ -251,7 +236,7 @@
 
           <!-- Radio -->
           <div v-else-if="field.type === 'radio'" class="flex flex-col gap-1">
-            <label class="block text-sm text-white font-heading">
+            <label class="font-heading block text-sm text-white">
               {{ field.label }}
             </label>
 
@@ -266,7 +251,7 @@
                 :value="option.value"
                 :checked="getFieldValue(section.key, field) === option.value"
                 :disabled="field.disabled || option.disabled"
-                class="radio checked:bg-orange-400 checked:border-orange-400"
+                class="radio checked:border-orange-400 checked:bg-orange-400"
                 @change="updateField(section.key, field.key, option.value)"
               />
 
@@ -276,7 +261,7 @@
 
           <!-- Range -->
           <div v-else-if="field.type === 'range'" class="flex flex-col gap-1">
-            <label class="block text-sm text-white font-heading">
+            <label class="font-heading block text-sm text-white">
               {{ field.label }}
             </label>
 
@@ -303,11 +288,8 @@
           </div>
 
           <!-- Textarea -->
-          <div
-            v-else-if="field.type === 'textarea'"
-            class="flex flex-col gap-1"
-          >
-            <label class="block text-sm text-white font-heading">
+          <div v-else-if="field.type === 'textarea'" class="flex flex-col gap-1">
+            <label class="font-heading block text-sm text-white">
               {{ field.label }}
             </label>
 
@@ -325,14 +307,8 @@
 
     <!-- Submit -->
     <div class="flex items-center">
-      <button
-        type="button"
-        class="p-2 flex-1 bg-black/20"
-        @click="emit('reset')"
-      >
-        RESET
-      </button>
-      <button class="p-2 flex-1 bg-green-400/60" type="submit">SAVE</button>
+      <button type="button" class="flex-1 bg-black/20 p-2" @click="emit('reset')">RESET</button>
+      <button class="flex-1 bg-green-400/60 p-2" type="submit">SAVE</button>
     </div>
   </form>
 </template>

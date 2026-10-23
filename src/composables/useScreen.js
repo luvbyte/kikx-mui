@@ -57,17 +57,13 @@ export function useScreen() {
     const ua = navigator.userAgent || navigator.vendor || "";
 
     // Android WebView
-    const androidWebView =
-      /\bwv\b/.test(ua) || (/Android/.test(ua) && /Version\/[\d.]+/.test(ua));
+    const androidWebView = /\bwv\b/.test(ua) || (/Android/.test(ua) && /Version\/[\d.]+/.test(ua));
 
     // iOS WebView (WKWebView / UIWebView)
     const iosWebView = /iPhone|iPad|iPod/.test(ua) && !/Safari/.test(ua);
 
     // Generic embedded browsers
-    const embedded =
-      /FBAN|FBAV|Instagram|Line|MicroMessenger|Telegram|Snapchat|TikTok/i.test(
-        ua
-      );
+    const embedded = /FBAN|FBAV|Instagram|Line|MicroMessenger|Telegram|Snapchat|TikTok/i.test(ua);
 
     return androidWebView || iosWebView || embedded;
   });
@@ -101,6 +97,6 @@ export function useScreen() {
     enterFullscreen,
     exitFullscreen,
     toggleFullscreen,
-    rotateFullScreen
+    rotateFullScreen,
   };
 }

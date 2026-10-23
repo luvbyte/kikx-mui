@@ -19,18 +19,15 @@
     <div
       v-for="(alert, index) in recentIcons"
       :key="alert.uid"
-      class="relative animate__animated animate__fadeIn"
+      class="animate__animated animate__fadeIn relative"
     >
       <img
         v-if="alert.icon"
         :src="getUrl(alert.icon)"
-        class="w-4 h-4 rounded-sm object-cover aspect-square"
+        class="aspect-square h-4 w-4 rounded-sm object-cover"
       />
     </div>
-    <div
-      v-if="alerts.alerts.length >= 5"
-      class="font-heading font-semibold flex justify-end"
-    >
+    <div v-if="alerts.alerts.length >= 5" class="font-heading flex justify-end font-semibold">
       ...
     </div>
   </div>

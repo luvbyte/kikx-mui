@@ -1,8 +1,8 @@
 <template>
-  <section class="flex-1 flex flex-col min-h-0 text-white">
+  <section class="flex min-h-0 flex-1 flex-col text-white">
     <!-- Header -->
     <div
-      class="px-3 py-2.5 flex justify-between items-center gap-2 bg-white/5 border-y border-white/10"
+      class="flex items-center justify-between gap-2 border-y border-white/10 bg-white/5 px-3 py-2.5"
     >
       <div>
         <h2 class="text-sm font-semibold">Sessions</h2>
@@ -11,18 +11,18 @@
       </div>
 
       <div
-        class="min-w-7 h-7 px-2 rounded-full bg-white/10 flex items-center justify-center text-xs font-semibold text-white/70"
+        class="flex h-7 min-w-7 items-center justify-center rounded-full bg-white/10 px-2 text-xs font-semibold text-white/70"
       >
         {{ sessions.length }}
       </div>
     </div>
 
     <!-- Content -->
-    <div v-if="!processing" class="p-2 flex-1 overflow-y-auto scrollbar-hide">
+    <div v-if="!processing" class="scrollbar-hide flex-1 overflow-y-auto p-2">
       <!-- Empty state -->
       <div
         v-if="sessions.length === 0"
-        class="h-full flex items-center justify-center text-sm text-white/40"
+        class="flex h-full items-center justify-center text-sm text-white/40"
       >
         No sessions
       </div>
@@ -31,13 +31,13 @@
       <div
         v-for="session in sessions"
         :key="session.id"
-        class="session-card flex items-center justify-between gap-3 p-3 mb-2 rounded-lg bg-white/10 shadow-sm border border-white/10"
+        class="session-card mb-2 flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/10 p-3 shadow-sm"
       >
         <!-- Info -->
-        <div class="min-w-0 flex flex-col">
+        <div class="flex min-w-0 flex-col">
           <!-- Name + status -->
-          <div class="flex gap-1 items-center min-w-0">
-            <span class="font-semibold text-sm text-white truncate">
+          <div class="flex min-w-0 items-center gap-1">
+            <span class="truncate text-sm font-semibold text-white">
               {{ session.name || `Session ${session.id}` }}
             </span>
 
@@ -63,7 +63,7 @@
             <!-- Active indicator -->
             <span
               v-else
-              class="w-1.5 h-1.5 shrink-0 rounded-full bg-emerald-400"
+              class="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400"
               title="Active session"
             ></span>
           </div>
@@ -72,9 +72,7 @@
           <span class="text-xs text-white/70"> ID: {{ session.id }} </span>
 
           <!-- Apps -->
-          <span class="text-xs text-white/70">
-            Apps: {{ session.apps_count }}
-          </span>
+          <span class="text-xs text-white/70"> Apps: {{ session.apps_count }} </span>
 
           <!-- Created -->
           <div class="flex items-center gap-1 text-xs text-white/70">
@@ -87,7 +85,7 @@
         <!-- Close -->
         <button
           type="button"
-          class="close-session w-7 h-7 shrink-0 flex items-center justify-center rounded-full bg-white/10 text-white active:bg-white/20 disabled:opacity-40"
+          class="close-session flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-white active:bg-white/20 disabled:opacity-40"
           title="Close session"
           :aria-label="`Close ${session.name || `session ${session.id}`}`"
           :disabled="closingSessions.has(session.id)"
@@ -101,10 +99,7 @@
     </div>
 
     <!-- Loading -->
-    <div
-      v-else
-      class="flex-1 flex items-center justify-center text-sm text-white/40"
-    >
+    <div v-else class="flex flex-1 items-center justify-center text-sm text-white/40">
       Loading sessions...
     </div>
   </section>
@@ -134,7 +129,7 @@
       }
 
       sessions.value = Array.isArray(data?.sessions)
-        ? data.sessions.filter(session => session.id !== data.sid)
+        ? data.sessions.filter((session) => session.id !== data.sid)
         : [];
     } catch (error) {
       console.error("Failed to fetch sessions:", error);
@@ -155,8 +150,8 @@
     try {
       const { error } = await system.request("info/session-close", {
         params: {
-          session_id: id
-        }
+          session_id: id,
+        },
       });
 
       if (error) {
@@ -165,9 +160,7 @@
       }
 
       // Remove immediately for a responsive UI.
-      sessions.value = sessions.value.filter(
-        session => String(session.id) !== id
-      );
+      sessions.value = sessions.value.filter((session) => String(session.id) !== id);
 
       // Sync with server.
       await fetchSessions();

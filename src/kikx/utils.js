@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 
 export function sleep(seconds) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, seconds * 1000);
   });
 }
@@ -11,26 +11,15 @@ export function sanitizeAlert(code) {
   return DOMPurify.sanitize(code, {
     USE_PROFILES: { html: true },
 
-    ALLOWED_TAGS: [
-      "div",
-      "span",
-      "p",
-      "h1",
-      "h2",
-      "h3",
-      "a",
-      "img",
-      "br",
-      "hr"
-    ],
+    ALLOWED_TAGS: ["div", "span", "p", "h1", "h2", "h3", "a", "img", "br", "hr"],
 
     ALLOWED_ATTR: {
       "*": ["class", "style"],
       a: ["href", "title"],
-      img: ["src", "alt", "title"]
+      img: ["src", "alt", "title"],
     },
 
-    ALLOWED_URI_REGEXP: /^(?:(?:https?):|\/|#)/i
+    ALLOWED_URI_REGEXP: /^(?:(?:https?):|\/|#)/i,
   });
 }
 
@@ -41,18 +30,16 @@ export function generateUUID() {
   }
   // Fallback
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r =
-      (crypto.getRandomValues(new Uint8Array(1))[0] & 15) >>
-      (c === "x" ? 0 : 4);
+    const r = (crypto.getRandomValues(new Uint8Array(1))[0] & 15) >> (c === "x" ? 0 : 4);
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
 }
 
 // Get cookie
-export const getCookie = name =>
+export const getCookie = (name) =>
   document.cookie
     .split("; ")
-    .find(row => row.startsWith(name + "="))
+    .find((row) => row.startsWith(name + "="))
     ?.split("=")[1] || null;
 
 // setCookie
@@ -80,10 +67,7 @@ export function parseArgsAndKwargs(...args) {
 // Check if its android webview
 export function isAndroidWebView() {
   const ua = navigator.userAgent || "";
-  return (
-    /\bwv\b/.test(ua) ||
-    (/Version\/[\d.]+/.test(ua) && /Chrome\/[\d.]+/.test(ua))
-  );
+  return /\bwv\b/.test(ua) || (/Version\/[\d.]+/.test(ua) && /Chrome\/[\d.]+/.test(ua));
 }
 
 // Format timestamp
@@ -124,7 +108,7 @@ export function formatTimestamp(timestamp) {
     "Sep",
     "Oct",
     "Nov",
-    "Dec"
+    "Dec",
   ];
   const month = months[date.getMonth()];
   const day = date.getDate();

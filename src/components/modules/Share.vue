@@ -10,8 +10,8 @@
   const props = defineProps({
     options: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   });
   const emit = defineEmits(["close", "shareUsingApp"]);
 
@@ -43,7 +43,7 @@
 
   // Filter apps by share options
   const filteredApps = computed(() => {
-    return apps.value.filter(app => {
+    return apps.value.filter((app) => {
       const types = app.share?.types;
 
       if (!types || types.length === 0) {
@@ -73,7 +73,7 @@
       }
 
       // Check accepted file extension
-      return accept.some(type => {
+      return accept.some((type) => {
         type = type.toLowerCase();
 
         return type === "*" || type === suffix;
@@ -128,7 +128,7 @@
   function openUsingApp(appName) {
     emit("shareUsingApp", appName, {
       item,
-      itemType
+      itemType,
     });
   }
 
@@ -159,7 +159,7 @@
 <template>
   <div
     @click.self="handleClose"
-    class="fixed inset-0 z-50 flex flex-col justify-end text-white bg-black/60 backdrop-blur-[2px]"
+    class="fixed inset-0 z-50 flex flex-col justify-end bg-black/60 text-white backdrop-blur-[2px]"
   >
     <!-- Image Preview -->
     <div
@@ -168,7 +168,7 @@
     >
       <ImagePreview
         :path="item"
-        class="w-full h-full overflow-hidden rounded-2xl object-contain shadow-2xl"
+        class="h-full w-full overflow-hidden rounded-2xl object-contain shadow-2xl"
       />
     </div>
 
@@ -176,10 +176,8 @@
     <Transition name="slide-up" @after-leave="emit('close')">
       <div
         v-if="showPanel"
-        class="relative w-full overflow-hidden rounded-t-[28px] bg-[#202124] shadow-[0_-8px_40px_rgba(0,0,0,0.35)] flex flex-col"
-        :class="
-          showAllApps ? 'min-h-[80%] max-h-[80%]' : 'min-h-[50%] max-h-[50%]'
-        "
+        class="relative flex w-full flex-col overflow-hidden rounded-t-[28px] bg-[#202124] shadow-[0_-8px_40px_rgba(0,0,0,0.35)]"
+        :class="showAllApps ? 'max-h-[80%] min-h-[80%]' : 'max-h-[50%] min-h-[50%]'"
       >
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-3">
@@ -192,15 +190,10 @@
 
           <button
             @click="handleClose"
-            class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition active:scale-90 hover:bg-white/15"
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition hover:bg-white/15 active:scale-90"
             aria-label="Close"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
               <path d="M0 0h24v24H0z" fill="none" />
               <path
                 fill="currentColor"
@@ -213,7 +206,7 @@
         <!-- Content Card -->
         <div class="px-4">
           <div
-            class="flex items-center gap-3 rounded-2xl bg-white/[0.07] px-3 py-3 ring-1 ring-white/[0.06]"
+            class="flex items-center gap-3 rounded-2xl bg-white/[0.07] px-3 py-3 ring-1 ring-white/6"
           >
             <!-- App Icon -->
             <FadeImage
@@ -228,7 +221,7 @@
               </h1>
 
               <p
-                class="mt-0.5 max-h-10 overflow-y-auto break-all text-[13px] leading-5 text-white/55"
+                class="mt-0.5 max-h-10 overflow-y-auto text-[13px] leading-5 break-all text-white/55"
               >
                 {{ itemType === "file" ? fileInfo.name : item }}
               </p>
@@ -238,15 +231,10 @@
             <button
               v-if="itemType !== 'file'"
               @click="copyText"
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/80 transition active:scale-90 hover:bg-white/15"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white/80 transition hover:bg-white/15 active:scale-90"
               aria-label="Copy"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="21"
-                height="21"
-                viewBox="0 0 24 24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24">
                 <path d="M0 0h24v24H0z" fill="none" />
                 <g fill="none" stroke="currentColor" stroke-width="1.5">
                   <path
@@ -264,14 +252,12 @@
 
         <!-- File Actions -->
         <div v-if="itemType === 'file' && fileInfo" class="px-4 pt-3">
-          <div
-            class="flex items-center gap-3 rounded-2xl bg-white/[0.05] px-3 py-2.5"
-          >
+          <div class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-2.5">
             <!-- Download -->
             <button
               v-if="!fileInfo.directory"
               @click="downloadFile"
-              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition active:scale-90 hover:bg-white/15"
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/15 active:scale-90"
               aria-label="Download"
             >
               <svg
@@ -303,12 +289,12 @@
         </div>
 
         <!-- Apps -->
-        <div class="mt-4 px-4 overflow-y-auto">
+        <div class="mt-4 overflow-y-auto px-4">
           <div
-            class="pb-5 snap-x scrollbar-hide"
+            class="scrollbar-hide snap-x pb-5"
             :class="
               showAllApps
-                ? 'grid grid-cols-4 gap-x-4 gap-y-6 justify-items-center'
+                ? 'grid grid-cols-4 justify-items-center gap-x-4 gap-y-6'
                 : 'flex gap-5 overflow-x-auto'
             "
             @click="handleClose"
@@ -317,29 +303,25 @@
               v-for="app in showAllApps ? apps : filteredApps"
               :key="app.name"
               @click="openUsingApp(app.name)"
-              class="flex w-[72px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1.5 transition active:scale-90"
+              class="flex w-18 shrink-0 cursor-pointer snap-start flex-col items-center gap-1.5 transition active:scale-90"
             >
               <!-- Icon -->
-              <div
-                class="h-16 w-16 overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10"
-              >
+              <div class="h-16 w-16 overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10">
                 <FadeImage
-                  class="w-full h-full object-cover"
+                  class="h-full w-full object-cover"
                   :src="getAppPublicUrl(app.name, app.icon)"
                 />
               </div>
 
               <!-- App Name -->
-              <h1
-                class="w-full truncate text-center text-[12px] font-normal text-white/80"
-              >
+              <h1 class="w-full truncate text-center text-[12px] font-normal text-white/80">
                 {{ app.title }}
               </h1>
 
               <!-- App Name -->
               <p
                 v-if="!showAllApps && app.share?.message"
-                class="w-full break-words text-center text-[11px] font-normal text-white/40"
+                class="w-full text-center text-[11px] font-normal wrap-break-word text-white/40"
               >
                 {{ app.share.message }}
               </p>
@@ -348,15 +330,15 @@
             <div
               v-if="filteredApps.length < apps.length"
               @click.stop="showAllApps = !showAllApps"
-              class="flex w-[72px] shrink-0 snap-start cursor-pointer flex-col items-center gap-1.5 transition active:scale-90"
+              class="flex w-18 shrink-0 cursor-pointer snap-start flex-col items-center gap-1.5 transition active:scale-90"
             >
               <!-- Icon -->
               <div
-                class="h-16 w-16 overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10 flex items-center justify-center"
+                class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-[18px] shadow-lg ring-1 ring-white/10"
               >
                 <svg
                   v-if="!showAllApps"
-                  class="w-12 h-12"
+                  class="h-12 w-12"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
                 >
@@ -377,7 +359,7 @@
 
                 <svg
                   v-else
-                  class="w-12 h-12"
+                  class="h-12 w-12"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
                 >
@@ -398,9 +380,7 @@
               </div>
 
               <!-- App Name -->
-              <h1
-                class="w-full truncate text-center text-[12px] font-normal text-white/80"
-              >
+              <h1 class="w-full truncate text-center text-[12px] font-normal text-white/80">
                 {{ showAllApps ? "Less" : "All" }}
               </h1>
             </div>

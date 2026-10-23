@@ -1,12 +1,6 @@
 export async function request(
   endpoint,
-  {
-    method = "GET",
-    body = undefined,
-    params = {},
-    headers = {},
-    ...options
-  } = {}
+  { method = "GET", body = undefined, params = {}, headers = {}, ...options } = {}
 ) {
   try {
     const url = new URL(endpoint);
@@ -27,23 +21,23 @@ export async function request(
         // Only set Content-Type for non-FormData bodies
         ...(body !== undefined &&
           !isFormData && {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           }),
-        ...headers
+        ...headers,
       },
 
       ...(body !== undefined && {
-        body: isFormData ? body : JSON.stringify(body)
+        body: isFormData ? body : JSON.stringify(body),
       }),
 
-      ...options
+      ...options,
     });
 
     // Handle empty responses
     if (response.status === 204) {
       return {
         data: null,
-        error: null
+        error: null,
       };
     }
 
@@ -64,45 +58,37 @@ export async function request(
         error: {
           status: response.status,
           message:
-            result?.detail ||
-            result?.message ||
-            `Request failed with status ${response.status}`,
-          detail: result?.detail
-        }
+            result?.detail || result?.message || `Request failed with status ${response.status}`,
+          detail: result?.detail,
+        },
       };
     }
 
     return {
       data: result,
-      error: null
+      error: null,
     };
   } catch (error) {
     return {
       data: null,
       error: {
         status: null,
-        message: error.message
-      }
+        message: error.message,
+      },
     };
   }
 }
 
 export async function fetchData(
   endpoint,
-  {
-    method = "GET",
-    body = undefined,
-    params = {},
-    headers = {},
-    ...options
-  } = {}
+  { method = "GET", body = undefined, params = {}, headers = {}, ...options } = {}
 ) {
   const { data, error } = await request(endpoint, {
     method,
     body,
     params,
     headers,
-    ...options
+    ...options,
   });
   if (error) {
     throw new Error(error.detail || "Error fetching data");

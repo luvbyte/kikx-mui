@@ -60,12 +60,12 @@ class Client {
 
     this.ws = new WebSocket(url);
 
-    this.ws.onopen = e => {
+    this.ws.onopen = (e) => {
       console.log("WebSocket connection opened.");
       this._clearReconnectTimer();
       this._callEvent("ws:onopen", e);
     };
-    this.ws.onmessage = e => {
+    this.ws.onmessage = (e) => {
       try {
         const message = JSON.parse(e.data);
         if (message.event === "connected") {
@@ -76,13 +76,13 @@ class Client {
         console.error("WebSocket parse error:", err);
       }
     };
-    this.ws.onclose = e => {
+    this.ws.onclose = (e) => {
       console.warn("WebSocket closed.", e);
       this.ws = null;
       this._callEvent("ws:onclose", e);
       this._scheduleReconnect();
     };
-    this.ws.onerror = e => {
+    this.ws.onerror = (e) => {
       console.error("WebSocket error:", e);
       this._callEvent("ws:onerror", e);
       if (this.ws) {
@@ -101,9 +101,7 @@ class Client {
       return;
     }
     this.reconnectAttempts += 1;
-    console.log(
-      `Reconnect attempt ${this.reconnectAttempts} in ${this.reconnectDelay}ms`
-    );
+    console.log(`Reconnect attempt ${this.reconnectAttempts} in ${this.reconnectDelay}ms`);
     this._reconnectTimer = setTimeout(() => {
       this._reconnectTimer = null;
       this._connect();
@@ -133,9 +131,7 @@ class Client {
   removeEvent(event, callback) {
     if (!this.eventCallbacks[event]) return;
 
-    this.eventCallbacks[event] = this.eventCallbacks[event].filter(
-      fn => fn !== callback
-    );
+    this.eventCallbacks[event] = this.eventCallbacks[event].filter((fn) => fn !== callback);
   }
 
   on(event, callback) {
@@ -147,7 +143,7 @@ class Client {
   }
 
   once(event, callback) {
-    const wrapper = data => {
+    const wrapper = (data) => {
       this.off(event, wrapper);
       callback(data);
     };
@@ -157,7 +153,7 @@ class Client {
 
   _callEvent(event, data = null) {
     if (this.eventCallbacks[event]) {
-      this.eventCallbacks[event].forEach(fn => fn(data));
+      this.eventCallbacks[event].forEach((fn) => fn(data));
     }
   }
 
@@ -175,8 +171,8 @@ class Client {
       body: {
         app_id: appID,
         event,
-        payload
-      }
+        payload,
+      },
     });
   }
 
@@ -184,8 +180,8 @@ class Client {
     return this.system.request("kpm/uninstall", {
       params: {
         app_name: name,
-        keep_data: keepData
-      }
+        keep_data: keepData,
+      },
     });
   };
 
@@ -194,7 +190,7 @@ class Client {
     if (this.ws) this.ws.close();
     // send logout request
     return this.system.request("client-logout", {
-      method: "POST"
+      method: "POST",
     });
   }
 

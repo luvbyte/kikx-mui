@@ -5,7 +5,7 @@
     class="absolute inset-0 z-30 overflow-hidden bg-black/60 transition-opacity duration-300"
     :class="{
       'opacity-100': showMenu || opening,
-      'opacity-0': !showMenu && !opening
+      'opacity-0': !showMenu && !opening,
     }"
   >
     <Transition name="fade">
@@ -29,24 +29,24 @@
   const props = defineProps({
     iconsStyle: {
       type: String,
-      required: true
+      required: true,
     },
     runHaptic: {
       type: Function,
-      required: true
+      required: true,
     },
     appsList: {
       type: Array,
-      required: true
+      required: true,
     },
     openApp: {
       type: Function,
-      required: true
+      required: true,
     },
     uninstallApp: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   });
   const emit = defineEmits(["changeScreen"]);
 

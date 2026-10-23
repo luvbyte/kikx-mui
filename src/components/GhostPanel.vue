@@ -1,25 +1,13 @@
 <template>
-  <div
-    @click.self="close"
-    class="fixed fscreen flex flex-col inset-0 z-[170] p-2 py-8 pb-12 gap-2"
-  >
+  <div @click.self="close" class="fscreen fixed inset-0 z-170 flex flex-col gap-2 p-2 py-8 pb-12">
     <Transition name="slide-right" @after-leave="emit('close')">
-      <div
-        v-if="showTopFrame"
-        class="w-full h-[200px] border rounded border-white/10 bg-white/10"
-      ></div>
+      <div v-if="showTopFrame" class="h-50 w-full rounded border border-white/10 bg-white/10"></div>
     </Transition>
     <Transition name="slide-left">
-      <div
-        v-if="showTopFrame"
-        class="w-full h-[200px] border rounded border-white/10 bg-white/10"
-      ></div>
+      <div v-if="showTopFrame" class="h-50 w-full rounded border border-white/10 bg-white/10"></div>
     </Transition>
     <Transition name="fade">
-      <div
-        v-if="showTopFrame"
-        class="flex-1 border rounded border-white/10 bg-white/10"
-      ></div>
+      <div v-if="showTopFrame" class="flex-1 rounded border border-white/10 bg-white/10"></div>
     </Transition>
   </div>
 </template>

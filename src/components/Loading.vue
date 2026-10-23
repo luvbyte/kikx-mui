@@ -1,30 +1,18 @@
 <template>
-  <div
-    class="fscreen flex flex-col items-center justify-center"
-    :class="{ 'opacity-60': dim }"
-  >
+  <div class="fscreen flex flex-col items-center justify-center" :class="{ 'opacity-60': dim }">
     <img
       v-if="icon"
-      class="aspect-square w-32 h-32 rounded-full border-2 border-base-content/10 bg-white/10 shadow-lg"
+      class="border-base-content/10 aspect-square h-32 w-32 rounded-full border-2 bg-white/10 shadow-lg"
       :src="icon"
     />
 
-    <svg
-      v-else
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-    >
+    <svg v-else xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8A8 8 0 0 1 12 20Z"
         opacity="0.5"
       />
-      <path
-        fill="currentColor"
-        d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z"
-      >
+      <path fill="currentColor" d="M20 12h2A10 10 0 0 0 12 2V4A8 8 0 0 1 20 12Z">
         <animateTransform
           attributeName="transform"
           dur="1s"
@@ -44,15 +32,15 @@
   defineProps({
     label: {
       type: String,
-      required: false
+      required: false,
     },
     dim: {
       type: Boolean,
-      default: false
+      default: false,
     },
     icon: {
       type: String,
-      required: false
-    }
+      required: false,
+    },
   });
 </script>

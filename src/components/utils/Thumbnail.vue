@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-hidden aspect-square rounded object-cover">
+  <div class="aspect-square overflow-hidden rounded object-cover">
     <img
       v-if="imageUrl"
       :src="imageUrl"
@@ -14,14 +14,14 @@
 <script setup>
   import { ref, onBeforeMount, onUnmounted } from "vue";
   import { getFS } from "@/kikx";
-  
-  const fs = getFS()
+
+  const fs = getFS();
 
   const props = defineProps({
     path: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const imageUrl = ref("");

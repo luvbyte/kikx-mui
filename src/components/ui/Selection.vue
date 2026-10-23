@@ -2,26 +2,26 @@
   defineProps({
     label: {
       type: String,
-      required: true
+      required: true,
     },
     description: {
       type: String,
-      default: ""
+      default: "",
     },
     modelValue: {
       type: [String, Number],
-      default: ""
+      default: "",
     },
 
     options: {
       type: Array,
-      required: true
+      required: true,
       // Example:
       // [
       //   { label: "Fade In", value: "fadeIn" },
       //   { label: "Slide In", value: "slideIn" }
       // ]
-    }
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -31,7 +31,7 @@
   <div class="flex flex-col gap-2">
     <!-- Title -->
     <div v-if="label || description">
-      <label v-if="label" class="block text-sm text-white font-heading">
+      <label v-if="label" class="font-heading block text-sm text-white">
         {{ label }}
       </label>
 
@@ -51,7 +51,7 @@
           'rounded-md border px-3 py-2 text-left text-sm transition',
           modelValue === option.value
             ? 'border-green-400/60 bg-green-400/20 text-green-300'
-            : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10'
+            : 'border-white/20 bg-white/5 text-white/70 hover:bg-white/10',
         ]"
       >
         {{ option.label }}

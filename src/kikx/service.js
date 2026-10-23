@@ -1,8 +1,6 @@
 import { getUrl } from "./config";
 import { request } from "./api";
 
-import { parseArgsAndKwargs } from "./utils";
-
 class Service {
   constructor(name, client) {
     this.serviceName = name;
@@ -12,42 +10,30 @@ class Service {
   }
   request(
     endpoint,
-    {
-      method = "GET",
-      body = undefined,
-      params = {},
-      headers = {},
-      ...options
-    } = {}
+    { method = "GET", body = undefined, params = {}, headers = {}, ...options } = {}
   ) {
     Object.assign(headers, {
-      "kikx-client-id": this.client.clientID
+      "kikx-client-id": this.client.clientID,
     });
     return request(`${this.baseURL}/${endpoint}`, {
       method,
       body,
       params,
       headers,
-      ...options
+      ...options,
     });
   }
 
   async fetch(
     endpoint,
-    {
-      method = "GET",
-      body = undefined,
-      params = {},
-      headers = {},
-      ...options
-    } = {}
+    { method = "GET", body = undefined, params = {}, headers = {}, ...options } = {}
   ) {
     const { data, error } = await this.request(endpoint, {
       method,
       body,
       params,
       headers,
-      ...options
+      ...options,
     });
 
     if (error) {
@@ -71,7 +57,7 @@ export class SystemService extends Service {
   // Fetch apps info
   fetchAppsList(meta = false) {
     return this.fetch("info/apps-list", {
-      params: { meta }
+      params: { meta },
     });
   }
 
@@ -82,7 +68,7 @@ export class SystemService extends Service {
   // Get Kikx Config
   getKikxConfig(reset) {
     return this.request("kikx-config", {
-      params: { reset }
+      params: { reset },
     });
   }
 
@@ -91,8 +77,8 @@ export class SystemService extends Service {
     return this.request("kikx-config", {
       method: "POST",
       body: {
-        config
-      }
+        config,
+      },
     });
   }
 }
@@ -112,7 +98,7 @@ export class FileSystemService extends Service {
       filter = "all",
       extensions = "",
       search = "",
-      thumbnails = false
+      thumbnails = false,
     } = {}
   ) =>
     this.request("list", {
@@ -125,34 +111,34 @@ export class FileSystemService extends Service {
         filter,
         extensions,
         search,
-        thumbnails
-      }
+        thumbnails,
+      },
     });
 
   // Get thumbnail
-  thumbnail = filename =>
+  thumbnail = (filename) =>
     this.request("thumbnail", {
-      params: { filename }
+      params: { filename },
     });
 
   // Read File
-  readFile = filename =>
+  readFile = (filename) =>
     this.request("read", {
-      params: { filename }
+      params: { filename },
     });
 
   // Write File
   writeFile = (filename, content, ensure = false) =>
     this.request("write", {
       method: "POST",
-      body: { filename, content, ensure_dir: ensure }
+      body: { filename, content, ensure_dir: ensure },
     });
 
   // Delete File
-  deleteFile = filename =>
+  deleteFile = (filename) =>
     this.request("delete", {
       method: "DELETE",
-      params: { filename }
+      params: { filename },
     });
 
   // Upload file
@@ -164,47 +150,47 @@ export class FileSystemService extends Service {
       method: "POST",
       body: formData,
       params: {
-        dest
-      }
+        dest,
+      },
     });
   };
 
-  createDirectory = dirname =>
+  createDirectory = (dirname) =>
     this.request("create_directory", {
       method: "POST",
-      body: { dirname }
+      body: { dirname },
     });
 
   // Delete directory
-  deleteDirectory = dirname =>
+  deleteDirectory = (dirname) =>
     this.request("delete_directory", {
       method: "DELETE",
-      params: { dirname }
+      params: { dirname },
     });
 
   // Copy File
   copyFile = (source, dest, { override = false } = {}) =>
     this.request("copy-file", {
       method: "POST",
-      body: { source, dest, override }
+      body: { source, dest, override },
     });
 
   // Get file info
-  getFileInfo = path =>
+  getFileInfo = (path) =>
     this.request("info", {
-      params: { path }
+      params: { path },
     });
 
   expose = async (path, expires = null) =>
     this.request("expose", {
       method: "POST",
-      body: { path, expires }
+      body: { path, expires },
     });
 
   batchExpose = (paths, expires = null) =>
     this.request("expose-batch", {
       method: "POST",
-      body: { paths, expires }
+      body: { paths, expires },
     });
 
   getServeUrl = (uid, path = "") => {
@@ -232,7 +218,7 @@ export class MicroService extends Service {
 
   removeAppServices(appName, serviceName = null) {
     return this.request("manager/remove-app-services", {
-      params: { app_name: appName, service_name: serviceName }
+      params: { app_name: appName, service_name: serviceName },
     });
   }
 }

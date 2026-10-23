@@ -2,15 +2,14 @@
   import { computed } from "vue";
 
   import { getUrl } from "@/kikx/config";
-  import { sleep } from "@/kikx/utils";
   import { useAlertsStore } from "@/stores/alert";
 
   // Props
   const props = defineProps({
     prefix: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const emit = defineEmits(["close"]);
@@ -28,7 +27,7 @@
     error: "bg-error/60 text-white",
     warning: "bg-warning/60 text-white",
     info: "bg-black/60 text-white",
-    default: ""
+    default: "",
   };
 
   function getClass(alert) {
@@ -50,7 +49,7 @@
     duration = Math.min(Math.max(duration, 4), 18);
 
     return {
-      animationDuration: duration + "s"
+      animationDuration: duration + "s",
     };
   }
 
@@ -79,7 +78,7 @@
 <template>
   <div
     v-if="currentAlert"
-    class="select-none fscreen flex items-center font-semibold overflow-hidden whitespace-nowrap transition-colors duration-600"
+    class="fscreen flex items-center overflow-hidden font-semibold whitespace-nowrap transition-colors duration-600 select-none"
     :class="getClass(currentAlert)"
     @click="skipAlert"
     v-longpress="() => emit('close')"
@@ -91,10 +90,7 @@
       @animationend="handleAnimationEnd"
     >
       <pre class="text-lg">{{ prefix }}</pre>
-      <img
-        :src="getUrl(currentAlert.icon)"
-        class="h-4 w-4 rounded aspect-square"
-      />
+      <img :src="getUrl(currentAlert.icon)" class="aspect-square h-4 w-4 rounded" />
       <p>{{ currentAlert.label || currentAlert.message }}</p>
     </div>
   </div>

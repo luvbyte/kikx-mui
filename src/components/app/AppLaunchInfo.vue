@@ -1,37 +1,28 @@
 <template>
   <div
     @click.stop="emit('close')"
-    class="fixed fscreen inset-0 z-60 bg-black/80 text-white px-4 flex flex-col items-center pt-32 gap-6"
+    class="fscreen fixed inset-0 z-60 flex flex-col items-center gap-6 bg-black/80 px-4 pt-32 text-white"
   >
     <!-- Icon -->
     <div class="flex justify-center">
       <img
         draggable="false"
-        class="w-32 h-32 aspect-square rounded-xl object-cover"
+        class="aspect-square h-32 w-32 rounded-xl object-cover"
         :src="getImageUrl(app.icon)"
       />
     </div>
     <!-- Info -->
-    <div
-      class="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide"
-    >
+    <div class="scrollbar-hide flex items-center justify-center gap-2 overflow-x-auto">
       <h1 class="badge badge-secondary">{{ app.title }}</h1>
       <h1 class="badge">{{ app.name }}</h1>
       <h1 class="badge badge-secondary">{{ app.version }}</h1>
     </div>
     <!-- Buttons -->
-    <div
-      class="p-4 md:max-w-md max-w-xs w-full flex flex-col gap-3 border rounded-lg bg-white/20"
-    >
+    <div class="flex w-full max-w-xs flex-col gap-3 rounded-lg border bg-white/20 p-4 md:max-w-md">
       <button @click="openApp()" class="btn btn-sm">Open</button>
       <button class="btn btn-sm btn-info" @click="openApp(true)">
         Open as sudo
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <path
             fill="currentColor"
             d="m16 7.58l-5.5-2.4L5 7.58v3.6c0 3.5 2.33 6.74 5.5 7.74c.25-.08.49-.2.73-.3c-.15-.51-.23-1.06-.23-1.62c0-2.97 2.16-5.43 5-5.91z"
@@ -54,10 +45,7 @@
         </svg>
       </button>
     </div>
-    <button
-      @click.stop="showAlert = true"
-      class="btn btn-sm btn-error max-w-xs md:max-w-sm w-full"
-    >
+    <button @click.stop="showAlert = true" class="btn btn-sm btn-error w-full max-w-xs md:max-w-sm">
       Uninstall
     </button>
 
@@ -89,16 +77,16 @@
   const props = defineProps({
     app: {
       type: Object,
-      required: true
+      required: true,
     },
     openApp: {
       type: Function,
-      required: true
+      required: true,
     },
     uninstallApp: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   });
   const emit = defineEmits(["close"]);
 

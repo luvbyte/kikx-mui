@@ -5,37 +5,31 @@
       <div
         v-if="showSwipeHandler"
         key="expanded"
-        class="fixed z-[160] touch-none select-none"
+        class="fixed z-160 touch-none select-none"
         :class="
-          position.left
-            ? 'left-0 rounded-l-none border-l-0'
-            : 'right-0 rounded-r-none border-r-0'
+          position.left ? 'left-0 rounded-l-none border-l-0' : 'right-0 rounded-r-none border-r-0'
         "
         :style="{
-          top: `calc(50% + ${position.y}px)`
+          top: `calc(50% + ${position.y}px)`,
         }"
         @pointerdown="startDrag"
         @pointermove="onDrag"
         @pointerup="endInteraction"
         @pointercancel="endInteraction"
       >
-        <div
-          class="w-12 h-26 rounded-lg bg-black/30 border border-white/60"
-        ></div>
+        <div class="h-26 w-12 rounded-lg border border-white/60 bg-black/30"></div>
       </div>
 
       <!-- Collapsed handler -->
       <div
         v-else
         key="collapsed"
-        class="fixed z-[160] w-4 h-26 bg-black/20 border rounded-lg border-white/60 opacity-80"
+        class="fixed z-160 h-26 w-4 rounded-lg border border-white/60 bg-black/20 opacity-80"
         :class="[
-          position.left
-            ? 'left-0 rounded-l-none border-l-0'
-            : 'right-0 rounded-r-none border-r-0'
+          position.left ? 'left-0 rounded-l-none border-l-0' : 'right-0 rounded-r-none border-r-0',
         ]"
         :style="{
-          top: `calc(50% + ${position.y}px)`
+          top: `calc(50% + ${position.y}px)`,
         }"
         v-swipe="onAction"
         @click="showSwipeHandler = true"
@@ -56,7 +50,7 @@
 
   const emit = defineEmits(["action"]);
 
-  const onAction = direction => {
+  const onAction = (direction) => {
     emit("action", direction);
   };
 
@@ -75,7 +69,7 @@
     isDragging = false;
   });
 
-  const startDrag = e => {
+  const startDrag = (e) => {
     startX = e.clientX;
     startY = e.clientY;
     initialPosY = position.y;
@@ -85,7 +79,7 @@
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
 
-  const onDrag = e => {
+  const onDrag = (e) => {
     if (!isDragging) return;
 
     const deltaY = e.clientY - startY;
@@ -96,7 +90,7 @@
     position.left = e.clientX < window.innerWidth / 2;
   };
 
-  const endInteraction = e => {
+  const endInteraction = (e) => {
     if (!isDragging) return;
 
     const deltaX = e.clientX - startX;

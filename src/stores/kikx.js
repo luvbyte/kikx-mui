@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed, reactive } from "vue";
+import { reactive } from "vue";
 
 import { defaultBackground } from "@/kikx/config";
 
@@ -23,11 +23,11 @@ export const useUIConfig = defineStore("uiConfig", () => {
     swipeNavPosition: {
       x: 0,
       y: 0,
-      left: false
+      left: false,
     },
 
     filePicker: {
-      view: "list"
+      view: "list",
     },
 
     // Settings
@@ -40,12 +40,12 @@ export const useUIConfig = defineStore("uiConfig", () => {
 
     // Apps menu icons style
     iconsStyle: "solid",
-    splash: "orbit",  // orbit, hide, ripple, static
+    splash: "orbit", // orbit, hide, ripple, static
     batteryIcon: "circle",
     haptic: "crisp",
 
     autoHideAppCSwitch: true,
-    enableAppActions: true
+    enableAppActions: true,
   });
 
   return { state };

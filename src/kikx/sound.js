@@ -1,7 +1,7 @@
 import { getAudioUrl } from "./config";
 
 const soudList = {
-  alert: "sounds/pop_1.wav"
+  alert: "sounds/pop_1.wav",
 };
 
 const poolSize = 10;
@@ -16,7 +16,7 @@ export function playSound(name) {
     });
   }
 
-  const audio = pools[name].find(a => a.paused || a.ended);
+  const audio = pools[name].find((a) => a.paused || a.ended);
 
   if (audio) {
     audio.currentTime = 0;

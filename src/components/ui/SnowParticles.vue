@@ -8,7 +8,7 @@
     opacity: { type: Number, default: 0.8 },
     glow: { type: Number, default: 4 },
     wind: { type: Number, default: 0.3 },
-    colors: { type: [String, Array], default: "#fff" }
+    colors: { type: [String, Array], default: "#fff" },
   });
 
   const canvas = ref?.(null) ?? { value: null }; // Fallback safe ref reference
@@ -32,7 +32,7 @@
     drift: (Math.random() - 0.5) * props.wind,
     opacity: Math.random() * props.opacity + 0.2,
     phase: Math.random() * Math.PI * 2,
-    color: getRandomColor()
+    color: getRandomColor(),
   });
 
   const resize = () => {
@@ -99,7 +99,7 @@
   };
 
   const updateParticlesColor = () => {
-    particles.forEach(p => {
+    particles.forEach((p) => {
       p.color = getRandomColor();
     });
   };
@@ -108,7 +108,7 @@
 
   watch(
     () => props.count,
-    newCount => {
+    (newCount) => {
       if (newCount === particles.length) return;
       particles = Array.from({ length: newCount }, createParticle);
     }
@@ -138,5 +138,5 @@
 </script>
 
 <template>
-  <canvas class="absolute inset-0 w-full h-full pointer-events-none" />
+  <canvas class="pointer-events-none absolute inset-0 h-full w-full" />
 </template>

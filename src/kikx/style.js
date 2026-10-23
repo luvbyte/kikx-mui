@@ -31,11 +31,11 @@ const appThemes = {
   elevatedDark: "bg-gray-800 text-white shadow-xl",
 
   muted: "bg-gray-200 text-gray-700",
-  highContrast: "bg-black text-yellow-400"
+  highContrast: "bg-black text-yellow-400",
 };
 
 // Check if theme exists
-export const hasAppTheme = theme => Boolean(theme) && theme in appThemes;
+export const hasAppTheme = (theme) => Boolean(theme) && theme in appThemes;
 
 // Theme apply to statusbar & navbar
 export function getAppTheme(theme) {
@@ -54,7 +54,7 @@ export function getParticleColors(color) {
         "#00e5ff",
         "#2979ff",
         "#7c4dff",
-        "#ff4081"
+        "#ff4081",
       ],
       fire: ["#ff1744", "#ff5722", "#ff9100", "#ffc107", "#ffeb3b"],
       ocean: ["#00e5ff", "#00b8d4", "#2979ff", "#3d5afe"],
@@ -64,7 +64,7 @@ export function getParticleColors(color) {
       ice: ["#ffffff", "#b3e5fc", "#40c4ff", "#00e5ff"],
       sunset: ["#ff1744", "#ff4081", "#ff9100", "#ffc107"],
       purple: ["#e040fb", "#9c27b0", "#7c4dff", "#651fff"],
-      emerald: ["#b9f6ca", "#69f0ae", "#00e676", "#00c853"]
+      emerald: ["#b9f6ca", "#69f0ae", "#00e676", "#00c853"],
     }[color] || "#ffffff"
   );
 }

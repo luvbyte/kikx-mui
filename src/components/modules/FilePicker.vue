@@ -1,9 +1,7 @@
 <template>
-  <div data-theme="dark" class="fixed inset-0 z-50 flex flex-col bg-base-100">
+  <div data-theme="dark" class="bg-base-100 fixed inset-0 z-50 flex flex-col">
     <!-- Header -->
-    <header
-      class="h-16 shrink-0 flex items-center gap-2 px-2 border-b border-base-300"
-    >
+    <header class="border-base-300 flex h-16 shrink-0 items-center gap-2 border-b px-2">
       <!-- App Icon -->
       <FadeImage
         class="h-12 w-12 shrink-0 rounded-xl object-cover"
@@ -11,28 +9,24 @@
       />
 
       <!-- Title + Protocol -->
-      <div class="flex-1 min-w-0 flex items-center gap-2">
+      <div class="flex min-w-0 flex-1 items-center gap-2">
         <!-- Current path -->
-        <div class="flex-1 min-w-0">
-          <div class="font-semibold truncate">
+        <div class="min-w-0 flex-1">
+          <div class="truncate font-semibold">
             {{ title }}
           </div>
 
-          <div class="text-xs opacity-50 truncate">
+          <div class="truncate text-xs opacity-50">
             {{ currentDirectory }}
           </div>
         </div>
       </div>
 
       <!-- Search -->
-      <button
-        type="button"
-        class="btn btn-ghost btn-circle"
-        @click="showSearch = !showSearch"
-      >
+      <button type="button" class="btn btn-ghost btn-circle" @click="showSearch = !showSearch">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
+          class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -55,7 +49,7 @@
         <svg
           v-if="viewMode === 'list'"
           xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
+          class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -72,7 +66,7 @@
         <svg
           v-else
           xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
+          class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -87,14 +81,14 @@
     </header>
 
     <!-- Search -->
-    <div v-if="showSearch" class="shrink-0 px-3 py-2 border-b border-base-300">
+    <div v-if="showSearch" class="border-base-300 shrink-0 border-b px-3 py-2">
       <div
-        class="w-full max-w-md mx-auto h-10 flex items-center gap-2 px-3 rounded-xl bg-base-200 border border-base-300"
+        class="bg-base-200 border-base-300 mx-auto flex h-10 w-full max-w-md items-center gap-2 rounded-xl border px-3"
       >
         <!-- Search icon -->
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="w-4 h-4 shrink-0 opacity-50"
+          class="h-4 w-4 shrink-0 opacity-50"
           fill="none"
           viewBox="0 0 24 24"
         >
@@ -110,14 +104,14 @@
           v-model="search"
           type="search"
           placeholder="Search files"
-          class="flex-1 min-w-0 bg-transparent border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus:border-0"
+          class="min-w-0 flex-1 border-0 bg-transparent ring-0 outline-none focus:border-0 focus:ring-0 focus:outline-none"
         />
 
         <!-- Clear -->
         <button
           v-if="search"
           type="button"
-          class="shrink-0 w-6 h-6 flex items-center justify-center rounded-full opacity-50 hover:opacity-100 hover:bg-base-300"
+          class="hover:bg-base-300 flex h-6 w-6 shrink-0 items-center justify-center rounded-full opacity-50 hover:opacity-100"
           @click="search = ''"
         >
           ×
@@ -126,9 +120,7 @@
     </div>
 
     <!-- Toolbar -->
-    <div
-      class="flex justify-between items-center gap-2 w-full p-2 border-b border-base-300"
-    >
+    <div class="border-base-300 flex w-full items-center justify-between gap-2 border-b p-2">
       <!-- Back -->
       <button
         type="button"
@@ -138,7 +130,7 @@
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
+          class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -152,20 +144,20 @@
         </svg>
       </button>
 
-      <div class="flex gap-2 items-center">
+      <div class="flex items-center gap-2">
         <!-- Protocol -->
         <div class="dropdown dropdown-bottom">
           <button
             tabindex="0"
             type="button"
-            class="h-8 px-2.5 rounded-lg bg-base-200 border border-base-300 flex items-center gap-1.5 text-xs font-medium hover:bg-base-300 transition"
+            class="bg-base-200 border-base-300 hover:bg-base-300 flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition"
             :disabled="loading"
           >
             <span> {{ getProtocol(currentDirectory) }}:// </span>
 
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="w-3.5 h-3.5 opacity-50"
+              class="h-3.5 w-3.5 opacity-50"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -181,30 +173,22 @@
 
           <ul
             tabindex="0"
-            class="dropdown-content z-[60] menu menu-xs p-1 mt-1 w-32 rounded-lg bg-base-200 border border-base-300 shadow-xl"
+            class="dropdown-content menu menu-xs bg-base-200 border-base-300 z-60 mt-1 w-32 rounded-lg border p-1 shadow-xl"
           >
             <li>
-              <button type="button" @click="switchProtocol('home://')">
-                home://
-              </button>
+              <button type="button" @click="switchProtocol('home://')">home://</button>
             </li>
 
             <li>
-              <button type="button" @click="switchProtocol('os://')">
-                os://
-              </button>
+              <button type="button" @click="switchProtocol('os://')">os://</button>
             </li>
 
             <li>
-              <button type="button" @click="switchProtocol('osr://')">
-                osr://
-              </button>
+              <button type="button" @click="switchProtocol('osr://')">osr://</button>
             </li>
 
             <li>
-              <button type="button" @click="switchProtocol('root://')">
-                root://
-              </button>
+              <button type="button" @click="switchProtocol('root://')">root://</button>
             </li>
           </ul>
         </div>
@@ -214,7 +198,7 @@
           type="button"
           class="btn btn-sm btn-ghost btn-circle shrink-0"
           :class="{
-            'text-primary bg-primary/10': showHidden
+            'text-primary bg-primary/10': showHidden,
           }"
           :disabled="loading"
           :title="showHidden ? 'Hide hidden files' : 'Show hidden files'"
@@ -227,7 +211,7 @@
           <svg
             v-if="showHidden"
             xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
+            class="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -246,7 +230,7 @@
           <svg
             v-else
             xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
+            class="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -282,16 +266,10 @@
     <!-- Breadcrumb -->
     <div
       ref="breadcrumbRef"
-      class="shrink-0 border-b border-base-300 overflow-x-auto scrollbar-hide"
+      class="border-base-300 scrollbar-hide shrink-0 overflow-x-auto border-b"
     >
-      <div
-        class="w-max min-w-full px-4 py-2 flex items-center gap-1 text-sm whitespace-nowrap"
-      >
-        <button
-          type="button"
-          class="font-medium"
-          @click="navigateTo(rootDirectory)"
-        >
+      <div class="flex w-max min-w-full items-center gap-1 px-4 py-2 text-sm whitespace-nowrap">
+        <button type="button" class="font-medium" @click="navigateTo(rootDirectory)">
           {{ rootName }}
         </button>
 
@@ -306,35 +284,29 @@
     </div>
 
     <!-- Content -->
-    <main
-      ref="contentRef"
-      class="flex-1 min-h-0 overflow-y-auto"
-      @scroll="handleScroll"
-    >
+    <main ref="contentRef" class="min-h-0 flex-1 overflow-y-auto" @scroll="handleScroll">
       <Loading v-if="loading" />
 
       <!-- Error -->
       <div
         v-else-if="error"
-        class="h-full flex flex-col items-center justify-center px-6 text-center"
+        class="flex h-full flex-col items-center justify-center px-6 text-center"
       >
         <div class="text-error mb-3">
           {{ error }}
         </div>
 
-        <button type="button" class="btn btn-sm btn-outline" @click="loadFiles">
-          Retry
-        </button>
+        <button type="button" class="btn btn-sm btn-outline" @click="loadFiles">Retry</button>
       </div>
 
       <!-- Empty -->
       <div
         v-else-if="sortedFiles.length === 0"
-        class="h-full flex flex-col items-center justify-center opacity-50 px-6 text-center"
+        class="flex h-full flex-col items-center justify-center px-6 text-center opacity-50"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="w-14 h-14 mb-3"
+          class="mb-3 h-14 w-14"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -352,38 +324,33 @@
       </div>
 
       <!-- List -->
-      <div v-else-if="viewMode === 'list'" class="divide-y divide-base-300">
+      <div v-else-if="viewMode === 'list'" class="divide-base-300 divide-y">
         <div
           v-for="file in sortedFiles"
           :key="file.kikxpath"
           class="group flex items-center gap-3 px-4 py-3 transition"
           :class="{
-            'bg-primary/10': isSelected(file)
+            'bg-primary/10': isSelected(file),
           }"
         >
           <!-- Main file/folder area -->
           <button
             type="button"
-            class="flex-1 min-w-0 flex items-center gap-3 text-left"
+            class="flex min-w-0 flex-1 items-center gap-3 text-left"
             @click="handleFileClick(file)"
           >
             <!-- Icon -->
             <div
-              class="w-11 h-11 rounded-xl shrink-0 flex items-center justify-center overflow-hidden"
-              :class="
-                file.directory ? 'bg-warning/15 text-warning' : 'bg-base-200'
-              "
+              class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"
+              :class="file.directory ? 'bg-warning/15 text-warning' : 'bg-base-200'"
             >
-              <Thumbnail
-                v-if="!file.directory && isImage(file)"
-                :path="file.kikxpath"
-              />
+              <Thumbnail v-if="!file.directory && isImage(file)" :path="file.kikxpath" />
 
               <!-- Folder -->
               <svg
                 v-else-if="file.directory"
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6"
+                class="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -400,26 +367,22 @@
               <svg
                 v-else
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6 opacity-60"
+                class="h-6 w-6 opacity-60"
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <path
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  d="M6 3h8l4 4v14H6z"
-                />
+                <path stroke="currentColor" stroke-width="1.8" d="M6 3h8l4 4v14H6z" />
                 <path stroke="currentColor" stroke-width="1.8" d="M14 3v5h5" />
               </svg>
             </div>
 
             <!-- Information -->
-            <div class="flex-1 min-w-0">
-              <div class="font-medium truncate">
+            <div class="min-w-0 flex-1">
+              <div class="truncate font-medium">
                 {{ file.name }}
               </div>
 
-              <div class="text-xs opacity-50 mt-0.5 truncate">
+              <div class="mt-0.5 truncate text-xs opacity-50">
                 <span v-if="!file.directory">
                   {{ formatSize(file.size_bytes) }}
                 </span>
@@ -436,14 +399,9 @@
           <!-- Selected -->
           <div
             v-if="!file.directory && isSelected(file)"
-            class="w-6 h-6 shrink-0 rounded-full bg-primary text-primary-content flex items-center justify-center text-xs"
+            class="bg-primary text-primary-content flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path d="M0 0h24v24H0z" fill="none" />
               <path
                 fill="none"
@@ -460,12 +418,12 @@
           <button
             v-if="file.directory"
             type="button"
-            class="w-9 h-9 shrink-0 flex items-center justify-center rounded-full hover:bg-base-300"
+            class="hover:bg-base-300 flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
             @click.stop="openDirectory(file)"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="w-5 h-5 opacity-50"
+              class="h-5 w-5 opacity-50"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -482,40 +440,33 @@
       </div>
 
       <!-- Grid -->
-      <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-2 p-3">
+      <div v-else class="grid grid-cols-3 gap-2 p-3 sm:grid-cols-4">
         <div
           v-for="file in sortedFiles"
           :key="file.kikxpath"
-          class="relative rounded-2xl p-2 flex flex-col items-center gap-2 transition"
+          class="relative flex flex-col items-center gap-2 rounded-2xl p-2 transition"
           :class="{
-            'bg-primary/10': isSelected(file)
+            'bg-primary/10': isSelected(file),
           }"
         >
           <!-- Preview / Open -->
           <button
             type="button"
             class="w-full"
-            @click="
-              file.directory ? openDirectory(file) : handleFileClick(file)
-            "
+            @click="file.directory ? openDirectory(file) : handleFileClick(file)"
           >
             <div
-              class="w-full aspect-square rounded-xl overflow-hidden flex items-center justify-center"
-              :class="
-                file.directory ? 'bg-warning/15 text-warning' : 'bg-base-200'
-              "
+              class="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl"
+              :class="file.directory ? 'bg-warning/15 text-warning' : 'bg-base-200'"
             >
               <!-- Image -->
-              <Thumbnail
-                v-if="!file.directory && isImage(file)"
-                :path="file.kikxpath"
-              />
+              <Thumbnail v-if="!file.directory && isImage(file)" :path="file.kikxpath" />
 
               <!-- Folder -->
               <svg
                 v-else-if="file.directory"
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-12 h-12"
+                class="h-12 w-12"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -531,36 +482,27 @@
               <svg
                 v-else
                 xmlns="http://www.w3.org/2000/svg"
-                class="w-10 h-10 opacity-60"
+                class="h-10 w-10 opacity-60"
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <path
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  d="M6 3h8l4 4v14H6z"
-                />
+                <path stroke="currentColor" stroke-width="1.5" d="M6 3h8l4 4v14H6z" />
                 <path stroke="currentColor" stroke-width="1.5" d="M14 3v5h5" />
               </svg>
             </div>
           </button>
 
           <!-- Name -->
-          <span class="w-full text-sm truncate text-center">
+          <span class="w-full truncate text-center text-sm">
             {{ file.name }}
           </span>
 
           <!-- File selection -->
           <span
             v-if="isSelected(file)"
-            class="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary text-primary-content text-xs flex items-center justify-center"
+            class="bg-primary text-primary-content absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full text-xs"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path d="M0 0h24v24H0z" fill="none" />
               <path
                 fill="none"
@@ -594,41 +536,30 @@
     </main>
 
     <!-- Bottom Action Bar -->
-    <div class="shrink-0 border-t border-base-300 bg-base-100 p-3">
-      <div class="flex justify-end items-center gap-3">
+    <div class="border-base-300 bg-base-100 shrink-0 border-t p-3">
+      <div class="flex items-center justify-end gap-3">
         <!-- Directory picker -->
         <template v-if="type === 'directory'">
-          <button type="button" class="btn btn-ghost" @click="cancel">
-            Cancel
-          </button>
+          <button type="button" class="btn btn-ghost" @click="cancel">Cancel</button>
 
-          <button type="button" class="btn btn-primary" @click="confirm">
-            Select this folder
-          </button>
+          <button type="button" class="btn btn-primary" @click="confirm">Select this folder</button>
         </template>
 
         <!-- File picker -->
         <template v-else>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium truncate">
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-sm font-medium">
               {{ selectedCountText }}
             </div>
 
-            <div class="text-xs opacity-50 truncate">
+            <div class="truncate text-xs opacity-50">
               {{ selectionHint }}
             </div>
           </div>
 
-          <button type="button" class="btn btn-ghost" @click="cancel">
-            Cancel
-          </button>
+          <button type="button" class="btn btn-ghost" @click="cancel">Cancel</button>
 
-          <button
-            type="button"
-            class="btn btn-primary"
-            :disabled="!canConfirm"
-            @click="confirm"
-          >
+          <button type="button" class="btn btn-primary" :disabled="!canConfirm" @click="confirm">
             {{ confirmText }}
           </button>
         </template>
@@ -651,8 +582,8 @@
   const props = defineProps({
     options: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const emit = defineEmits(["close"]);
@@ -712,7 +643,7 @@
     },
     set(value) {
       uiConfig.state.filePicker.view = value;
-    }
+    },
   });
 
   const sort = ref(props.options.sort || "name");
@@ -726,9 +657,9 @@
 
     return props.options.accept
       .split(",")
-      .map(ext => ext.trim())
+      .map((ext) => ext.trim())
       .filter(Boolean)
-      .map(ext => (ext.startsWith(".") ? ext : `.${ext}`));
+      .map((ext) => (ext.startsWith(".") ? ext : `.${ext}`));
   });
 
   // --------------------------------------------------
@@ -755,7 +686,7 @@
   // Protocol helpers
   // --------------------------------------------------
 
-  const getProtocol = path => {
+  const getProtocol = (path) => {
     if (!path) {
       return null;
     }
@@ -765,7 +696,7 @@
     return match ? match[1] : null;
   };
 
-  const getProtocolRoot = path => {
+  const getProtocolRoot = (path) => {
     const protocol = getProtocol(path);
 
     if (!protocol) {
@@ -775,11 +706,11 @@
     return `${protocol}://`;
   };
 
-  const isProtocolRoot = path => {
+  const isProtocolRoot = (path) => {
     return ROOTS.has(path);
   };
 
-  const switchProtocol = protocol => {
+  const switchProtocol = (protocol) => {
     if (!protocol) {
       return;
     }
@@ -842,7 +773,7 @@
 
     element.scrollTo({
       left: element.scrollWidth,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   };
 
@@ -864,9 +795,7 @@
       return [];
     }
 
-    const currentWithoutRoot = current
-      .slice(protocolRoot.length)
-      .replace(/^\/+|\/+$/g, "");
+    const currentWithoutRoot = current.slice(protocolRoot.length).replace(/^\/+|\/+$/g, "");
 
     if (!currentWithoutRoot) {
       return [];
@@ -883,7 +812,7 @@
 
       result.push({
         name,
-        path
+        path,
       });
 
       path += "/";
@@ -897,7 +826,7 @@
   // --------------------------------------------------
 
   const sortedFiles = computed(() => {
-    return files.value.filter(file => {
+    return files.value.filter((file) => {
       // Directory picker: show directories only
       if (type.value === "directory" && !file.directory) {
         return false;
@@ -982,15 +911,14 @@
         asc: asc.value,
         filter: type.value === "directory" ? "directories" : "all",
         search: search.value.trim(),
-        thumbnails: true
+        thumbnails: true,
       });
 
       const data = result?.data;
       const requestError = result?.error;
 
       if (requestError) {
-        error.value =
-          requestError.message || requestError.detail || "Unable to load files";
+        error.value = requestError.message || requestError.detail || "Unable to load files";
 
         files.value = [];
 
@@ -1051,7 +979,7 @@
         asc: asc.value,
         filter: type.value === "directory" ? "directories" : "all",
         search: search.value.trim(),
-        thumbnails: true
+        thumbnails: true,
       });
 
       const data = result?.data;
@@ -1063,11 +991,9 @@
 
       const newFiles = data?.files || [];
 
-      const existingPaths = new Set(files.value.map(file => file.kikxpath));
+      const existingPaths = new Set(files.value.map((file) => file.kikxpath));
 
-      const uniqueFiles = newFiles.filter(
-        file => !existingPaths.has(file.kikxpath)
-      );
+      const uniqueFiles = newFiles.filter((file) => !existingPaths.has(file.kikxpath));
 
       files.value.push(...uniqueFiles);
 
@@ -1109,11 +1035,10 @@
   // Infinite scroll
   // --------------------------------------------------
 
-  const handleScroll = event => {
+  const handleScroll = (event) => {
     const element = event.target;
 
-    const distanceFromBottom =
-      element.scrollHeight - element.scrollTop - element.clientHeight;
+    const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
 
     if (distanceFromBottom < 300) {
       loadMore();
@@ -1124,7 +1049,7 @@
   // Navigation
   // --------------------------------------------------
 
-  const navigateTo = async path => {
+  const navigateTo = async (path) => {
     if (!path) return;
 
     currentDirectory.value = path;
@@ -1191,7 +1116,7 @@
   // File click
   // --------------------------------------------------
 
-  const handleFileClick = file => {
+  const handleFileClick = (file) => {
     if (!file) {
       return;
     }
@@ -1215,7 +1140,7 @@
   // Open directory
   // --------------------------------------------------
 
-  const openDirectory = file => {
+  const openDirectory = (file) => {
     if (!file?.directory) {
       return;
     }
@@ -1227,7 +1152,7 @@
   // Selection
   // --------------------------------------------------
 
-  const toggleSelection = file => {
+  const toggleSelection = (file) => {
     if (!file) {
       return;
     }
@@ -1239,9 +1164,7 @@
       return;
     }
 
-    const index = selected.value.findIndex(
-      item => item.kikxpath === file.kikxpath
-    );
+    const index = selected.value.findIndex((item) => item.kikxpath === file.kikxpath);
 
     if (index === -1) {
       selected.value.push(file);
@@ -1250,8 +1173,8 @@
     }
   };
 
-  const isSelected = file => {
-    return selected.value.some(item => item.kikxpath === file.kikxpath);
+  const isSelected = (file) => {
+    return selected.value.some((item) => item.kikxpath === file.kikxpath);
   };
 
   // --------------------------------------------------
@@ -1263,7 +1186,7 @@
     if (type.value === "directory") {
       emit("close", {
         action: "select",
-        value: currentDirectory.value
+        value: currentDirectory.value,
       });
 
       return;
@@ -1274,7 +1197,7 @@
     }
 
     const paths = multiple.value
-      ? selected.value.map(file => file.kikxpath)
+      ? selected.value.map((file) => file.kikxpath)
       : [selected.value[0].kikxpath];
 
     try {
@@ -1284,18 +1207,14 @@
       const requestError = result?.error;
 
       if (requestError) {
-        reject(
-          requestError.message ||
-            requestError.detail ||
-            "Unable to expose files"
-        );
+        reject(requestError.message || requestError.detail || "Unable to expose files");
 
         return;
       }
 
       emit("close", {
         action: "select",
-        value: multiple.value ? data?.items || [] : data?.items?.[0] || null
+        value: multiple.value ? data?.items || [] : data?.items?.[0] || null,
       });
     } catch (err) {
       reject(err?.message || "Unable to select files");
@@ -1309,7 +1228,7 @@
   const cancel = () => {
     emit("close", {
       action: "cancel",
-      value: null
+      value: null,
     });
   };
 
@@ -1317,10 +1236,10 @@
   // Error
   // --------------------------------------------------
 
-  const reject = message => {
+  const reject = (message) => {
     emit("close", {
       action: "error",
-      value: message
+      value: message,
     });
   };
 
@@ -1328,7 +1247,7 @@
   // Images
   // --------------------------------------------------
 
-  const isImage = file => {
+  const isImage = (file) => {
     return [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"].includes(
       file.suffix?.toLowerCase()
     )
@@ -1336,7 +1255,7 @@
       : false;
   };
 
-  const getThumbnail = file => {
+  const getThumbnail = (file) => {
     return fs.thumbnail(file.kikxpath);
   };
 
@@ -1344,7 +1263,7 @@
   // Formatting
   // --------------------------------------------------
 
-  const formatSize = size => {
+  const formatSize = (size) => {
     if (size == null) {
       return "";
     }
@@ -1364,14 +1283,14 @@
     return `${(size / 1024 ** 3).toFixed(1)} GB`;
   };
 
-  const formatDate = timestamp => {
+  const formatDate = (timestamp) => {
     if (!timestamp) {
       return "";
     }
 
     return new Date(timestamp).toLocaleDateString(undefined, {
       month: "short",
-      day: "numeric"
+      day: "numeric",
     });
   };
 

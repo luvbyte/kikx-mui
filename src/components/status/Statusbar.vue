@@ -19,16 +19,16 @@
   const props = defineProps({
     isSudoApp: {
       type: Boolean,
-      required: true
+      required: true,
     },
     theme: {
       type: String,
-      required: true
+      required: true,
     },
     wsopen: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   });
 
   // Stores
@@ -47,14 +47,14 @@
 
   // complete alerts
   function onClose() {
-    alerts.pendingAlerts.forEach(alert => {
+    alerts.pendingAlerts.forEach((alert) => {
       alerts.alertComplete(alert.uid);
     });
   }
 </script>
 
 <template>
-  <div class="min-h-8 overflow-hidden w-full text-xs" :class="alertsTheme">
+  <div class="min-h-8 w-full overflow-hidden text-xs" :class="alertsTheme">
     <div class="relative h-full w-full">
       <Transition name="slide-down" mode="out-in">
         <AppAlertsPanel
@@ -64,11 +64,7 @@
           @close="onClose"
         />
         <!-- Icons -->
-        <div
-          v-else
-          key="icons-panel"
-          class="fscreen px-2 flex justify-between items-center"
-        >
+        <div v-else key="icons-panel" class="fscreen flex items-center justify-between px-2">
           <!-- left notify panel -->
           <div class="flex items-center gap-1">
             <Clock />
@@ -78,12 +74,7 @@
           <div class="flex items-center gap-1">
             <!-- Client WS disconnected -->
             <div v-if="!wsopen" class="animate__animated animate__fadeIn">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                 <path d="M0 0h24v24H0z" fill="none" />
                 <path
                   fill="currentColor"
@@ -95,12 +86,7 @@
             </div>
             <!-- If Sudo app -->
             <div v-if="isSudoApp" class="animate__animated animate__fadeIn">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="m16 7.58l-5.5-2.4L5 7.58v3.6c0 3.5 2.33 6.74 5.5 7.74c.25-.08.49-.2.73-.3c-.15-.51-.23-1.06-.23-1.62c0-2.97 2.16-5.43 5-5.91z"
@@ -141,15 +127,8 @@
             </Transition>
             <!-- If Alert off -->
             <Transition name="fade">
-              <div
-                v-if="uiConfig.state.hideAlert && !uiConfig.state.blockAlerts"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                >
+              <div v-if="uiConfig.state.hideAlert && !uiConfig.state.blockAlerts">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                   <path
                     fill="none"
                     stroke="currentColor"
@@ -164,12 +143,7 @@
             <!-- Block Alerts -->
             <Transition name="fade">
               <div v-if="uiConfig.state.blockAlerts">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                   <path d="M0 0h24v24H0z" fill="none" />
                   <path
                     fill="currentColor"

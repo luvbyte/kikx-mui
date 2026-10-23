@@ -2,32 +2,32 @@
   defineProps({
     label: {
       type: String,
-      required: true
+      required: true,
     },
     modelValue: {
       type: Number,
-      default: 0
+      default: 0,
     },
     description: {
       type: String,
-      required: false
+      required: false,
     },
     min: {
       type: Number,
-      default: 0
+      default: 0,
     },
     max: {
       type: Number,
-      default: 20
+      default: 20,
     },
     step: {
       type: Number,
-      default: 1
+      default: 1,
     },
     unit: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   });
 
   const emit = defineEmits(["update:modelValue"]);
@@ -40,7 +40,7 @@
 <template>
   <div class="flex flex-col gap-2.5">
     <div
-      class="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5 transition-all duration-200 hover:border-white/15 hover:bg-white/[0.06]"
+      class="rounded-lg border border-white/10 bg-white/4 px-3 py-2.5 transition-all duration-200 hover:border-white/15 hover:bg-white/6"
     >
       <!-- Header -->
       <div class="flex items-center justify-between gap-4">
@@ -49,10 +49,7 @@
             {{ label }}
           </span>
 
-          <p
-            v-if="description"
-            class="mt-0.5 text-xs leading-relaxed text-white/50"
-          >
+          <p v-if="description" class="mt-0.5 text-xs leading-relaxed text-white/50">
             {{ description }}
           </p>
         </div>

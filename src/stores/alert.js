@@ -9,9 +9,7 @@ export const useAlertsStore = defineStore("alertStore", () => {
   const pendingAlerts = computed(() => {
     return (
       alerts.value
-        .filter(
-          alert => !alert._toasted && (!alert.extra.isCode || alert.label)
-        )
+        .filter((alert) => !alert._toasted && (!alert.extra.isCode || alert.label))
         // .filter(alert => {
         //   if (alert._toasted) return false;
         //   if (alert.extra.isCode && !alert.extra.label) return false;
@@ -20,16 +18,13 @@ export const useAlertsStore = defineStore("alertStore", () => {
         // .filter(
         //   alert => !alert._toasted && !alert.extra.isCode && alert.extra.label
         // )
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     );
   });
 
   // Complete alert
   function alertComplete(alertID) {
-    const alert = alerts.value.find(a => a.uid === alertID);
+    const alert = alerts.value.find((a) => a.uid === alertID);
     if (alert && !alert._toasted) {
       alert._toasted = true;
     }
@@ -38,15 +33,13 @@ export const useAlertsStore = defineStore("alertStore", () => {
   // Add alert
   function addAlert(payload, silent = false) {
     // Find existing alert
-    const alert = alerts.value.find(
-      a => a.uid === payload.uid && a.name === payload.name
-    );
+    const alert = alerts.value.find((a) => a.uid === payload.uid && a.name === payload.name);
 
     // Create new alert
     if (!alert) {
       alerts.value.push({
         ...payload,
-        _toasted: silent // Silent alert
+        _toasted: silent, // Silent alert
       });
       return;
     }
@@ -54,7 +47,7 @@ export const useAlertsStore = defineStore("alertStore", () => {
     // Update existing alert and make it pending for toast again
     Object.assign(alert, {
       ...payload,
-      _toasted: silent
+      _toasted: silent,
     });
   }
 
@@ -63,7 +56,7 @@ export const useAlertsStore = defineStore("alertStore", () => {
     if (sticky) {
       alerts.value = [];
     } else {
-      alerts.value = alerts.value.filter(alert => alert.sticky);
+      alerts.value = alerts.value.filter((alert) => alert.sticky);
     }
   }
 
@@ -78,7 +71,7 @@ export const useAlertsStore = defineStore("alertStore", () => {
 
   // Remove app alert by alert ID
   function removeAlert(alertID) {
-    const index = alerts.value.findIndex(a => a.uid === alertID);
+    const index = alerts.value.findIndex((a) => a.uid === alertID);
     if (index !== -1) {
       alerts.value.splice(index, 1);
     }
@@ -93,6 +86,6 @@ export const useAlertsStore = defineStore("alertStore", () => {
     alertComplete,
 
     removeAlert,
-    removeAlerts
+    removeAlerts,
   };
 });

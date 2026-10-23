@@ -24,7 +24,7 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      
+
       - name: Remove invalid workspace file
         run: rm -f pnpm-workspace.yaml
 
@@ -58,9 +58,9 @@ jobs:
       - name: Prepare package
         run: |
           rm -rf mui
-          
+
           mkdir mui
-          
+
           cp ui.json mui
           cp -r dist mui/www
 

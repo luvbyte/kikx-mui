@@ -8,7 +8,7 @@
      */
     colors: {
       type: [String, Array],
-      default: "#fff"
+      default: "#fff",
     },
 
     /**
@@ -16,7 +16,7 @@
      */
     duration: {
       type: Number,
-      default: 3000
+      default: 3000,
     },
 
     /**
@@ -24,7 +24,7 @@
      */
     glowOpacity: {
       type: Number,
-      default: 0.9
+      default: 0.9,
     },
 
     /**
@@ -32,7 +32,7 @@
      */
     maxParticles: {
       type: Number,
-      default: 80
+      default: 80,
     },
 
     /**
@@ -40,8 +40,8 @@
      */
     particleCount: {
       type: Number,
-      default: 18
-    }
+      default: 18,
+    },
   });
 
   const showLayer = ref(false);
@@ -85,7 +85,7 @@
         spin: (Math.random() - 0.5) * 720,
         size: 3 + Math.random() * 5,
         shape: Math.random() > 0.4 ? "50%" : "20%",
-        color: getRandomColor()
+        color: getRandomColor(),
       });
     }
 
@@ -98,7 +98,7 @@
     }
   };
 
-  const handlePointerDown = event => {
+  const handlePointerDown = (event) => {
     if (event.pointerType !== "touch") return;
 
     startX = event.clientX;
@@ -113,7 +113,7 @@
     }, LONG_PRESS_DURATION);
   };
 
-  const handlePointerMove = event => {
+  const handlePointerMove = (event) => {
     if (event.pointerType !== "touch" || hasMoved) return;
 
     const dx = event.clientX - startX;
@@ -126,7 +126,7 @@
     }
   };
 
-  const handlePointerUp = event => {
+  const handlePointerUp = (event) => {
     if (event.pointerType !== "touch") return;
 
     clearTimeout(longPressTimer);
@@ -149,15 +149,15 @@
 
   onMounted(() => {
     window.addEventListener("pointerdown", handlePointerDown, {
-      passive: true
+      passive: true,
     });
 
     window.addEventListener("pointermove", handlePointerMove, {
-      passive: true
+      passive: true,
     });
 
     window.addEventListener("pointerup", handlePointerUp, {
-      passive: true
+      passive: true,
     });
   });
 
@@ -194,7 +194,7 @@
           '--rotation': `${particle.rotation}deg`,
           '--spin': `${particle.spin}deg`,
           '--size': `${particle.size}px`,
-          '--duration': `${duration}ms`
+          '--duration': `${duration}ms`,
         }"
       />
     </div>
@@ -222,18 +222,12 @@
     background: var(--color);
 
     box-shadow:
-      0 0 10px
-        color-mix(
-          in srgb,
-          var(--color) calc(var(--glow-opacity) * 100%),
-          transparent
-        ),
+      0 0 10px color-mix(in srgb, var(--color) calc(var(--glow-opacity) * 100%), transparent),
       0 0 4px var(--color);
 
     will-change: transform, opacity;
 
-    animation: whiteSprinkle var(--duration) cubic-bezier(0.15, 0.85, 0.35, 1)
-      forwards;
+    animation: whiteSprinkle var(--duration) cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
   }
 
   @keyframes whiteSprinkle {
@@ -248,10 +242,7 @@
 
     100% {
       opacity: 0;
-      transform: translate(
-          calc(-50% + var(--dx)),
-          calc(-50% + var(--dy) + var(--gravity))
-        )
+      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + var(--gravity)))
         scale(0.1) rotate(calc(var(--rotation) + var(--spin)));
     }
   }

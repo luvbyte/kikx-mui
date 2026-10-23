@@ -8,8 +8,8 @@
   const props = defineProps({
     appAlert: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   });
 
   const emit = defineEmits(["close"]);
@@ -26,10 +26,7 @@
   const shouldClamp = computed(() => {
     if (props.appAlert.extra.isCode) return false;
 
-    const message = String(props.appAlert.message ?? "").replace(
-      /<[^>]*>/g,
-      ""
-    );
+    const message = String(props.appAlert.message ?? "").replace(/<[^>]*>/g, "");
     return message.length > 150;
   });
 
@@ -96,8 +93,7 @@
         return;
       }
 
-      gestureDirection.value =
-        Math.abs(diffX) > Math.abs(diffY) ? "horizontal" : "vertical";
+      gestureDirection.value = Math.abs(diffX) > Math.abs(diffY) ? "horizontal" : "vertical";
     }
 
     // Vertical gesture → completely ignore it
@@ -154,10 +150,10 @@
 
 <template>
   <div
-    class="touch-pan-y p-1 relative flex items-start gap-2 bg-white/20 text-white border-white/20 rounded-xl border-2 shadow-lg transition-all duration-300"
+    class="relative flex touch-pan-y items-start gap-2 rounded-xl border-2 border-white/20 bg-white/20 p-1 text-white shadow-lg transition-all duration-300"
     :style="{
       transform: `translateX(${offsetX}px)`,
-      transition: isDragging ? 'none' : 'transform 0.2s ease'
+      transition: isDragging ? 'none' : 'transform 0.2s ease',
     }"
     @touchstart.stop="onTouchStart"
     @touchmove.stop="onTouchMove"
@@ -165,21 +161,21 @@
     @click="onClick"
   >
     <!-- Icon Image -->
-    <div v-if="appAlert.icon" class="flex-shrink-0">
+    <div v-if="appAlert.icon" class="shrink-0">
       <img
         :src="getUrl(appAlert.icon)"
         alt="alert icon"
-        class="h-12 rounded-lg object-cover aspect-square border-2 border-white/20 bg-white/20"
+        class="aspect-square h-12 rounded-lg border-2 border-white/20 bg-white/20 object-cover"
       />
     </div>
 
     <!-- Content -->
-    <div class="flex-1 flex flex-col min-w-0 transition-all duration-600">
+    <div class="flex min-w-0 flex-1 flex-col transition-all duration-600">
       <!-- Header -->
-      <div class="w-full pr-2 flex items-center justify-between gap-2">
+      <div class="flex w-full items-center justify-between gap-2 pr-2">
         <!---->
-        <div class="py-1 flex items-center gap-1">
-          <h1 class="max-w-32 font-semibold leading-tight truncate">
+        <div class="flex items-center gap-1 py-1">
+          <h1 class="max-w-32 truncate leading-tight font-semibold">
             {{ appAlert.title }}
           </h1>
           <div class="flex items-center justify-center">
@@ -209,11 +205,7 @@
                   </g>
                 </mask>
               </defs>
-              <path
-                fill="currentColor"
-                d="M0 0h48v48H0z"
-                mask="url(#SVG4IxzvcIZ)"
-              />
+              <path fill="currentColor" d="M0 0h48v48H0z" mask="url(#SVG4IxzvcIZ)" />
             </svg>
             <!-- Warning icon -->
             <svg
@@ -256,7 +248,7 @@
         </div>
 
         <div class="flex items-center gap-1">
-          <div class="badge badge-xs bg-white/10 border-white/10 text-white">
+          <div class="badge badge-xs border-white/10 bg-white/10 text-white">
             <TimeStampRelative :timestamp="appAlert.createdAt" />
           </div>
 
@@ -266,7 +258,7 @@
               width="24"
               height="24"
               viewBox="0 0 32 32"
-              class="transition-transform opacity-60"
+              class="opacity-60 transition-transform"
               :class="{ '-rotate-180': expanded }"
             >
               <path d="M0 0h32v32H0z" fill="none" />

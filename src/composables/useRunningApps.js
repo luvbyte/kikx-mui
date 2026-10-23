@@ -1,5 +1,4 @@
 import { ref, computed, nextTick } from "vue";
-import { getUrl } from "@/kikx/config";
 
 import { useErrorStore } from "@/stores/error";
 
@@ -10,12 +9,12 @@ export function useRunningApps(client, changeScreen, alerts) {
   const activeAppIndex = ref(-1);
   const errors = useErrorStore();
 
+  // Prevent duplicate close requests for the same app.
+  const closingApps = new Set();
+
   // ---------------- ACTIVE APP
   const activeApp = computed(() => {
-    if (
-      activeAppIndex.value < 0 ||
-      activeAppIndex.value >= runningApps.value.length
-    ) {
+    if (activeAppIndex.value < 0 || activeAppIndex.value >= runningApps.value.length) {
       return null;
     }
 
@@ -46,60 +45,23 @@ export function useRunningApps(client, changeScreen, alerts) {
 
   function switchAppLeft() {
     if (!runningApps.value.length) return;
-    activeAppIndex.value = moveIndex(
-      runningApps.value,
-      activeAppIndex.value,
-      true
-    );
+
+    activeAppIndex.value = moveIndex(runningApps.value, activeAppIndex.value, true);
   }
 
   function switchAppRight() {
     if (!runningApps.value.length) return;
-    activeAppIndex.value = moveIndex(
-      runningApps.value,
-      activeAppIndex.value,
-      false
-    );
+
+    activeAppIndex.value = moveIndex(runningApps.value, activeAppIndex.value, false);
   }
 
   // ---------------- GET APP
   function getAppByID(appId) {
-    return runningApps.value.find(app => app.id === appId) ?? null;
+    return runningApps.value.find((app) => app.id === appId) ?? null;
   }
 
   // ---------------- OPEN APP
-  // Remove this
-  async function __openApp(
-    name,
-    { sudo = false, args = [], query = {}, share = null } = {}
-  ) {
-    const options = { sudo, query, args, share };
-
-    try {
-      const data = await requestOpenApp(name, options, client.clientID);
-
-      runningApps.value.push({
-        ...data,
-        state: { theme: data.manifest.theme }
-      });
-      setActiveApp(runningApps.value.length - 1);
-    } catch (err) {
-      errors.raiseError(err, "error", `Error opening app: ${name}`);
-    } finally {
-      changeScreen("app");
-
-      await nextTick();
-
-      if (!hasRunningApps.value) {
-        changeScreen("home");
-      }
-    }
-  }
-
-  async function openApp(
-    name,
-    { sudo = false, args = [], query = {}, share = null } = {}
-  ) {
+  async function openApp(name, { sudo = false, args = [], query = {}, share = null } = {}) {
     const options = { sudo, query, args, share };
 
     try {
@@ -108,8 +70,8 @@ export function useRunningApps(client, changeScreen, alerts) {
       runningApps.value.push({
         ...data,
         state: {
-          theme: data.manifest.theme
-        }
+          theme: data.manifest.theme,
+        },
       });
 
       setActiveApp(runningApps.value.length - 1);
@@ -117,7 +79,7 @@ export function useRunningApps(client, changeScreen, alerts) {
 
       return {
         success: true,
-        error: null
+        error: null,
       };
     } catch (err) {
       const error = err?.message || String(err);
@@ -126,7 +88,7 @@ export function useRunningApps(client, changeScreen, alerts) {
 
       return {
         success: false,
-        error
+        error,
       };
     } finally {
       await nextTick();
@@ -140,27 +102,38 @@ export function useRunningApps(client, changeScreen, alerts) {
   // ---------------- CLOSE APP
   async function closeApp(index) {
     const app = runningApps.value[index];
-    if (!app) return;
+
+    if (!app || closingApps.has(app.id)) return;
+
+    const appId = app.id;
+    closingApps.add(appId);
 
     try {
-      await requestCloseApp(app.id, client.clientID);
+      await requestCloseApp(appId, client.clientID);
     } catch (err) {
-      errors.raiseError(
-        err,
-        "error",
-        `Error closing app: ${app.manifest.name}`
-      );
+      errors.raiseError(err, "error", `Error closing app: ${app.manifest.name}`);
       return;
+    } finally {
+      closingApps.delete(appId);
     }
 
-    // Keep the same app active when removing an app before it
-    if (index < activeAppIndex.value) {
+    // Recalculate the index because the list may have changed
+    // while the close request was pending.
+    const currentIndex = runningApps.value.findIndex((runningApp) => runningApp.id === appId);
+
+    if (currentIndex === -1) return;
+
+    // Preserve the active app when removing an app before it.
+    if (currentIndex < activeAppIndex.value) {
       activeAppIndex.value--;
+    } else if (currentIndex === activeAppIndex.value) {
+      // Prefer the previous app when the active app is removed.
+      activeAppIndex.value = Math.max(0, activeAppIndex.value - 1);
     }
 
-    runningApps.value.splice(index, 1);
+    runningApps.value.splice(currentIndex, 1);
 
-    alerts.removeAlerts(app.id);
+    alerts.removeAlerts(appId);
 
     const total = runningApps.value.length;
 
@@ -170,27 +143,35 @@ export function useRunningApps(client, changeScreen, alerts) {
       return;
     }
 
-    if (index >= total) {
+    if (activeAppIndex.value >= total) {
       activeAppIndex.value = total - 1;
     }
   }
 
   // ---------------- EXTERNAL APP BY ID
   function closeAppById(appId) {
-    const index = runningApps.value.findIndex(a => a.id === appId);
+    const index = runningApps.value.findIndex((app) => app.id === appId);
+
     if (index !== -1) {
-      closeApp(index);
+      return closeApp(index);
     }
   }
 
   // ---------------- CLOSE APP BY NAME
-  function closeAppByName(appName) {
-    const indexes = runningApps.value
-      .map((app, i) => (app.manifest.name === appName ? i : -1))
-      .filter(i => i !== -1)
-      .reverse();
+  async function closeAppByName(appName) {
+    // Capture IDs instead of indexes to avoid stale indexes.
+    const appIds = runningApps.value
+      .filter((app) => app.manifest.name === appName)
+      .map((app) => app.id);
 
-    indexes.forEach(i => closeApp(i));
+    // Close sequentially so array changes cannot affect later targets.
+    for (const appId of appIds) {
+      const index = runningApps.value.findIndex((app) => app.id === appId);
+
+      if (index !== -1) {
+        await closeApp(index);
+      }
+    }
   }
 
   return {
@@ -205,6 +186,6 @@ export function useRunningApps(client, changeScreen, alerts) {
     openApp,
     closeApp,
     closeAppById,
-    closeAppByName
+    closeAppByName,
   };
 }
