@@ -8,6 +8,7 @@ class Client {
     this.clientID = null; // global
     this.eventCallbacks = {};
     this.ws = null;
+    this.kikxInfo = {};
 
     this.fs = new FileSystemService(this);
     this.system = new SystemService(this);
@@ -65,11 +66,12 @@ class Client {
       this._clearReconnectTimer();
       this._callEvent("ws:onopen", e);
     };
-    this.ws.onmessage = (e) => {
+    this.ws.onmessage = async (e) => {
       try {
         const message = JSON.parse(e.data);
         if (message.event === "connected") {
           this.clientID = message.payload.client_id;
+          this.kikxInfo = await this.system.kikxInfo();
         }
         if (message.event) this._callEvent(message.event, message.payload);
       } catch (err) {
@@ -115,10 +117,11 @@ class Client {
     }
   }
 
-  run(callback) {
+  async run(callback) {
     if (this.ws && this.ws.readyState < WebSocket.CLOSING) return;
     if (typeof callback === "function") this.on("connected", callback);
-    this._connect();
+
+    await this._connect();
   }
 
   addEvent(event, callback) {

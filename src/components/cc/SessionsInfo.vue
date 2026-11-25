@@ -22,9 +22,11 @@
       <!-- Empty state -->
       <div
         v-if="sessions.length === 0"
-        class="flex h-full items-center justify-center text-sm text-white/40"
+        class="flex h-full flex-col items-center justify-center px-6 text-center"
       >
-        No sessions
+        <h3 class="text-sm font-medium text-white/70">No active sessions</h3>
+
+        <p class="mt-1 text-xs text-white/35">Active sessions will appear here.</p>
       </div>
 
       <!-- Sessions -->

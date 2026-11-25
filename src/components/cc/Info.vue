@@ -109,7 +109,7 @@
   const loading = ref(true);
   let intervalId = null;
 
-  const tabs = ["apps", "micro", "sessions"];
+  const tabs = ["apps", "sessions", "micro"];
   const activeTab = ref("apps");
 
   const revealID = ref(false);

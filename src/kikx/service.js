@@ -54,6 +54,8 @@ export class SystemService extends Service {
     return this.fetch("info/client");
   }
 
+  kikxInfo = () => this.fetch("info/kikx");
+
   // Fetch apps info
   fetchAppsList(meta = false) {
     return this.fetch("info/apps-list", {

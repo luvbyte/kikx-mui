@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.6]
+
+### Updates
+
+- Info panel updates
+
 ## [0.4.5]
 
 ### Added

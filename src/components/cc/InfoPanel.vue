@@ -2,9 +2,13 @@
   import { useUIConfig } from "@/stores/kikx";
   import { VERSION } from "@/kikx/config";
 
+  import { useClient } from "@/kikx";
+
   import Info from "./Info.vue";
 
   const uiConfig = useUIConfig();
+
+  const client = useClient();
 
   const emit = defineEmits(["close"]);
 </script>
@@ -18,9 +22,10 @@
     <div
       class="flex items-center justify-between border-b border-white/20 bg-blue-400/60 px-2 py-3"
     >
-      <h1 class="font-semibold tracking-wide text-white">
+      <h1 class="space-x-1 font-semibold tracking-wide text-white">
         MUI
         <span class="rounded-lg bg-white/20 px-2">{{ VERSION }}</span>
+        <span class="rounded-lg bg-white/20 px-2">kikx-{{ client.kikxInfo?.version }}</span>
       </h1>
       <button @click="emit('close')" class="btn btn-xs opacity-80">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
